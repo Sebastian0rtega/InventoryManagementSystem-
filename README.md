@@ -1,2 +1,1 @@
-# InventoryManagementSystem-
-sistema de inventario
+
