@@ -42,9 +42,7 @@ El proyecto simula el flujo de trabajo de una empresa real, utilizando metodolog
 - `main` → protegida, lista para producción.
 - `develop` → rama de integración.
 - `feature/*` → ramas para nuevas funcionalidades.
-   -database
-   -docs
-   -project-setup
+  
    
 
 
