@@ -1,3 +1,5 @@
+**arquitectura**
+
 Frontend: Aplicación web (angular).
 
 Backend: API REST en node.js.
