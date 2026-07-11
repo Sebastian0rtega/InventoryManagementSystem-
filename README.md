@@ -69,5 +69,5 @@ Incluye la planificación inicial y preparación del entorno de desarrollo.
   - seed.sql
   - consultas.sql
 - GitHub Project con Issues.
-- 30 commits con Conventional Commits.
+- alrededor de 30 commits 
 - Pull Requests revisados y aprobados.
