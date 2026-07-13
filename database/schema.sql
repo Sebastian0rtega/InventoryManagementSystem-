@@ -4,13 +4,13 @@
 
 CREATE TABLE Roles (
     roles_id SERIAL PRIMARY KEY,
-    nombre_rol VARCHAR(50) NOT NULL
+    nombre_rol VARCHAR(50) NOT NULL UNIQUE 
 );
 
 CREATE TABLE Usuarios (
     usuarios_id SERIAL PRIMARY KEY,
     roles_id INT REFERENCES Roles(roles_id),
-    email VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE ,
     nombre VARCHAR(100),
     password VARCHAR(100)
 );
@@ -18,16 +18,16 @@ CREATE TABLE Usuarios (
 CREATE TABLE Tiendas (
     tienda_id SERIAL PRIMARY KEY,
     usuarios_id INT REFERENCES Usuarios(usuarios_id),
-    nombre VARCHAR(100),
+    nombre VARCHAR(100) UNIQUE ,
     direccion VARCHAR(150)
 );
 
 CREATE TABLE Clientes (
     clientes_id SERIAL PRIMARY KEY,
     nombre VARCHAR(100),
-    rut VARCHAR(20),
+    rut VARCHAR(20) UNIQUE ,
     telefono VARCHAR(20),
-    email VARCHAR(100)
+    email VARCHAR(100) UNIQUE 
 );
 
 CREATE TABLE Inventarios (
@@ -40,15 +40,15 @@ CREATE TABLE Inventarios (
 
 CREATE TABLE Categoria (
     categoria_id SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL
+    nombre VARCHAR(100) NOT NULL UNIQUE  
 );
 
 CREATE TABLE Productos (
     productos_id SERIAL PRIMARY KEY,
     inventarios_id INT REFERENCES Inventarios(inventarios_id),
     categorias_id INT REFERENCES Categoria(categoria_id),
-    codigo_barras VARCHAR(50),
-    sku VARCHAR(50),
+    codigo_barras VARCHAR(50) UNIQUE ,
+    sku VARCHAR(50) UNIQUE ,
     descripcion TEXT,
     nombre VARCHAR(100),
     precio_venta NUMERIC(10,2),
@@ -61,7 +61,7 @@ CREATE TABLE Ventas (
     ventas_id SERIAL PRIMARY KEY,
     clientes_id INT REFERENCES Clientes(clientes_id),
     tiendas_id INT REFERENCES Tiendas(tienda_id),
-    numero_boleta VARCHAR(50),
+    numero_boleta VARCHAR(50) UNIQUE ,
     fecha_venta DATE,
     total NUMERIC(10,2),
     metodos_pago VARCHAR(50),
@@ -92,7 +92,7 @@ CREATE TABLE Compras (
     compras_id SERIAL PRIMARY KEY,
     productos_id INT REFERENCES Productos(productos_id),
     fecha_compra DATE,
-    numero_factura VARCHAR(50),
+    numero_factura VARCHAR(50) UNIQUE ,
     impuestos NUMERIC(10,2),
     total NUMERIC(10,2)
 );
@@ -111,8 +111,8 @@ CREATE TABLE Proveedores (
     compras_id INT REFERENCES Compras(compras_id),
     razon_social VARCHAR(100),
     nombre_empresa VARCHAR(100),
-    rut_empresa VARCHAR(20),
+    rut_empresa VARCHAR(20) UNIQUE ,
     telefono VARCHAR(20),
-    email VARCHAR(100),
+    email VARCHAR(100) UNIQUE ,
     direccion VARCHAR(150)
 );
