@@ -74,38 +74,52 @@ Incluye la planificación inicial y preparación del entorno de desarrollo.
 
 
 ## Decisiones de diseño
-**1**. El inventario será por tienda, ya que cada sucursal maneja su propio stock.
 
- Se crea la tabla inventarios con producto_id, tienda_id, stock y stock_minimo.
- Permite controlar el stock diferenciado por ubicación y facilita reportes de ventas y compras por tienda.
+## 1. Inventario por tienda
+  El inventario será por tienda, ya que cada sucursal maneja su propio stock.
+  Se utiliza la tabla inventarios con los campos:
 
-**2**. Uso de stock_total y stock_actual
+    producto_id
+
+    tienda_id
+
+    stock_actual
+
+    stock_minimo
+
+  Esto permite controlar el stock diferenciado por ubicación y facilita reportes de ventas y compras por tienda.
+
+## 2. Uso de stock_total y stock_actual  
 Se elimina la duplicación.
 
-  Se mantiene solo stock_actual en la tabla productos y stock_minimo como referencia.
-  stock_total no aporta valor adicional; el control se hace con stock_actual y las reglas de inventario.
+  Se mantiene solo stock_actual en la tabla productos.
+  stock_minimo se conserva como referencia para alertas.
+  stock_total no aporta valor adicional, ya que el control se hace con stock_actual y las reglas de inventario.
 
-**3**. Relación producto–proveedor
-Un producto puede ser comprado a varios proveedores.
+## 3. Relación producto–proveedor
+  Un producto puede ser comprado a varios proveedores.
+  La relación se maneja en la tabla compras con proveedor_id, vinculando cada compra a un proveedor.
+  Esto otorga flexibilidad para abastecimiento y mejores condiciones comerciales.
 
- La relación se maneja en la tabla compras con proveedor_id, vinculando cada compra a un proveedor.
- Flexibilidad para abastecimiento y mejores condiciones comerciales.
+## 4. Reglas de stock (aumenta/disminuye)
 
-**4**. Reglas de stock (aumenta/disminuye)
+  Compra: incrementa el stock del producto en la tienda correspondiente.
 
-Compra: Incrementa el stock del producto en la tienda correspondiente.
+  Venta: disminuye el stock del producto en la tienda correspondiente.
 
-Venta: Disminuye el stock del producto en la tienda correspondiente.
+  Movimiento: ajusta manualmente el stock por devoluciones, pérdidas o correcciones.
 
-Movimiento: Ajusta manualmente el stock por devoluciones, pérdidas o correcciones.
+## 5. Auditoría de movimientos
+  La tabla movimientos_inventario debe incluir referencias opcionales a compras y ventas. Cada movimiento de inventario debe registrar:
 
-**5**. Auditoría de movimientos
- Cada movimiento de inventario debe registrar:
+    producto_id
 
--producto_id
--cantidad
--tipo_movimiento (entrada/salida)
--fecha_movimiento
--motivo
+    cantidad
 
- Permite rastrear el origen de cada cambio en el stock y cumplir con trazabilidad y seguridad.
+    tipo_movimiento (entrada/salida)
+
+    fecha_movimiento
+
+    motivo
+
+  Esto permite rastrear el origen de cada cambio en el stock y cumplir con trazabilidad y seguridad.
