@@ -51,10 +51,10 @@ CREATE TABLE Productos (
     sku VARCHAR(50) UNIQUE NOT NULL,
     descripcion TEXT,
     nombre VARCHAR(100) NOT NULL,
-    precio_venta NUMERIC(10,2)NOT NULL,
-    stock_minimo INT NOT NULL,
-    stock_actual INT NOT NULL,
-    precio_compra NUMERIC(10,2) NOT NULL
+    precio_venta NUMERIC(10,2)NOT NULL check(precio_venta >= 0),
+    stock_minimo INT NOT NULL check(stock_minimo >= 0),
+    stock_actual INT NOT NULL check(stock_actual >= 0),
+    precio_compra NUMERIC(10,2) NOT NULL check(precio_compra >= 0)
 );
 
 CREATE TABLE Ventas (
@@ -63,27 +63,27 @@ CREATE TABLE Ventas (
     tiendas_id INT REFERENCES Tiendas(tienda_id),
     numero_boleta VARCHAR(50) UNIQUE NOT NULL,
     fecha_venta DATE NOT NULL,
-    total NUMERIC(10,2) NOT NULL,
+    total NUMERIC(10,2) NOT NULL check(total >= 0),
     metodos_pago VARCHAR(50) NOT NULL,
-    impuestos NUMERIC(10,2) NOT NULL,
-    sub_total NUMERIC(10,2) NOT NULL,
+    impuestos NUMERIC(10,2) NOT NULL check(impuestos >= 0),
+    sub_total NUMERIC(10,2) NOT NULL check(sub_total >= 0),
     descuento NUMERIC(10,2) 
 );
 
 CREATE TABLE Detalle_Ventas (
     detalle_ventas_id SERIAL PRIMARY KEY,
     ventas_id INT REFERENCES Ventas(ventas_id),
-    cantidad INT NOT NULL,
-    precio_unitario NUMERIC(10,2) NOT NULL,
+    cantidad INT NOT NULL check(cantidad >= 0),
+    precio_unitario NUMERIC(10,2) NOT NULL check(precio_unitario >= 0),
     descuento_aplicado NUMERIC(10,2) NOT NULL,
-    precio_total NUMERIC(10,2) NOT NULL
+    precio_total NUMERIC(10,2) NOT NULL check(precio_total >= 0)
 );
 
 CREATE TABLE Movimientos_Inventario (
     movimientos_inventario_id SERIAL PRIMARY KEY,
     productos_id INT REFERENCES Productos(productos_id),
     tipo_movimiento VARCHAR(50) NOT NULL,
-    cantidad INT NOT NULL,
+    cantidad INT NOT NULL check(cantidad >= 0),
     fecha_movimiento DATE NOT NULL,
     motivo TEXT
 );
@@ -93,16 +93,16 @@ CREATE TABLE Compras (
     productos_id INT REFERENCES Productos(productos_id),
     fecha_compra DATE NOT NULL,
     numero_factura VARCHAR(50) UNIQUE NOT NULL,
-    impuestos NUMERIC(10,2) NOT NULL,
-    total NUMERIC(10,2) NOT NULL
+    impuestos NUMERIC(10,2) NOT NULL check(impuestos >= 0),
+    total NUMERIC(10,2) NOT NULL check(total >= 0)
 );
 
 CREATE TABLE Detalle_Compras (
     detalle_compra_id SERIAL PRIMARY KEY,
     compras_id INT REFERENCES Compras(compras_id),
-    cantidad INT NOT NULL,
-    precio_unitario NUMERIC(10,2) NOT NULL,
-    precio_total NUMERIC(10,2) NOT NULL,
+    cantidad INT NOT NULL check(cantidad >= 0),
+    precio_unitario NUMERIC(10,2) NOT NULL check(precio_unitario >= 0),
+    precio_total NUMERIC(10,2) NOT NULL check(precio_total >= 0),
     metodo_pago VARCHAR(50) NOT NULL
 );
 
