@@ -141,3 +141,11 @@ Se elimina la duplicación.
     motivo
 
   Esto permite rastrear el origen de cada cambio en el stock y cumplir con trazabilidad y seguridad.
+
+## Autor
+
+Sebastian Ortega
+
+## Licencia
+
+Este proyecto está distribuido bajo la licencia MIT. Consulte el archivo LICENSE para más información.
