@@ -12,33 +12,33 @@ El proyecto simula el flujo de trabajo de una empresa real, utilizando metodolog
 - Generar reportes y exportar datos a Excel.
 - Desplegar con Docker y CI/CD en la nube.
 
-##  Tecnologías
-- **Backend:** Node.js / Express
-- **Frontend:** React
+## Tecnologías
+- **Frontend:** Angular + TypeScript
+- **Backend:** Node.js + Express + TypeScript
 - **Base de Datos:** PostgreSQL
 - **ORM:** Sequelize
 - **Infraestructura:** Docker, GitHub Actions, Cloud Deploy
 - **Control de versiones:** Git + GitHub
 
-##  Arquitectura propuesta
-- **Frontend:** SPA en React
-- **Backend:** API REST en Node.js
+## Arquitectura propuesta
+- **Frontend:** SPA en Angular
+- **Backend:** API REST en Node.js + Express
 - **Base de datos:** PostgreSQL con modelo relacional
 - **Infraestructura:** Contenedores Docker + CI/CD
 
- Roadmap del Bootcamp
-- **Semana 1:** Sprint 0 – Planificación, repositorio, base de datos, documentación.
+## Roadmap
 
-(suposicion)
-- **Semana 2:** Autenticación y roles.
-- **Semana 3:** CRUD de productos y categorías.
-- **Semana 4:** Proveedores y clientes.
-- **Semana 5:** Compras y ventas.
-- **Semana 6:** Movimientos de inventario y reportes.
-- **Semana 7:** Docker y CI/CD.
-- **Semana 8:** Deploy en la nube.
+- **Sprint 0 (Semana 1):** Configuración inicial del repositorio, GitHub Project, Issues, diseño de base de datos, documentación.
+- **Sprint 1 (Semana 2):** Implementar autenticación y roles de usuario.
+- **Sprint 2 (Semana 3):** CRUD de productos y categorías.
+- **Sprint 3 (Semana 4):** CRUD de proveedores y clientes.
+- **Sprint 4 (Semana 5):** Módulo de compras y ventas.
+- **Sprint 5 (Semana 6):** Movimientos de inventario y reportes básicos.
+- **Sprint 6 (Semana 7):** Dashboard y exportación a Excel.
+- **Sprint 7 (Semana 8):** Integración con Docker, CI/CD y despliegue en la nube.
 
-##  Modelo de ramas (Git Flow)
+
+## Modelo de ramas (Git Flow)
 - `main` → protegida, lista para producción.
 - `develop` → rama de integración.
 - `feature/*` → ramas para nuevas funcionalidades.
@@ -49,8 +49,26 @@ El proyecto simula el flujo de trabajo de una empresa real, utilizando metodolog
 # Instalación
 1. Clonar el repositorio:
    ```bash
-   git clone git@github.com:usuario/inventory-management-system.git
+   git clone https://github.com/Sebastian0rtega/InventoryManagementSystem-.git
 
+## Estructura 
+InventoryManagementSystem/
+│
+├── .gitignore
+├── LICENSE
+├── README.md
+│
+├── database/
+│   ├── schema.sql
+│   ├── seed.sql
+│   └── consultas.sql
+│
+└── docs/
+    ├── arquitectura.md
+    ├── requerimientos.md
+    ├── roadmap.md
+    ├── modelo-entidad-relacion.drawio
+    └── modelo-entidad-relacion.drawio.png
 
 
 # Release v0.1.0 - Sprint 0

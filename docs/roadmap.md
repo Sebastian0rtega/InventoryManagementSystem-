@@ -1,8 +1,6 @@
 ## Roadmap
 
 - **Sprint 0 (Semana 1):** Configuración inicial del repositorio, GitHub Project, Issues, diseño de base de datos, documentación.
-
-(estimacion)
 - **Sprint 1 (Semana 2):** Implementar autenticación y roles de usuario.
 - **Sprint 2 (Semana 3):** CRUD de productos y categorías.
 - **Sprint 3 (Semana 4):** CRUD de proveedores y clientes.
