@@ -68,7 +68,7 @@ InventoryManagementSystem/
     ├── requerimientos.md
     ├── roadmap.md
     ├── modelo-entidad-relacion.drawio
-    └── modelo-entidad-relacion.drawio.png
+    └── modelo-entidad-relacion.drawio.png.
 
 
 # Release v0.1.0 - Sprint 0
