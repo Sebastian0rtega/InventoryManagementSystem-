@@ -1,79 +1,100 @@
+
 -- SEED--
 
-
-INSERT INTO Roles (nombre_rol) VALUES
+INSERT INTO roles (nombre_rol)
+VALUES
 ('Administrador'),
 ('Vendedor'),
 ('Bodeguero');
 
-
-INSERT INTO Usuarios (roles_id, email, nombre, password) VALUES
-(1, 'admin@tienda.com', 'Carlos Admin', 'demo123'),
-(2, 'vendedor@tienda.com', 'Lucía Vendedor', 'demo123'),
-(3, 'bodega@tienda.com', 'Pedro Bodega', 'demo123');
-
-
-INSERT INTO Tiendas (usuarios_id, nombre, direccion) VALUES
-(1, 'Tienda Central', 'Av. Principal 123'),
-(2, 'Sucursal Norte', 'Calle Norte 456');
-
-
-INSERT INTO Clientes (nombre, rut, telefono, email) VALUES
-('Juan Pérez', '11111111-1', '912345678', 'juanperez@mail.com'),
-('María López', '22222222-2', '987654321', 'marialopez@mail.com');
-
-
-INSERT INTO Categoria (nombre) VALUES
-('Electrónica'),
-('Alimentos'),
-('Ropa');
-
-INSERT INTO Productos (categorias_id, codigo_barras, sku, descripcion, nombre, precio_venta, stock_minimo, stock_actual, precio_compra)
+INSERT INTO tiendas (nombre, direccion)
 VALUES
-(1, '1234567890123', 'ELEC001', 'Smartphone gama media', 'Smartphone X', 250000, 5, 20, 180000),
-(2, '9876543210987', 'FOOD001', 'Caja de cereales', 'Cereal Crunch', 3500, 10, 50, 2000),
-(3, '4567891234567', 'CLOT001', 'Polera algodón', 'Polera Blanca', 8000, 15, 100, 5000);
+('Casa Matriz', 'Av. Libertad 123'),
+('Sucursal Norte', 'Av. Norte 456');
 
+INSERT INTO categorias (nombre)
+VALUES
+('Lácteos'),
+('Bebidas'),
+('Abarrotes'),
+('Limpieza');
 
-INSERT INTO Inventarios (tiendas_id, productos_id, stock_productos, localizacion, stock_minimo) VALUES
-(1, 1, 20, 'Bodega Central', 5),
-(1, 2, 50, 'Estante A1', 10),
-(2, 3, 100, 'Sucursal Norte - Rack 3', 15);
+INSERT INTO clientes
+(nombre,rut,telefono,email)
+VALUES
+('Juan Pérez','11111111-1','987654321','juan@email.com'),
+('María González','22222222-2','912345678','maria@email.com'),
+('Pedro Soto','33333333-3','923456789','pedro@email.com');
 
+INSERT INTO proveedores
+(razon_social,nombre_empresa,rut_empresa,telefono,email,direccion)
+VALUES
+('Distribuidora Sur','Distribuidora Sur SPA','76111111-1','22334455','contacto@distsur.cl','Valparaíso'),
+('Alimentos Chile','Alimentos Chile Ltda','76222222-2','22445566','ventas@alimentos.cl','Santiago');
 
-INSERT INTO Proveedores (razon_social, nombre_empresa, rut_empresa, telefono, email, direccion) VALUES
-('Proveedor Electrónica', 'ElectroChile', '33333333-3', '912345678', 'contacto@electrochile.com', 'Av. Tecnológica 789'),
-('Proveedor Alimentos', 'FoodCorp', '44444444-4', '987654321', 'ventas@foodcorp.com', 'Calle Industrial 321'),
-('Proveedor Ropa', 'Moda SA', '55555555-5', '934567890', 'info@modasa.com', 'Av. Moda 654');
+INSERT INTO productos
+(categoria_id,codigo_barras,sku,descripcion,nombre,precio_venta,precio_compra)
+VALUES
+(1,'780100000001','LEC001','Leche Entera 1L','Leche Soprole',1200,850),
+(1,'780100000002','QUE001','Queso Gauda','Queso Gauda',4500,3500),
+(2,'780100000003','BEB001','Bebida Cola 1.5L','Coca Cola',2200,1500),
+(2,'780100000004','JUG001','Jugo Naranja','Watts Naranja',1800,1200),
+(3,'780100000005','ARR001','Arroz Grado 1','Arroz Tucapel',1700,1200),
+(4,'780100000006','DET001','Detergente Líquido','Omo 3L',8500,6500);
 
+INSERT INTO usuarios
+(rol_id,tienda_id,email,nombre,password)
+VALUES
+(1,1,'admin@empresa.cl','Administrador','admin123'),
+(2,1,'vendedor@empresa.cl','Carlos Díaz','venta123'),
+(3,2,'bodega@empresa.cl','Ana Torres','bodega123');
 
-INSERT INTO Compras (proveedores_id, productos_id, fecha_compra, total) VALUES
-(1, 1, '2026-07-01', 900000),
-(2, 2, '2026-07-02', 100000),
-(3, 3, '2026-07-03', 500000);
+INSERT INTO inventarios
+(tienda_id,producto_id,stock_actual,localizacion,stock_minimo)
+VALUES
+(1,1,80,'A-01',20),
+(2,2,40,'A-02',10);
 
-INSERT INTO Detalle_Compras (compras_id, cantidad, sku, numero_boleta, precio_unitario, subtotal, costo, metodo_pago) VALUES
-(1, 5, 'ELEC001', 'BOL001', 180000, 900000, 900000, 'Transferencia'),
-(2, 50, 'FOOD001', 'BOL002', 2000, 100000, 100000, 'Efectivo'),
-(3, 100, 'CLOT001', 'BOL003', 5000, 500000, 500000, 'Crédito');
+INSERT INTO compras
+(proveedor_id,tienda_id,fecha_compra,total,metodo_pago,numero_documento,tipo_documento)
+VALUES
+(1,1,'2026-07-01',250000,'Transferencia',1001,'Factura'),
+(2,2,'2026-07-05',180000,'Transferencia',1002,'Factura');
 
+INSERT INTO detalle_compras
+(compra_id,producto_id,cantidad,numero_boleta,precio_unitario,subtotal)
+VALUES
+(1,1,100,'FC-1001',850,85000),
+(1,3,80,'FC-1002',1500,120000),
+(2,2,40,'FC-1003',3500,140000),
+(2,6,20,'FC-1004',6500,130000);
 
-INSERT INTO Ventas (clientes_id, productos_id, fecha_venta, total) VALUES
-(1, 1, '2026-07-05', 250000),
-(2, 2, '2026-07-06', 7000),
-(1, 3, '2026-07-07', 16000);
+INSERT INTO ventas
+(cliente_id,tienda_id,fecha_venta,total,metodo_pago,numero_documento,tipo_documento)
+VALUES
+(1,1,'2026-07-08',9600,'Débito',5001,'Boleta'),
+(2,1,'2026-07-09',6700,'Efectivo',5002,'Boleta'),
+(3,2,'2026-07-10',15700,'Crédito',5003,'Factura');
 
+INSERT INTO detalle_ventas
+(producto_id,venta_id,cantidad,precio_unitario,subtotal)
+VALUES
+(1,1,3,1200,3600),
+(3,1,2,2200,4400),
+(5,1,1,1600,1600),
 
-INSERT INTO Detalle_Ventas (productos_id, ventas_id, numero_boleta, sku, cantidad, precio_unitario, metodo_pago, precio_total) VALUES
-(1, 1, 'VENT001', 'ELEC001', 1, 250000, 'Crédito', 250000),
-(2, 2, 'VENT002', 'FOOD001', 2, 3500, 'Efectivo', 7000),
-(3, 3, 'VENT003', 'CLOT001', 2, 8000, 'Débito', 16000);
+(2,2,1,4500,4500),
+(4,2,1,1800,1800),
 
+(6,3,1,8500,8500),
+(3,3,2,2200,4400),
+(1,3,2,1200,2400);
 
-INSERT INTO Movimientos_Inventario (productos_id, tipo_movimiento, cantidad, fecha_movimiento, motivo) VALUES
-(1, 'Entrada', 5, '2026-07-01', 'Compra proveedor ElectroChile'),
-(2, 'Entrada', 50, '2026-07-02', 'Compra proveedor FoodCorp'),
-(3, 'Entrada', 100, '2026-07-03', 'Compra proveedor Moda SA'),
-(1, 'Salida', 1, '2026-07-05', 'Venta a cliente Juan Pérez'),
-(2, 'Salida', 2, '2026-07-06', 'Venta a cliente María López'),
-(3, 'Salida', 2, '2026-07-07', 'Venta a cliente Juan Pérez');
+INSERT INTO movimientos_inventarios
+(inventario_id,producto_id,tipo_movimiento,cantidad,fecha_movimiento,motivo)
+VALUES
+(1,1,'ENTRADA',100,'2026-07-01','Compra proveedor'),
+(1,1,'SALIDA',3,'2026-07-08','Venta'),
+
+(2,2,'ENTRADA',40,'2026-07-05','Compra proveedor'),
+(2,2,'SALIDA',1,'2026-07-09','Venta');

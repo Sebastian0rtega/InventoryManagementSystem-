@@ -40,7 +40,7 @@ El proyecto simula el flujo de trabajo de una empresa real, utilizando metodolog
 
 ## Modelo de ramas (Git Flow)
 - `main` → protegida, lista para producción.
-- `develop` → rama de integración.
+- `dev` → rama de integración.
 - `feature/*` → ramas para nuevas funcionalidades.
   
    
@@ -91,61 +91,33 @@ Incluye la planificación inicial y preparación del entorno de desarrollo.
 - Pull Requests revisados y aprobados.
 
 
-## Decisiones de diseño
+## 3.2 Decisiones de diseño documentadas
 
-## 1. Inventario por tienda
-  El inventario será por tienda, ya que cada sucursal maneja su propio stock.
-  Se utiliza la tabla inventarios con los campos:
+- **Inventario por tienda**  
+  El inventario se gestiona por **tienda**, no de forma global. Se utiliza la tabla `inventarios` con las columnas `producto_id`, `tienda_id`, `stock_actual` y `stock_minimo`. Esto permite controlar el stock específico de cada sucursal.
 
-    producto_id
+- **Stock_actual vs stock_total**  
+  Se elimina la duplicación: solo se mantiene `stock_actual`. El campo `stock_total` no se utiliza porque el inventario es por tienda y no global. `stock_actual` representa la cantidad disponible en esa tienda.
 
-    tienda_id
+- **Relación producto-proveedor**  
+  Un producto puede ser comprado a **varios proveedores**. No existe un proveedor principal fijo. La relación se establece a través de las tablas `compras` y `detalle_compras`, donde cada compra vincula un producto con el proveedor correspondiente.
 
-    stock_actual
+- **Reglas de stock**  
+  - Una **compra** incrementa el `stock_actual` del producto en la tienda correspondiente.  
+  - Una **venta** disminuye el `stock_actual`.  
+  - Cada modificación genera un registro en `movimientos_inventarios` para trazabilidad.
 
-    stock_minimo
+- **Auditoría de movimientos**  
+  Los movimientos de inventario se auditan con:  
+  - `producto_id` y `inventario_id` para identificar qué stock cambió.  
+  - `tipo_movimiento` (compra, venta, ajuste).  
+  - `cantidad` y `fecha_movimiento`.  
+  - `motivo` para documentar la razón.  
+  - Opcionalmente, referencias a `compra_id` o `venta_id` pueden añadirse para vincular el origen exacto del movimiento.
 
-  Esto permite controlar el stock diferenciado por ubicación y facilita reportes de ventas y compras por tienda.
-
-## 2. Uso de stock_total y stock_actual  
-Se elimina la duplicación.
-
-  Se mantiene solo stock_actual en la tabla productos.
-  stock_minimo se conserva como referencia para alertas.
-  stock_total no aporta valor adicional, ya que el control se hace con stock_actual y las reglas de inventario.
-
-## 3. Relación producto–proveedor
-  Un producto puede ser comprado a varios proveedores.
-  La relación se maneja en la tabla compras con proveedor_id, vinculando cada compra a un proveedor.
-  Esto otorga flexibilidad para abastecimiento y mejores condiciones comerciales.
-
-## 4. Reglas de stock (aumenta/disminuye)
-
-  Compra: incrementa el stock del producto en la tienda correspondiente.
-
-  Venta: disminuye el stock del producto en la tienda correspondiente.
-
-  Movimiento: ajusta manualmente el stock por devoluciones, pérdidas o correcciones.
-
-## 5. Auditoría de movimientos
-  La tabla movimientos_inventario debe incluir referencias opcionales a compras y ventas. Cada movimiento de inventario debe registrar:
-
-    producto_id
-
-    cantidad
-
-    tipo_movimiento (entrada/salida)
-
-    fecha_movimiento
-
-    motivo
-
-  Esto permite rastrear el origen de cada cambio en el stock y cumplir con trazabilidad y seguridad.
 
 ## Autor
-
 Sebastian Ortega
 
 ## Licencia
-
 Este proyecto está distribuido bajo la licencia MIT. Consulte el archivo LICENSE para más información.
