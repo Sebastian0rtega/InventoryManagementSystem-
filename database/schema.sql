@@ -40,13 +40,15 @@ CREATE TABLE productos (
     precio_venta NUMERIC(10,2)NOT NULL check(precio_venta > 0),
     precio_compra NUMERIC(10,2) NOT NULL check(precio_compra > 0)
 );
+
 CREATE TABLE usuarios (
     usuario_id SERIAL PRIMARY KEY,
     rol_id INT REFERENCES roles(rol_id) NOT NULL,
     tienda_id INT REFERENCES tiendas(tienda_id) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE ,
     nombre VARCHAR(100)NOT NULL,
-    password VARCHAR(100) NOT NULL
+    password VARCHAR(100) NOT NULL --en Semana 2 se almacenarán hashes.
+
 );
 CREATE TABLE inventarios (
     inventario_id SERIAL PRIMARY KEY ,
