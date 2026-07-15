@@ -71,3 +71,6 @@ Incluye la planificación inicial y preparación del entorno de desarrollo.
 - GitHub Project con Issues.
 - alrededor de 30 commits 
 - Pull Requests revisados y aprobados.
+
+
+## El proyecto compila, lint no falla, el servidor inicia sin warnings propios y /api/health responde 200.
