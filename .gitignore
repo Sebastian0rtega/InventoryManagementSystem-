@@ -1,1 +1,5 @@
 prueba.txt
+node_modules/
+dist/
+.env
+*.log

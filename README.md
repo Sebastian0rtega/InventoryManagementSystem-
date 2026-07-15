@@ -20,9 +20,9 @@ El proyecto simula el flujo de trabajo de una empresa real, utilizando metodolog
 - **Infraestructura:** Docker, GitHub Actions, Cloud Deploy
 - **Control de versiones:** Git + GitHub
 
-## Arquitectura propuesta
+##  Arquitectura propuesta
 - **Frontend:** SPA en Angular
-- **Backend:** API REST en Node.js + Express
+- **Backend:** API REST en Node.js
 - **Base de datos:** PostgreSQL con modelo relacional
 - **Infraestructura:** Contenedores Docker + CI/CD
 
@@ -91,33 +91,4 @@ Incluye la planificación inicial y preparación del entorno de desarrollo.
 - Pull Requests revisados y aprobados.
 
 
-## 3.2 Decisiones de diseño documentadas
-
-- **Inventario por tienda**  
-  El inventario se gestiona por **tienda**, no de forma global. Se utiliza la tabla `inventarios` con las columnas `producto_id`, `tienda_id`, `stock_actual` y `stock_minimo`. Esto permite controlar el stock específico de cada sucursal.
-
-- **Stock_actual vs stock_total**  
-  Se elimina la duplicación: solo se mantiene `stock_actual`. El campo `stock_total` no se utiliza porque el inventario es por tienda y no global. `stock_actual` representa la cantidad disponible en esa tienda.
-
-- **Relación producto-proveedor**  
-  Un producto puede ser comprado a **varios proveedores**. No existe un proveedor principal fijo. La relación se establece a través de las tablas `compras` y `detalle_compras`, donde cada compra vincula un producto con el proveedor correspondiente.
-
-- **Reglas de stock**  
-  - Una **compra** incrementa el `stock_actual` del producto en la tienda correspondiente.  
-  - Una **venta** disminuye el `stock_actual`.  
-  - Cada modificación genera un registro en `movimientos_inventarios` para trazabilidad.
-
-- **Auditoría de movimientos**  
-  Los movimientos de inventario se auditan con:  
-  - `producto_id` y `inventario_id` para identificar qué stock cambió.  
-  - `tipo_movimiento` (compra, venta, ajuste).  
-  - `cantidad` y `fecha_movimiento`.  
-  - `motivo` para documentar la razón.  
-  - Opcionalmente, referencias a `compra_id` o `venta_id` pueden añadirse para vincular el origen exacto del movimiento.
-
-
-## Autor
-Sebastian Ortega
-
-## Licencia
-Este proyecto está distribuido bajo la licencia MIT. Consulte el archivo LICENSE para más información.
+## El proyecto compila, lint no falla, el servidor inicia sin warnings propios y /api/health responde 200
