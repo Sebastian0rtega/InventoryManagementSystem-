@@ -1,5 +1,5 @@
 {
-  "name": "inventory-backend",
+  "name": "Inventory-Backend",
   "version": "1.0.0",
   "description": "Backend para el sistema de control de inventario",
   "main": "dist/server.js",
@@ -11,8 +11,8 @@
     "format": "prettier --write \"src/**/*.ts\""
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Sebastian Ortega",
+  "license": "MIT",
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
