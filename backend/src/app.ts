@@ -1,7 +1,7 @@
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import helmet from 'helmet';
-import { errorHandler } from './middlewares/errorHandler';
+import express, { Request, Response } from "express";
+import cors from "cors";
+import helmet from "helmet";
+import { errorHandler } from "./middlewares/errorHandler";
 
 const app = express();
 
@@ -11,10 +11,10 @@ app.use(cors());
 app.use(express.json());
 
 // Endpoint de salud obligatorio del Sprint
-app.get('/api/health', (req: Request, res: Response) => {
+app.get("/api/health", (req: Request, res: Response) => {
   res.status(200).json({
-    status: 'ok',
-    service: 'inventory-api'
+    status: "ok",
+    service: "inventory-api",
   });
 });
 
@@ -23,9 +23,9 @@ app.use((req: Request, res: Response) => {
   res.status(404).json({
     success: false,
     error: {
-      code: 'NOT_FOUND',
-      message: `La ruta ${req.originalUrl} no existe en este servidor.`
-    }
+      code: "NOT_FOUND",
+      message: `La ruta ${req.originalUrl} no existe en este servidor.`,
+    },
   });
 });
 
