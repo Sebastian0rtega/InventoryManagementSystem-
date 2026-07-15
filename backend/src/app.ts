@@ -5,12 +5,12 @@ import { errorHandler } from "./middlewares/errorHandler";
 
 const app = express();
 
-// Seguridad base y parsing de peticiones
+
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// Endpoint de salud obligatorio del Sprint
+
 app.get("/api/health", (req: Request, res: Response) => {
   res.status(200).json({
     status: "ok",
@@ -18,7 +18,6 @@ app.get("/api/health", (req: Request, res: Response) => {
   });
 });
 
-// Manejador de rutas inexistentes (404)
 app.use((req: Request, res: Response) => {
   res.status(404).json({
     success: false,
@@ -29,7 +28,7 @@ app.use((req: Request, res: Response) => {
   });
 });
 
-// Middleware centralizado de errores
+
 app.use(errorHandler);
 
 export default app;
