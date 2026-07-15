@@ -14,14 +14,14 @@ El proyecto simula el flujo de trabajo de una empresa real, utilizando metodolog
 
 ##  Tecnologías
 - **Backend:** Node.js / Express
-- **Frontend:** React
+- **Frontend:** Angular + typescript
 - **Base de Datos:** PostgreSQL
 - **ORM:** Sequelize
 - **Infraestructura:** Docker, GitHub Actions, Cloud Deploy
 - **Control de versiones:** Git + GitHub
 
 ##  Arquitectura propuesta
-- **Frontend:** SPA en React
+- **Frontend:** SPA en Angular
 - **Backend:** API REST en Node.js
 - **Base de datos:** PostgreSQL con modelo relacional
 - **Infraestructura:** Contenedores Docker + CI/CD
@@ -40,7 +40,7 @@ El proyecto simula el flujo de trabajo de una empresa real, utilizando metodolog
 
 ##  Modelo de ramas (Git Flow)
 - `main` → protegida, lista para producción.
-- `develop` → rama de integración.
+- `dev` → rama de integración.
 - `feature/*` → ramas para nuevas funcionalidades.
   
    
@@ -73,4 +73,4 @@ Incluye la planificación inicial y preparación del entorno de desarrollo.
 - Pull Requests revisados y aprobados.
 
 
-## El proyecto compila, lint no falla, el servidor inicia sin warnings propios y /api/health responde 200.
+## El proyecto compila, lint no falla, el servidor inicia sin warnings propios y /api/health responde 200
