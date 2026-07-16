@@ -66,7 +66,7 @@ CREATE TABLE ventas (
     fecha_venta DATE,
     total NUMERIC(10,2) check(total > 0),
     metodo_pago VARCHAR(50),
-    numero_documento INT UNIQUE,
+    numero_documento VARCHAR(50),
     tipo_documento TEXT
 );
 CREATE TABLE compras (
@@ -76,7 +76,7 @@ CREATE TABLE compras (
     fecha_compra DATE NOT NULL,
     total NUMERIC(10,2) NOT NULL check(total > 0),
     metodo_pago VARCHAR(50),
-    numero_documento INT UNIQUE,
+    numero_documento VARCHAR(50),
     tipo_documento TEXT
 );
 CREATE TABLE detalle_ventas (
@@ -92,7 +92,6 @@ CREATE TABLE detalle_compras (
     compra_id INT NOT NULL REFERENCES compras(compra_id) ,
     producto_id INT NOT NULL REFERENCES productos(producto_id) ,
     cantidad INT NOT NULL check(cantidad > 0),
-    numero_boleta VARCHAR(50) UNIQUE,
     precio_unitario NUMERIC(10,2) NOT NULL check(precio_unitario > 0),
     subtotal NUMERIC(10,2) NOT NULL CHECK(subtotal > 0)
 );
