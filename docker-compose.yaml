@@ -4,15 +4,15 @@ services:
     container_name: inventory_postgres
     restart: always
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: sktrw
-      POSTGRES_DB: inventory_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5432:5432"
     volumes:
       - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d inventory_db"]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $inventory_db"]
       interval: 5s
       timeout: 5s
       retries: 5
