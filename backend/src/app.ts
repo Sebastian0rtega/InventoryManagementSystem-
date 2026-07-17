@@ -18,6 +18,15 @@ app.get("/api/health", (req: Request, res: Response) => {
   });
 });
 
+app.get('/api/health/database', async (req, res) => {
+  try {
+    await sequelize.authenticate();
+    res.status(200).json({ status: 'connected', message: 'Conexión a PostgreSQL exitosa.' });
+  } catch (error) {
+    res.status(500).json({ status: 'disconnected', error: (error as Error).message });
+  }
+});
+
 app.use((req: Request, res: Response) => {
   res.status(404).json({
     success: false,
@@ -28,14 +37,6 @@ app.use((req: Request, res: Response) => {
   });
 });
 
-app.get('/api/health/database', async (req, res) => {
-  try {
-    await sequelize.authenticate();
-    res.status(200).json({ status: 'connected', message: 'Conexión a PostgreSQL exitosa.' });
-  } catch (error) {
-    res.status(500).json({ status: 'disconnected', error: (error as Error).message });
-  }
-});
 
 app.use(errorHandler);
 

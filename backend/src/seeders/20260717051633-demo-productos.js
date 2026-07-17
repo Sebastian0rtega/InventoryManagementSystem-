@@ -10,7 +10,9 @@ module.exports = {
         descripcion: 'Leche Entera 1L',
         nombre: 'Leche Soprole',
         precio_venta: 1200.00,
-        precio_compra: 850.00
+        precio_compra: 850.00, 
+        created_at: new Date(), 
+        updated_at: new Date()
       },
       {
         categoria_id: 1,
@@ -19,7 +21,9 @@ module.exports = {
         descripcion: 'Queso Gauda',
         nombre: 'Queso Gauda',
         precio_venta: 4500.00,
-        precio_compra: 3500.00
+        precio_compra: 3500.00, 
+        created_at: new Date(), 
+        updated_at: new Date()
       },
       {
         categoria_id: 2,
@@ -28,7 +32,9 @@ module.exports = {
         descripcion: 'Bebida Cola 1.5L',
         nombre: 'Coca Cola',
         precio_venta: 2200.00,
-        precio_compra: 1500.00
+        precio_compra: 1500.00, 
+        created_at: new Date(), 
+        updated_at: new Date()
       },
       {
         categoria_id: 2,
@@ -37,7 +43,9 @@ module.exports = {
         descripcion: 'Jugo Naranja',
         nombre: 'Watts Naranja',
         precio_venta: 1800.00,
-        precio_compra: 1200.00
+        precio_compra: 1200.00, 
+        created_at: new Date(), 
+        updated_at: new Date()
       },
       {
         categoria_id: 3,
@@ -46,7 +54,9 @@ module.exports = {
         descripcion: 'Arroz Grado 1',
         nombre: 'Arroz Tucapel',
         precio_venta: 1700.00,
-        precio_compra: 1200.00
+        precio_compra: 1200.00, 
+        created_at: new Date(), 
+        updated_at: new Date()
       },
       {
         categoria_id: 4,
@@ -55,7 +65,9 @@ module.exports = {
         descripcion: 'Detergente Líquido',
         nombre: 'Omo 3L',
         precio_venta: 8500.00,
-        precio_compra: 6500.00
+        precio_compra: 6500.00, 
+        created_at: new Date(), 
+        updated_at: new Date()
       }
     ], {});
   },
