@@ -3,7 +3,7 @@
 
 CREATE TABLE roles (
     rol_id SERIAL PRIMARY KEY,
-    nombre_rol VARCHAR(50) NOT NULL  
+    nombre_rol VARCHAR(50) NOT NULL UNIQUE 
 );
 CREATE TABLE tiendas (
     tienda_id SERIAL PRIMARY KEY,
@@ -12,13 +12,13 @@ CREATE TABLE tiendas (
 );
 CREATE TABLE categorias (
     categoria_id SERIAL PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL 
+    nombre VARCHAR(100) NOT NULL UNIQUE
 );
 CREATE TABLE clientes (
     cliente_id SERIAL PRIMARY KEY,
     nombre VARCHAR(100)NOT NULL,
     rut VARCHAR(20) UNIQUE NOT NULL,
-    telefono VARCHAR(20),
+    telefono VARCHAR(20) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL
 );
 CREATE TABLE proveedores (
@@ -35,7 +35,7 @@ CREATE TABLE productos (
     categoria_id INT NOT NULL REFERENCES categorias(categoria_id) ,
     codigo_barras VARCHAR(50) UNIQUE NOT NULL,
     sku VARCHAR(50) UNIQUE NOT NULL,
-    descripcion TEXT,
+    descripcion TEXT NOT NULL,
     nombre VARCHAR(100) NOT NULL,
     precio_venta NUMERIC(10,2)NOT NULL check(precio_venta > 0),
     precio_compra NUMERIC(10,2) NOT NULL check(precio_compra > 0)

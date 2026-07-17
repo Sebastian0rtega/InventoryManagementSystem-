@@ -10,7 +10,8 @@ module.exports = {
       },
       nombre: {
         type: Sequelize.STRING(100),
-        allowNull: false
+        allowNull: false,
+        unique: true
       }
     });
   },
