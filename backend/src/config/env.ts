@@ -9,7 +9,7 @@ const requiredEnv = [
   "DB_USER",
   "DB_PASSWORD",
   "JWT_SECRET",
-]as const;
+] as const;
 
 for (const envName of requiredEnv) {
   if (!process.env[envName]) {
