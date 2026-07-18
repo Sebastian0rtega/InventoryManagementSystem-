@@ -8,7 +8,7 @@ module.exports = {
         tienda_id: 1,
         email: 'admin@inventory.com',
         nombre: 'Administrador Global',
-        password_hash: 'admin_plain_password_change_me_semana_2' 
+        password_hash: '$2b$10$EPY9m2vN6pG3pE5J5fMvO.MWhb0N69G7k1234567890abcdefghij' 
       }
     ], {});
   },
