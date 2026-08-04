@@ -7,6 +7,7 @@ module.exports = {
 
     await queryInterface.bulkInsert('usuarios', [
       {
+        usuario_id:1,
         rol_id: 1, 
         tienda_id: 1,
         email: 'admin@inventory.com',
