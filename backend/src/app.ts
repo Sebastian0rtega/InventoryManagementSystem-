@@ -2,7 +2,7 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { errorHandler } from "./middlewares/errorHandler";
-
+import sequelize from './config/db';
 const app = express();
 
 
@@ -16,6 +16,15 @@ app.get("/api/health", (req: Request, res: Response) => {
     status: "ok",
     service: "inventory-api",
   });
+});
+
+app.get('/api/health/database', async (req, res) => {
+  try {
+    await sequelize.authenticate();
+    res.status(200).json({ status: 'connected', message: 'Conexión a PostgreSQL exitosa.' });
+  } catch (error) {
+    res.status(500).json({ status: 'disconnected', error: (error as Error).message });
+  }
 });
 
 app.use((req: Request, res: Response) => {
