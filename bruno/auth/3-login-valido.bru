@@ -1,0 +1,27 @@
+meta {
+  name: Login valido
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/api/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "nuevo.vendedor@empresa.com",
+    "password": "clave123"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.token: isDefined
+}
