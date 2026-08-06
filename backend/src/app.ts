@@ -3,12 +3,16 @@ import cors from "cors";
 import helmet from "helmet";
 import { errorHandler } from "./middlewares/errorHandler";
 import sequelize from './config/db';
+import authRoutes from "./routes/authRoutes";
+
 const app = express();
 
 
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
 
 
 app.get("/api/health", (req: Request, res: Response) => {

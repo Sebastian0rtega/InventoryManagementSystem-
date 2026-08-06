@@ -1,0 +1,26 @@
+meta {
+  name: Contrasena incorrecta
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3000/api/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "nuevo.vendedor@empresa.com",
+    "password": "contrasena-incorrecta"
+  }
+}
+
+assert {
+  res.status: eq 401
+}

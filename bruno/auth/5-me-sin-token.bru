@@ -1,0 +1,15 @@
+meta {
+  name: Me sin token
+  type: http
+  seq: 5
+}
+
+get {
+  url: http://localhost:3000/api/auth/me
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 401
+}

@@ -4,7 +4,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.bulkInsert('productos', [
       {
-        producto_id: 1,
+       
         categoria_id: 1,
         codigo_barras: '780100000001',
         sku: 'LEC001',
@@ -16,7 +16,7 @@ module.exports = {
         updated_at: new Date()
       },
       {
-        producto_id: 2,
+        
         categoria_id: 1,
         codigo_barras: '780100000002',
         sku: 'QUE001',
@@ -28,7 +28,7 @@ module.exports = {
         updated_at: new Date()
       },
       {
-        producto_id: 3,
+      
         categoria_id: 2,
         codigo_barras: '780100000003',
         sku: 'BEB001',
@@ -40,7 +40,7 @@ module.exports = {
         updated_at: new Date()
       },
       {
-        producto_id: 4,
+       
         categoria_id: 2,
         codigo_barras: '780100000004',
         sku: 'JUG001',
@@ -52,7 +52,7 @@ module.exports = {
         updated_at: new Date()
       },
       {
-        producto_id: 5,
+       
         categoria_id: 3,
         codigo_barras: '780100000005',
         sku: 'ARR001',
@@ -64,7 +64,7 @@ module.exports = {
         updated_at: new Date()
       },
       {
-        producto_id: 6,
+      
         categoria_id: 4,
         codigo_barras: '780100000006',
         sku: 'DET001',
