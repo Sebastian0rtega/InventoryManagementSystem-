@@ -1,0 +1,31 @@
+meta {
+  name: Desactivar usuario (ADMIN)
+  type: http
+  seq: 5
+}
+
+patch {
+  url: http://localhost:3000/api/users/{{user_id}}/status
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "activo": false
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.activo: eq false
+}

@@ -1,0 +1,33 @@
+meta {
+  name: Crear usuario SELLER rechazado (403)
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/api/users
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token_seller}}
+}
+
+auth:bearer {
+  token: {{token_seller}}
+}
+
+body:json {
+  {
+    "email": "otro.vendedor@empresa.com",
+    "nombre": "Otro Vendedor",
+    "password": "clave123",
+    "rol": "SELLER"
+  }
+}
+
+assert {
+  res.status: eq 403
+}

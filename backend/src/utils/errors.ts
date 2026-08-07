@@ -39,6 +39,13 @@ export class UnauthorizedError extends AppError {
   }
 }
 
+/** Error de permisos insuficientes (403). */
+export class ForbiddenError extends AppError {
+  constructor(message = "Forbidden", details: unknown[] = []) {
+    super(403, "FORBIDDEN", message, details);
+  }
+}
+
 /** Error de recurso no encontrado (404). */
 export class NotFoundError extends AppError {
   constructor(message = "Resource not found", details: unknown[] = []) {
