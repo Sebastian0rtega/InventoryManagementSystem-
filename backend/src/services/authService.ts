@@ -66,17 +66,15 @@ export async function register(input: RegisterInput): Promise<PublicUser> {
   if (!email) details.push("email es requerido.");
   if (!nombre) details.push("nombre es requerido.");
   if (!rawPassword) details.push("password es requerido.");
+  if (email && !EMAIL_REGEX.test(email)) {
+    details.push("Formato de email inválido.");
+  }
+  if (rawPassword && rawPassword.length < 6) {
+    details.push("La contraseña debe tener al menos 6 caracteres.");
+  }
 
-  if (!email) {
+  if (details.length > 0) {
     throw new ValidationError("Invalid request data", details);
-  }
-  if (!EMAIL_REGEX.test(email)) {
-    throw new ValidationError("Invalid request data", ["Formato de email inválido."]);
-  }
-  if (rawPassword.length < 6) {
-    throw new ValidationError("Invalid request data", [
-      "La contraseña debe tener al menos 6 caracteres.",
-    ]);
   }
 
   // 2. Buscar rol SELLER y tienda Casa Matriz (sin IDs fijos)

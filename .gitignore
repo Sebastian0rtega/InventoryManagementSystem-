@@ -1,6 +1,7 @@
 prueba.txt
 node_modules/
 dist/
+.env
 backend/.env
 *.log
 TODO.md

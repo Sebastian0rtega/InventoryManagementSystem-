@@ -3,6 +3,9 @@ const bcrypt = require('bcrypt');
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
+    if (!process.env.ADMIN_PASSWORD) {
+      throw new Error('Falta la variable de entorno ADMIN_PASSWORD para crear el usuario administrador.');
+    }
     const passwordHash = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10); // genera hash real
 
     await queryInterface.bulkInsert('usuarios', [

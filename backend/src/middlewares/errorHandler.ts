@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { UniqueConstraintError } from "sequelize";
 import { AppError } from "../utils/errors";
-import { env } from "../config/env";
 
 export const errorHandler = (
   err: Error,
@@ -36,15 +35,15 @@ export const errorHandler = (
     return;
   }
 
-  // Cualquier otro error
+// Cualquier otro error
   console.error(err.stack);
   res.status(500).json({
     success: false,
     error: {
       code: "INTERNAL_SERVER_ERROR",
       message: "Ha ocurrido un error inesperado en el servidor.",
-      // Solo mostramos detalles técnicos en desarrollo
-      details: env.nodeEnv === "development" ? [err.message] : [],
+      // Nunca exponer detalles técnicos al cliente (p. ej. mensajes de PostgreSQL).
+      details: [],
     },
   });
 };
