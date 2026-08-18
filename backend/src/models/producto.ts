@@ -11,6 +11,7 @@ interface ProductoAttributes {
   nombre: string;
   precio_venta: number;
   precio_compra: number;
+  activo: boolean;
   created_at: Date;
   updated_at: Date;
   categoria?: Categoria;
@@ -19,7 +20,7 @@ interface ProductoAttributes {
 interface ProductoCreationAttributes
   extends Optional<
     ProductoAttributes,
-    "producto_id" | "descripcion" | "created_at" | "updated_at"
+    "producto_id" | "descripcion" | "activo" | "created_at" | "updated_at"
   > {}
 
 export class Producto
@@ -34,6 +35,7 @@ export class Producto
   public nombre!: string;
   public precio_venta!: number;
   public precio_compra!: number;
+  public activo!: boolean;
   public created_at!: Date;
   public updated_at!: Date;
   public readonly categoria?: Categoria;
@@ -76,6 +78,11 @@ Producto.init(
     precio_compra: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
+    },
+    activo: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
     },
     created_at: {
       type: DataTypes.DATE,
