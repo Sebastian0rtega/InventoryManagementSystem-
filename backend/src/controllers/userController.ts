@@ -27,7 +27,7 @@ export const getUser = async (
     const id = parseInt(req.params.id, 10);
     const user = await userService.getUserById(id);
 
-    // Acceso: ADMIN o propietario
+    // Acceso: ADMIN o propietari
     if (req.user?.rol !== ROLES.ADMIN && req.user?.id !== user.usuario_id) {
       throw new ForbiddenError("No tienes permisos para ver este usuario.");
     }
