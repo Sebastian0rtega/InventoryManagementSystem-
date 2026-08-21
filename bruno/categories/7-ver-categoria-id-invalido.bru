@@ -1,0 +1,23 @@
+meta {
+  name: Ver categoría ID inválido (texto) → 400
+  type: http
+  seq: 7
+}
+
+get {
+  url: http://localhost:3000/api/categories/abc
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 400
+}

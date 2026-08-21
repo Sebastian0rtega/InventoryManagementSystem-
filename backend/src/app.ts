@@ -5,6 +5,7 @@ import { errorHandler } from "./middlewares/errorHandler";
 import sequelize from './config/db';
 import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
+import categoryRoutes from "./routes/categoryRoutes";
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/categories", categoryRoutes);
 
 
 app.get("/api/health", (req: Request, res: Response) => {

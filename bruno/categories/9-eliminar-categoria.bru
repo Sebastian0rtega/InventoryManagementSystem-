@@ -1,0 +1,23 @@
+meta {
+  name: Eliminar categoría (ADMIN) → 204
+  type: http
+  seq: 9
+}
+
+delete {
+  url: http://localhost:3000/api/categories/1
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 204
+}
