@@ -22,3 +22,4 @@ export const models = {
 
 export { sequelize, Usuario, Rol, Tienda, Categoria, Cliente, Producto };
 export type { UsuarioAttributes } from "./usuario";
+export type { ProductoAttributes } from "./producto";

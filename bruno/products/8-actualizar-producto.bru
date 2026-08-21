@@ -1,0 +1,31 @@
+meta {
+  name: Actualizar producto (ADMIN) → 200
+  type: http
+  seq: 8
+}
+
+patch {
+  url: http://localhost:3000/api/products/1
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Producto actualizado",
+    "salePrice": 2000
+  }
+}
+
+assert {
+  res.status: eq 200
+}

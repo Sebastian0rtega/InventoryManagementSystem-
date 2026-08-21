@@ -2,10 +2,10 @@ import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/db";
 import type { Categoria } from "./categoria";
 
-interface ProductoAttributes {
+export interface ProductoAttributes {
   producto_id: number;
   categoria_id: number;
-  codigo_barras: string;
+  codigo_barras: string | null;
   sku: string;
   descripcion: string | null;
   nombre: string;
@@ -29,7 +29,7 @@ export class Producto
 {
   public producto_id!: number;
   public categoria_id!: number;
-  public codigo_barras!: string;
+  public codigo_barras!: string | null;
   public sku!: string;
   public descripcion!: string | null;
   public nombre!: string;
@@ -55,7 +55,7 @@ Producto.init(
     },
     codigo_barras: {
       type: DataTypes.STRING(50),
-      allowNull: false,
+      allowNull: true,
       unique: true,
     },
     sku: {

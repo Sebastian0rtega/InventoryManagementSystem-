@@ -5,13 +5,6 @@ import {
   NotFoundError,
   ValidationError,
 } from "../utils/errors";
-import type { ProductoAttributes } from "../models";
-
-// Omit generated attributes for creating/updating
-export type ProductInput = Omit<
-  ProductoAttributes,
-  "producto_id" | "created_at" | "updated_at" | "categoria"
->;
 
 // Interfaz para listado paginado
 export interface ProductListResult {
@@ -21,7 +14,29 @@ export interface ProductListResult {
   total: number;
 }
 
-const ALLOWED_SORT_FIELDS = new Set(["name", "precio_venta", "precio_compra", "created_at"]);
+interface CreateProductInput {
+  categoryId: unknown;
+  sku: unknown;
+  barcode?: unknown;
+  name: unknown;
+  description?: unknown;
+  purchasePrice: unknown;
+  salePrice: unknown;
+  active?: unknown;
+}
+
+interface UpdateProductInput {
+  categoryId?: unknown;
+  sku?: unknown;
+  barcode?: unknown;
+  name?: unknown;
+  description?: unknown;
+  purchasePrice?: unknown;
+  salePrice?: unknown;
+  active?: unknown;
+}
+
+const ALLOWED_SORT_FIELDS = new Set(["nombre", "precio_venta", "precio_compra", "created_at"]);
 
 export async function listProducts(query: Record<string, unknown>): Promise<ProductListResult> {
   const page = Math.max(1, parseInt(query.page as string, 10) || 1);
@@ -31,23 +46,25 @@ export async function listProducts(query: Record<string, unknown>): Promise<Prod
   const where: Record<string, unknown> = {};
 
   if (query.active !== undefined) {
-    where.activo = query.active === "true";
+    where["activo"] = query.active === "true";
   }
 
   if (query.categoryId) {
     const catId = parseInt(query.categoryId as string, 10);
     if (!isNaN(catId)) {
-      where.categoria_id = catId;
+      where["categoria_id"] = catId;
     }
   }
 
   if (query.search) {
     const searchString = `%${query.search}%`;
-    where[Op.or] = [
-      { nombre: { [Op.iLike]: searchString } },
-      { sku: { [Op.iLike]: searchString } },
-      { codigo_barras: { [Op.iLike]: searchString } },
-    ];
+    Object.assign(where, {
+      [Op.or]: [
+        { nombre: { [Op.iLike]: searchString } },
+        { sku: { [Op.iLike]: searchString } },
+        { codigo_barras: { [Op.iLike]: searchString } },
+      ],
+    });
   }
 
   let order: [string, string][] = [["created_at", "DESC"]];
@@ -58,9 +75,9 @@ export async function listProducts(query: Record<string, unknown>): Promise<Prod
       direction = "DESC";
       sortField = sortField.substring(1);
     }
-    // Mapeo seguro de nombres
+    // Mapeo de alias de campo: "name" → "nombre"
     if (sortField === "name") sortField = "nombre";
-    
+
     if (ALLOWED_SORT_FIELDS.has(sortField)) {
       order = [[sortField, direction]];
     }
@@ -70,16 +87,12 @@ export async function listProducts(query: Record<string, unknown>): Promise<Prod
     where,
     limit,
     offset,
-    order,
+    order: order as [string, string][],
     include: [{ model: Categoria, as: "categoria", attributes: ["categoria_id", "nombre"] }],
+    distinct: true,
   });
 
-  return {
-    items: rows,
-    page,
-    limit,
-    total: count,
-  };
+  return { items: rows, page, limit, total: count };
 }
 
 export async function getProductById(id: number): Promise<Producto> {
@@ -92,19 +105,26 @@ export async function getProductById(id: number): Promise<Producto> {
   return product;
 }
 
-export async function createProduct(input: Record<string, unknown>): Promise<Producto> {
-  validateProductInput(input);
-  
+export async function createProduct(input: CreateProductInput): Promise<Producto> {
+  validateCreateInput(input);
+
+  // Validar que la categoría existe
+  const catId = input.categoryId as number;
+  const categoria = await Categoria.findByPk(catId);
+  if (!categoria) {
+    throw new NotFoundError("La categoría indicada no existe.");
+  }
+
   try {
     const product = await Producto.create({
-      categoria_id: input.categoryId,
-      sku: input.sku.trim(),
-      codigo_barras: input.barcode?.trim() || null,
-      nombre: input.name.trim(),
-      descripcion: input.description?.trim() || null,
-      precio_compra: input.purchasePrice,
-      precio_venta: input.salePrice,
-      activo: input.active !== undefined ? input.active : true,
+      categoria_id: catId,
+      sku: (input.sku as string).trim(),
+      codigo_barras: input.barcode ? (input.barcode as string).trim() : null,
+      nombre: (input.name as string).trim(),
+      descripcion: input.description ? (input.description as string).trim() : null,
+      precio_compra: input.purchasePrice as number,
+      precio_venta: input.salePrice as number,
+      activo: typeof input.active === "boolean" ? input.active : true,
     });
     return getProductById(product.producto_id);
   } catch (error) {
@@ -112,28 +132,65 @@ export async function createProduct(input: Record<string, unknown>): Promise<Pro
   }
 }
 
-export async function updateProduct(id: number, input: Record<string, unknown>): Promise<Producto> {
+export async function updateProduct(id: number, input: UpdateProductInput): Promise<Producto> {
+  if (isNaN(id)) {
+    throw new ValidationError("Invalid request data", ["El ID debe ser un número entero válido."]);
+  }
+
   const product = await Producto.findByPk(id);
   if (!product) {
     throw new NotFoundError("Producto no encontrado.");
   }
 
   const updates: Record<string, unknown> = {};
-  if (input.categoryId !== undefined) updates.categoria_id = input.categoryId;
-  if (input.sku !== undefined) updates.sku = input.sku.trim();
-  if (input.barcode !== undefined) updates.codigo_barras = input.barcode.trim();
-  if (input.name !== undefined) updates.nombre = input.name.trim();
-  if (input.description !== undefined) updates.descripcion = input.description.trim();
-  if (input.purchasePrice !== undefined) updates.precio_compra = input.purchasePrice;
-  if (input.salePrice !== undefined) updates.precio_venta = input.salePrice;
-  if (input.active !== undefined) updates.activo = input.active;
 
-  // Validación parcial si los campos son provistos
-  if (updates.precio_compra !== undefined && updates.precio_compra < 0) {
-    throw new ValidationError("Invalid request data", ["purchasePrice no puede ser negativo."]);
+  if (input.categoryId !== undefined) {
+    const catId = input.categoryId as number;
+    const categoria = await Categoria.findByPk(catId);
+    if (!categoria) {
+      throw new NotFoundError("La categoría indicada no existe.");
+    }
+    updates["categoria_id"] = catId;
   }
-  if (updates.precio_venta !== undefined && updates.precio_venta < 0) {
-    throw new ValidationError("Invalid request data", ["salePrice no puede ser negativo."]);
+
+  if (input.sku !== undefined) {
+    updates["sku"] = (input.sku as string).trim();
+  }
+
+  if (input.barcode !== undefined) {
+    updates["codigo_barras"] = input.barcode ? (input.barcode as string).trim() : null;
+  }
+
+  if (input.name !== undefined) {
+    updates["nombre"] = (input.name as string).trim();
+  }
+
+  if (input.description !== undefined) {
+    updates["descripcion"] = input.description ? (input.description as string).trim() : null;
+  }
+
+  if (input.purchasePrice !== undefined) {
+    const price = input.purchasePrice as number;
+    if (price < 0) {
+      throw new ValidationError("Invalid request data", ["purchasePrice no puede ser negativo."]);
+    }
+    updates["precio_compra"] = price;
+  }
+
+  if (input.salePrice !== undefined) {
+    const price = input.salePrice as number;
+    if (price < 0) {
+      throw new ValidationError("Invalid request data", ["salePrice no puede ser negativo."]);
+    }
+    updates["precio_venta"] = price;
+  }
+
+  if (input.active !== undefined) {
+    updates["activo"] = input.active as boolean;
+  }
+
+  if (Object.keys(updates).length === 0) {
+    throw new ValidationError("Invalid request data", ["No se proporcionaron campos editables válidos."]);
   }
 
   try {
@@ -144,24 +201,39 @@ export async function updateProduct(id: number, input: Record<string, unknown>):
   }
 }
 
+/**
+ * Desactivación lógica (soft delete).
+ *
+ * Decisión de diseño: los productos pueden tener historial en ventas e
+ * inventario, por lo que nunca se borran físicamente. Se desactiva el flag
+ * `activo` para ocultarlos del catálogo sin perder trazabilidad.
+ */
 export async function deleteProduct(id: number): Promise<void> {
   const product = await Producto.findByPk(id);
   if (!product) {
     throw new NotFoundError("Producto no encontrado.");
   }
-  // Soft delete (desactivación)
   await product.update({ activo: false });
 }
 
-function validateProductInput(input: Record<string, unknown>) {
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function validateCreateInput(input: CreateProductInput): void {
   const errors: string[] = [];
-  if (!input.categoryId) errors.push("categoryId es requerido.");
-  if (!input.sku || typeof input.sku !== "string") errors.push("sku es requerido y debe ser texto.");
-  if (!input.name || typeof input.name !== "string") errors.push("name es requerido y debe ser texto.");
-  if (input.purchasePrice === undefined || input.purchasePrice < 0) {
+
+  if (!input.categoryId || typeof input.categoryId !== "number") {
+    errors.push("categoryId es requerido y debe ser un número.");
+  }
+  if (!input.sku || typeof input.sku !== "string" || !(input.sku as string).trim()) {
+    errors.push("sku es requerido y debe ser texto no vacío.");
+  }
+  if (!input.name || typeof input.name !== "string" || !(input.name as string).trim()) {
+    errors.push("name es requerido y debe ser texto no vacío.");
+  }
+  if (input.purchasePrice === undefined || input.purchasePrice === null || (input.purchasePrice as number) < 0) {
     errors.push("purchasePrice es requerido y no puede ser negativo.");
   }
-  if (input.salePrice === undefined || input.salePrice < 0) {
+  if (input.salePrice === undefined || input.salePrice === null || (input.salePrice as number) < 0) {
     errors.push("salePrice es requerido y no puede ser negativo.");
   }
 
@@ -172,7 +244,9 @@ function validateProductInput(input: Record<string, unknown>) {
 
 function handleUniqueError(error: unknown): never {
   if (error instanceof UniqueConstraintError) {
-    const fields = error.errors.map((e: { path: string }) => e.path).join(", ");
+    const fields = error.errors
+      .map((e) => e.path ?? "campo desconocido")
+      .join(", ");
     throw new ConflictError(`Ya existe un producto con el mismo valor en: ${fields}`);
   }
   throw error;

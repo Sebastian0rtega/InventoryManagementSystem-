@@ -1,0 +1,27 @@
+meta {
+  name: Listar productos (autenticado)
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/api/products?page=1&limit=10
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.items: isArray
+  res.body.page: isDefined
+  res.body.limit: isDefined
+  res.body.total: isDefined
+}

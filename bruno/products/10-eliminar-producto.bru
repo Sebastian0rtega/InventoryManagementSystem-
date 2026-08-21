@@ -1,0 +1,23 @@
+meta {
+  name: Desactivar producto (ADMIN) → 204
+  type: http
+  seq: 10
+}
+
+delete {
+  url: http://localhost:3000/api/products/1
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 204
+}
