@@ -4,6 +4,7 @@ import helmet from "helmet";
 import { errorHandler } from "./middlewares/errorHandler";
 import sequelize from './config/db';
 import authRoutes from "./routes/authRoutes";
+import userRoutes from "./routes/userRoutes";
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 
 app.get("/api/health", (req: Request, res: Response) => {

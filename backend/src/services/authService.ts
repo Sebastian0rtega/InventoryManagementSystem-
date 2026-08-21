@@ -12,8 +12,16 @@ import {
 import type { UsuarioAttributes } from "../models";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const ROL_VENDEDOR = "Vendedor";
 const TIENDA_CASA_MATRIZ = "Casa Matriz";
+
+/** Roles canónicos del sistema. */
+export const ROLES = {
+  ADMIN: "ADMIN",
+  SELLER: "SELLER",
+  WAREHOUSE: "WAREHOUSE",
+} as const;
+
+const ROL_SELLER = ROLES.SELLER;
 
 export interface RegisterInput {
   email: unknown;
@@ -28,7 +36,7 @@ export interface LoginInput {
 
 export interface JwtPayload {
   id: number;
-  rol: number;
+  rol: string;
 }
 
 /** Usuario expuesto en la API, sin el password_hash. */
@@ -58,27 +66,25 @@ export async function register(input: RegisterInput): Promise<PublicUser> {
   if (!email) details.push("email es requerido.");
   if (!nombre) details.push("nombre es requerido.");
   if (!rawPassword) details.push("password es requerido.");
+  if (email && !EMAIL_REGEX.test(email)) {
+    details.push("Formato de email inválido.");
+  }
+  if (rawPassword && rawPassword.length < 6) {
+    details.push("La contraseña debe tener al menos 6 caracteres.");
+  }
 
-  if (!email) {
+  if (details.length > 0) {
     throw new ValidationError("Invalid request data", details);
   }
-  if (!EMAIL_REGEX.test(email)) {
-    throw new ValidationError("Invalid request data", ["Formato de email inválido."]);
-  }
-  if (rawPassword.length < 6) {
-    throw new ValidationError("Invalid request data", [
-      "La contraseña debe tener al menos 6 caracteres.",
-    ]);
-  }
 
-  // 2. Buscar rol Vendedor y tienda Casa Matriz (sin IDs fijos)
-  const [rolVendedor, tiendaCasaMatriz] = await Promise.all([
-    Rol.findOne({ where: { nombre_rol: ROL_VENDEDOR } }),
+  // 2. Buscar rol SELLER y tienda Casa Matriz (sin IDs fijos)
+  const [rolSeller, tiendaCasaMatriz] = await Promise.all([
+    Rol.findOne({ where: { nombre_rol: ROL_SELLER } }),
     Tienda.findOne({ where: { nombre: TIENDA_CASA_MATRIZ } }),
   ]);
 
-  if (!rolVendedor) {
-    throw new NotFoundError("No se encontró el rol Vendedor en la base de datos.");
+  if (!rolSeller) {
+    throw new NotFoundError("No se encontró el rol SELLER en la base de datos.");
   }
   if (!tiendaCasaMatriz) {
     throw new NotFoundError("No se encontró la tienda Casa Matriz en la base de datos.");
@@ -91,7 +97,7 @@ export async function register(input: RegisterInput): Promise<PublicUser> {
       email,
       nombre,
       password_hash: passwordHash,
-      rol_id: rolVendedor.rol_id,
+      rol_id: rolSeller.rol_id,
       tienda_id: tiendaCasaMatriz.tienda_id,
     });
 
@@ -117,7 +123,10 @@ export async function login(input: LoginInput): Promise<{ token: string }> {
     ]);
   }
 
-  const user = await Usuario.findOne({ where: { email } });
+  const user = await Usuario.findOne({
+    where: { email, activo: true },
+    include: [{ model: Rol, as: "rol" }],
+  });
   if (!user) {
     throw new UnauthorizedError("Credenciales inválidas.");
   }
@@ -127,7 +136,11 @@ export async function login(input: LoginInput): Promise<{ token: string }> {
     throw new UnauthorizedError("Credenciales inválidas.");
   }
 
-  const payload: JwtPayload = { id: user.usuario_id, rol: user.rol_id };
+  if (!user.rol) {
+    throw new UnauthorizedError("Credenciales inválidas.");
+  }
+
+  const payload: JwtPayload = { id: user.usuario_id, rol: user.rol.nombre_rol };
   const token = jwt.sign(payload, env.jwt.secret, {
     expiresIn: env.jwt.expiresIn as jwt.SignOptions["expiresIn"],
   });

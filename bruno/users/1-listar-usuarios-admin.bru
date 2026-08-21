@@ -1,0 +1,25 @@
+meta {
+  name: Listar usuarios (ADMIN)
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/api/users?page=1&pageSize=10
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.items: isArray
+  res.body.items: not contains password_hash
+}

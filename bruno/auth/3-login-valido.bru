@@ -21,6 +21,15 @@ body:json {
   }
 }
 
+script:pre-request {
+}
+
+script:post-response {
+  if (res.status === 200 && res.body.token) {
+    bru.setVar("token", res.body.token);
+  }
+}
+
 assert {
   res.status: eq 200
   res.body.token: isDefined

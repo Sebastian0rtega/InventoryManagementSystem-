@@ -10,13 +10,14 @@ export interface UsuarioAttributes {
   email: string;
   nombre: string;
   password_hash: string;
+  activo: boolean;
   created_at: Date;
   updated_at: Date;
   rol?: Rol;
   tienda?: Tienda;
 }
 
-interface UsuarioCreationAttributes extends Optional<UsuarioAttributes, "usuario_id" | "created_at" | "updated_at"> {}
+interface UsuarioCreationAttributes extends Optional<UsuarioAttributes, "usuario_id" | "created_at" | "updated_at" | "activo"> {}
 
 export class Usuario
   extends Model<UsuarioAttributes, UsuarioCreationAttributes>
@@ -28,6 +29,7 @@ export class Usuario
   public email!: string;
   public nombre!: string;
   public password_hash!: string;
+  public activo!: boolean;
   public created_at!: Date;
   public updated_at!: Date;
   public readonly rol?: Rol;
@@ -68,6 +70,11 @@ Usuario.init(
     password_hash: {
       type: DataTypes.STRING(100),
       allowNull: false,
+    },
+    activo: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
     },
     created_at: {
       type: DataTypes.DATE,

@@ -1,0 +1,34 @@
+meta {
+  name: Crear usuario (ADMIN)
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/api/users
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "email": "bodega1@empresa.com",
+    "nombre": "Bodeguero Uno",
+    "password": "clave123",
+    "rol": "WAREHOUSE"
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.password_hash: not isDefined
+}
