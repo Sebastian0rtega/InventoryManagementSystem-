@@ -1,0 +1,34 @@
+meta {
+  name: Crear producto categoría inexistente → 404
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:3000/api/products
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "categoryId": 99999,
+    "sku": "TEST-CAT-404",
+    "name": "Producto categoría inexistente",
+    "purchasePrice": 100,
+    "salePrice": 200
+  }
+}
+
+assert {
+  res.status: eq 404
+}
