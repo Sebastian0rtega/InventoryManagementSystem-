@@ -1,0 +1,31 @@
+meta {
+  name: Actualizar categoría (ADMIN) → 200
+  type: http
+  seq: 8
+}
+
+patch {
+  url: http://localhost:3000/api/categories/1
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "nombre": "Electrónica Actualizada"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.nombre: eq "Electrónica Actualizada"
+}

@@ -13,6 +13,10 @@ export const list = async (req: Request, res: Response, next: NextFunction): Pro
 export const get = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "El ID debe ser un número entero válido." });
+      return;
+    }
     const category = await categoryService.getCategoryById(id);
     res.status(200).json(category);
   } catch (err) {
@@ -32,6 +36,10 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "El ID debe ser un número entero válido." });
+      return;
+    }
     const category = await categoryService.updateCategory(id, req.body.nombre);
     res.status(200).json(category);
   } catch (err) {
@@ -42,6 +50,10 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 export const remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) {
+      res.status(400).json({ error: "El ID debe ser un número entero válido." });
+      return;
+    }
     await categoryService.deleteCategory(id);
     res.status(204).send();
   } catch (err) {

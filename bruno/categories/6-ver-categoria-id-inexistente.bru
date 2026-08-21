@@ -1,0 +1,23 @@
+meta {
+  name: Ver categoría ID inexistente → 404
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:3000/api/categories/99999
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 404
+}

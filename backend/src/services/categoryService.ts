@@ -65,6 +65,14 @@ export async function updateCategory(id: number, nombreRaw: unknown): Promise<Ca
   }
 }
 
+/**
+ * Eliminación FÍSICA de la categoría.
+ *
+ * Decisión de diseño: las categorías son datos de configuración sin historial
+ * propio; no requieren auditoría de borrado. Si la categoría tiene productos
+ * asociados, Sequelize lanza ForeignKeyConstraintError, que se convierte en
+ * 409 Conflict para proteger la integridad referencial.
+ */
 export async function deleteCategory(id: number): Promise<void> {
   const categoria = await Categoria.findByPk(id);
   if (!categoria) {
