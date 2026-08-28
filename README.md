@@ -1,94 +1,189 @@
+# Inventory Management System - Backend API
 
-# Inventory Management System
+Sistema profesional de gestión de inventario desarrollado con **Node.js**, **Express**, **TypeScript** y **PostgreSQL** (Sequelize ORM).
 
-## Descripción
-Sistema profesional de gestión de inventario desarrollado como parte de un Bootcamp de Desarrollo Fullstack.  
-El proyecto simula el flujo de trabajo de una empresa real, utilizando metodologías ágiles, Git Flow y despliegue en la nube.
+> 📌 **Sprint 1**: Para consultar la guía de la demostración mínima de 9 pasos y la colección de Postman, consulta el [README de Sprint 1](file:///C:/Users/sebaw/Downloads/InventoryManagementSystem/InventoryManagementSystem-/docs/README-sprint-1.md).
 
-**Objetivos**
-- Gestionar productos, categorías, proveedores y clientes.
-- Registrar compras, ventas y movimientos de inventario.
-- Implementar autenticación y roles de usuario.
-- Generar reportes y exportar datos a Excel.
-- Desplegar con Docker y CI/CD en la nube.
+---
 
-## Tecnologías
-- **Frontend:** Angular + TypeScript
-- **Backend:** Node.js + Express + TypeScript
-- **Base de Datos:** PostgreSQL
-- **ORM:** Sequelize
-- **Infraestructura:** Docker, GitHub Actions, Cloud Deploy
-- **Control de versiones:** Git + GitHub
+##  Requisitos Previos
 
-##  Arquitectura propuesta
-- **Frontend:** SPA en Angular
-- **Backend:** API REST en Node.js
-- **Base de datos:** PostgreSQL con modelo relacional
-- **Infraestructura:** Contenedores Docker + CI/CD
+Asegúrate de contar con los siguientes componentes instalados en tu sistema:
+- **Node.js**: `v18.0.0` o superior (Recomendado `v20` o `v24`).
+- **npm**: `v9.0.0` o superior.
+- **PostgreSQL**: `v15` o superior (o Docker / Docker Desktop).
+- **Git**.
 
-## Roadmap
+---
 
-- **Sprint 0 (Semana 1):** Configuración inicial del repositorio, GitHub Project, Issues, diseño de base de datos, documentación.
-- **Sprint 1 (Semana 2):** Implementar autenticación y roles de usuario.
-- **Sprint 2 (Semana 3):** CRUD de productos y categorías.
-- **Sprint 3 (Semana 4):** CRUD de proveedores y clientes.
-- **Sprint 4 (Semana 5):** Módulo de compras y ventas.
-- **Sprint 5 (Semana 6):** Movimientos de inventario y reportes básicos.
-- **Sprint 6 (Semana 7):** Dashboard y exportación a Excel.
-- **Sprint 7 (Semana 8):** Integración con Docker, CI/CD y despliegue en la nube.
+##  Instalación y Variables de Entorno
 
+### 1. Clonar el repositorio y navegar a la carpeta backend
+```bash
+git clone https://github.com/Sebastian0rtega/InventoryManagementSystem-.git
+cd InventoryManagementSystem-/backend
+```
 
-## Modelo de ramas (Git Flow)
-- `main` → protegida, lista para producción.
-- `dev` → rama de integración.
-- `feature/*` → ramas para nuevas funcionalidades.
-  
-   
+### 2. Instalar dependencias
+```bash
+npm install
+```
+
+### 3. Configurar variables de entorno
+Copia el archivo de ejemplo `.env.example` para crear tu `.env`:
+```bash
+cp .env.example .env
+```
+
+Edita el archivo `.env` según tus credenciales locales o de base de datos
 
 
-# Instalación
-1. Clonar el repositorio:
-   ```bash
-   git clone https://github.com/Sebastian0rtega/InventoryManagementSystem-.git
+##  Comandos para Docker, Migraciones, Seeders y Servidor
 
-## Estructura 
-InventoryManagementSystem/
-│
-├── .gitignore
-├── LICENSE
-├── README.md
-│
-├── database/
-│   ├── schema.sql
-│   ├── seed.sql
-│   └── consultas.sql
-│
-└── docs/
-    ├── arquitectura.md
-    ├── requerimientos.md
-    ├── roadmap.md
-    ├── modelo-entidad-relacion.drawio
-    └── modelo-entidad-relacion.drawio.png
+###  Docker
+Si deseas ejecutar la base de datos PostgreSQL utilizando Docker Compose:
+```bash
+docker-compose up -d
+```
 
+###  Migraciones y Seeders (Sequelize CLI)
+Para ejecutar las migraciones (creación de tablas) y popular los datos semilla (roles, tienda inicial y usuario admin):
+```bash
+# Ejecutar migraciones
+npm run db:migrate
 
-# Release v0.1.0 - Sprint 0
+# Ejecutar seeders
+npm run db:seed
 
-Este release corresponde a la primera semana del proyecto (Sprint 0).  
-Incluye la planificación inicial y preparación del entorno de desarrollo.
+# Deshacer seeders (opcional)
+npm run db:seed:undo
+```
 
-##  Entregables
-- Repositorio público configurado.
-- README profesional.
-- Roadmap del proyecto.
-- Arquitectura inicial.
-- Modelo Entidad-Relación.
-- Archivos SQL:
-  - schema.sql
-  - seed.sql
-  - consultas.sql
-- GitHub Project con Issues.
-- alrededor de 30 commits 
-- Pull Requests revisados y aprobados.
+###  Servidor de Desarrollo y Producción
+```bash
+# Iniciar servidor de desarrollo con recarga automática (ts-node-dev)
+npm run dev
 
+# Compilar proyecto a JavaScript (TypeScript build)
+npm run build
 
-## El proyecto compila, lint no falla, el servidor inicia sin warnings propios y /api/health responde 200
+# Iniciar servidor compilado en modo producción
+npm start
+```
+
+---
+
+## 📂 Estructura del Backend
+
+```
+backend/
+├── .env.example          # Plantilla de variables de entorno
+├── package.json          # Dependencias y scripts
+├── tsconfig.json         # Configuración compilador TypeScript
+├── src/
+│   ├── server.ts         # Punto de entrada del servidor HTTP
+│   ├── app.ts            # Configuración de Express, middlewares y rutas
+│   ├── config/
+│   │   ├── env.ts        # Validación de variables de entorno
+│   │   └── db.ts         # Instancia de conexión Sequelize
+│   ├── controllers/      # Controladores HTTP (Manejo de request/response)
+│   │   ├── authController.ts
+│   │   ├── categoryController.ts
+│   │   ├── productController.ts
+│   │   └── userController.ts
+│   ├── services/         # Capa de Lógica de Negocio
+│   │   ├── authService.ts
+│   │   ├── categoryService.ts
+│   │   ├── productService.ts
+│   │   └── userService.ts
+│   ├── models/           # Modelos Sequelize en TypeScript
+│   │   ├── index.ts
+│   │   ├── usuario.ts
+│   │   ├── rol.ts
+│   │   ├── tienda.ts
+│   │   ├── categoria.ts
+│   │   └── producto.ts
+│   ├── middlewares/      # Interceptores (Auth, Roles, Error Handler)
+│   │   ├── authenticate.ts
+│   │   ├── authorize.ts
+│   │   └── errorHandler.ts
+│   ├── routes/           # Rutas y enrutadores Express
+│   │   ├── authRoutes.ts
+│   │   ├── categoryRoutes.ts
+│   │   ├── productRoutes.ts
+│   │   └── userRoutes.ts
+│   └── utils/            # Utilidades y clases de error estandarizadas
+│       └── errors.ts
+```
+
+---
+
+##  Listado de Endpoints y Roles
+
+### Roles de Usuario Canónicos
+- **`ADMIN`**: Administrador Global. Acceso total a usuarios, categorías y gestión de catálogo.
+- **`SELLER`**: Vendedor. Acceso a consulta de productos y ventas (Rol asignado por defecto al registrarse).
+- **`WAREHOUSE`**: Bodeguero. Acceso a gestión de inventarios y movimientos de stock.
+
+### Tabla de Endpoints API
+
+| Método | Ruta | Propósito | Acceso |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/api/health` | Estado del servicio web | Público |
+| **GET** | `/api/health/database` | Estado de conexión a PostgreSQL | Público |
+| **POST** | `/api/auth/register` | Registrar usuario (aprendizaje) | Público |
+| **POST** | `/api/auth/login` | Validar credenciales y obtener JWT | Público |
+| **GET** | `/api/auth/me` | Obtener usuario autenticado y su rol | Token |
+| **GET** | `/api/users` | Listar usuarios del sistema | Admin |
+| **GET** | `/api/users/:id` | Obtener usuario por ID | Token |
+| **POST** | `/api/users` | Crear usuario con rol específico | Admin |
+| **PATCH** | `/api/users/:id` | Actualizar datos de usuario | Token (Propio/Admin) |
+| **PATCH** | `/api/users/:id/status` | Activar/Desactivar usuario | Admin |
+| **GET** | `/api/categories` | Listar categorías | Token |
+| **POST** | `/api/categories` | Crear categoría | Admin |
+| **PATCH** | `/api/categories/:id` | Editar categoría | Admin |
+| **DELETE** | `/api/categories/:id` | Eliminar categoría | Admin |
+| **GET** | `/api/products` | Listar productos (Paginación/Búsqueda) | Token |
+| **GET** | `/api/products/:id` | Obtener detalle de un producto | Token |
+| **POST** | `/api/products` | Crear nuevo producto | Admin |
+| **PATCH** | `/api/products/:id` | Actualizar producto | Admin |
+| **DELETE** | `/api/products/:id` | Desactivar producto (Soft delete) | Admin |
+
+---
+
+##  Credenciales de Demostración (Sin secretos reales)
+
+> [!NOTE]
+> Estas credenciales son únicamente para entornos de prueba locales/desarrollo y se alimentan de la semilla (`db:seed`).
+
+- **Administrador Global (Admin)**:
+  - **Email**: `admin@inventory.com`
+  - **Password**: `Admin123!` *(Configurable en `.env` mediante `ADMIN_PASSWORD`)*
+- **Vendedor Demo (Seller)**:
+  - **Email**: `vendedor.demo@example.com`
+  - **Password**: `Password123!`
+
+---
+
+##  Problemas Conocidos y Decisiones Técnicas
+
+1. **Arquitectura en Capas Decoplada (Controladores vs. Servicios)**:
+   - Toda la lógica de negocio se encuentra en la capa `services/`. Los controladores en `controllers/` son delgados y únicamente se encargan del parseo HTTP y respuestas.
+2. **Propiedades de Modelos en TypeScript (`declare`)**:
+   - Se utiliza la palabra clave `declare` en la definición de propiedades de los modelos Sequelize (`export class Usuario extends Model { declare email: string; }`) para evitar el "class property shadowing" al compilar TypeScript con `target: ES2022`.
+3. **Manejo de Duplicados en Base de Datos**:
+   - En lugar de confiar únicamente en verificaciones previas (`findOne`), se capturan las excepciones `SequelizeUniqueConstraintError` para garantizar la seguridad ante solicitudes concurrentes (*race-condition safe*), retornando un código `409 Conflict`.
+4. **Respuesta Estándar de Errores**:
+   - Todos los errores devuelven una estructura uniforme:
+     ```json
+     {
+       "success": false,
+       "error": {
+         "code": "VALIDATION_ERROR | CONFLICT | UNAUTHORIZED | FORBIDDEN | NOT_FOUND | INTERNAL_SERVER_ERROR",
+         "message": "Mensaje comprensible",
+         "details": []
+       }
+     }
+     ```
+5. **Desactivación Lógica de Productos (*Soft Delete*)**:
+   - Los productos eliminados mediante `DELETE /api/products/:id` no se borran físicamente de la base de datos para no romper la trazabilidad histórica de compras y ventas. En su lugar, se actualiza el atributo `activo: false`.
