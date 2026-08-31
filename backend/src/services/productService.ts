@@ -170,19 +170,21 @@ export async function updateProduct(id: number, input: UpdateProductInput): Prom
   }
 
   if (input.purchasePrice !== undefined) {
-    const price = input.purchasePrice as number;
-    if (price < 0) {
-      throw new ValidationError("Invalid request data", ["purchasePrice no puede ser negativo."]);
+    if (!isValidPositivePrice(input.purchasePrice)) {
+      throw new ValidationError("Invalid request data", [
+        "purchasePrice debe ser un número mayor que cero.",
+      ]);
     }
-    updates["precio_compra"] = price;
+    updates["precio_compra"] = input.purchasePrice as number;
   }
 
   if (input.salePrice !== undefined) {
-    const price = input.salePrice as number;
-    if (price < 0) {
-      throw new ValidationError("Invalid request data", ["salePrice no puede ser negativo."]);
+    if (!isValidPositivePrice(input.salePrice)) {
+      throw new ValidationError("Invalid request data", [
+        "salePrice debe ser un número mayor que cero.",
+      ]);
     }
-    updates["precio_venta"] = price;
+    updates["precio_venta"] = input.salePrice as number;
   }
 
   if (input.active !== undefined) {
@@ -230,16 +232,28 @@ function validateCreateInput(input: CreateProductInput): void {
   if (!input.name || typeof input.name !== "string" || !(input.name as string).trim()) {
     errors.push("name es requerido y debe ser texto no vacío.");
   }
-  if (input.purchasePrice === undefined || input.purchasePrice === null || (input.purchasePrice as number) < 0) {
-    errors.push("purchasePrice es requerido y no puede ser negativo.");
+  if (!isValidPositivePrice(input.purchasePrice)) {
+    errors.push("purchasePrice es requerido y debe ser un número mayor que cero.");
   }
-  if (input.salePrice === undefined || input.salePrice === null || (input.salePrice as number) < 0) {
-    errors.push("salePrice es requerido y no puede ser negativo.");
+  if (!isValidPositivePrice(input.salePrice)) {
+    errors.push("salePrice es requerido y debe ser un número mayor que cero.");
   }
 
   if (errors.length > 0) {
     throw new ValidationError("Invalid request data", errors);
   }
+}
+
+/**
+ * Un precio válido es un número finito estrictamente mayor que cero.
+ * Se rechazan strings, NaN, 0 y negativos para evitar comparaciones coercitivas.
+ */
+function isValidPositivePrice(value: unknown): boolean {
+  return (
+    typeof value === "number" &&
+    Number.isFinite(value) &&
+    (value as number) > 0
+  );
 }
 
 function handleUniqueError(error: unknown): never {

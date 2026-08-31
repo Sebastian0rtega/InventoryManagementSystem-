@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as userService from "../services/userService";
-import { ForbiddenError } from "../utils/errors";
+import { ForbiddenError, ValidationError } from "../utils/errors";
 import { ROLES } from "../services/authService";
 
 export const listUsers = async (
@@ -25,6 +25,11 @@ export const getUser = async (
 ): Promise<void> => {
   try {
     const id = parseInt(req.params.id, 10);
+    if (isNaN(id) || id <= 0) {
+      throw new ValidationError("Invalid request data", [
+        "El ID debe ser un número entero válido.",
+      ]);
+    }
     const user = await userService.getUserById(id);
 
     // Acceso: ADMIN o propietari
@@ -58,6 +63,11 @@ export const updateUser = async (
 ): Promise<void> => {
   try {
     const id = parseInt(req.params.id, 10);
+    if (isNaN(id) || id <= 0) {
+      throw new ValidationError("Invalid request data", [
+        "El ID debe ser un número entero válido.",
+      ]);
+    }
     if (!req.user) {
       throw new ForbiddenError("No autenticado.");
     }
@@ -80,6 +90,11 @@ export const updateUserStatus = async (
 ): Promise<void> => {
   try {
     const id = parseInt(req.params.id, 10);
+    if (isNaN(id) || id <= 0) {
+      throw new ValidationError("Invalid request data", [
+        "El ID debe ser un número entero válido.",
+      ]);
+    }
     const user = await userService.updateUserStatus(id, req.body.activo);
     res.status(200).json(user);
   } catch (err) {

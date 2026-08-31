@@ -2,7 +2,7 @@
 
 Sistema profesional de gestión de inventario desarrollado con **Node.js**, **Express**, **TypeScript** y **PostgreSQL** (Sequelize ORM).
 
-> 📌 **Sprint 1**: Para consultar la guía de la demostración mínima de 9 pasos y la colección de Postman, consulta el [README de Sprint 1](file:///C:/Users/sebaw/Downloads/InventoryManagementSystem/InventoryManagementSystem-/docs/README-sprint-1.md).
+> 📌 **Sprint 1**: Para consultar la guía de la demostración mínima de 9 pasos y la colección de Postman, consulta el [README de Sprint 1](docs/README-sprint-1.md).
 
 ---
 
@@ -18,10 +18,10 @@ Asegúrate de contar con los siguientes componentes instalados en tu sistema:
 
 ##  Instalación y Variables de Entorno
 
-### 1. Clonar el repositorio y navegar a la carpeta backend
+### 1. Clonar el repositorio
 ```bash
 git clone https://github.com/Sebastian0rtega/InventoryManagementSystem-.git
-cd InventoryManagementSystem-/backend
+cd InventoryManagementSystem-
 ```
 
 ### 2. Instalar dependencias
@@ -41,13 +41,13 @@ Edita el archivo `.env` según tus credenciales locales o de base de datos
 ##  Comandos para Docker, Migraciones, Seeders y Servidor
 
 ###  Docker
-Si deseas ejecutar la base de datos PostgreSQL utilizando Docker Compose:
+El archivo docker-compose.yaml esta en la raiz del repositorio (no dentro de backend/). Ejecuta desde la raiz:
 ```bash
 docker-compose up -d
 ```
 
 ###  Migraciones y Seeders (Sequelize CLI)
-Para ejecutar las migraciones (creación de tablas) y popular los datos semilla (roles, tienda inicial y usuario admin):
+Para ejecutar las migraciones (creación de tablas) y popular los datos semilla (roles, tienda inicial y usuario admin y vendedor de demostracion): los comandos se ejecutan desde la carpeta backend/
 ```bash
 # Ejecutar migraciones
 npm run db:migrate
@@ -158,10 +158,10 @@ backend/
 
 - **Administrador Global (Admin)**:
   - **Email**: `admin@inventory.com`
-  - **Password**: `Admin123!` *(Configurable en `.env` mediante `ADMIN_PASSWORD`)*
+  - **Password**: valor de `ADMIN_PASSWORD` en tu `.env`
 - **Vendedor Demo (Seller)**:
   - **Email**: `vendedor.demo@example.com`
-  - **Password**: `Password123!`
+  - **Password**: valor de `ADMIN_PASSWORD` en tu `.env` con sufijo `-seller`
 
 ---
 
