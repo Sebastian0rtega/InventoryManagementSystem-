@@ -1,5 +1,5 @@
 meta {
-  name: Eliminar categoría (ADMIN) → 204
+  name: Eliminar categoría con productos asociados → 409
   type: http
   seq: 9
 }
@@ -19,5 +19,5 @@ auth:bearer {
 }
 
 assert {
-  res.status: eq 204
+  res.status: eq 409
 }
