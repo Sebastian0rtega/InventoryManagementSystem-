@@ -16,38 +16,38 @@
 
 # TODO — Prueba desde un clon limpio
 
-- [ ] 1. Clonar el repositorio en una carpeta nueva
-- [ ] 2. Cambiar a la rama de integración autorizada
-- [ ] 3. Crear `.env` a partir de `.env.example`
-- [ ] 4. Levantar PostgreSQL con Docker Compose
-- [ ] 5. Instalar dependencias
-- [ ] 6. Ejecutar migraciones y seeders
-- [ ] 7. Iniciar el backend
-- [ ] 8. Ejecutar todos los casos de la colección API
+- [x] 1. Clonar el repositorio en una carpeta nueva
+- [x] 2. Cambiar a la rama de integración autorizada
+- [x] 3. Crear `.env` a partir de `.env.example`
+- [x] 4. Levantar PostgreSQL con Docker Compose
+- [x] 5. Instalar dependencias
+- [x] 6. Ejecutar migraciones y seeders
+- [x] 7. Iniciar el backend
+- [x] 8. Ejecutar todos los casos de la colección API
 
 # TODO — README obligatorio
 
-- [ ] Requisitos previos
-- [ ] Instalación y variables de entorno
-- [ ] Comandos para Docker, migraciones, seeders y servidor
-- [ ] Estructura del backend
-- [ ] Listado de endpoints y roles
-- [ ] Credenciales de demostración sin secretos reales
-- [ ] Problemas conocidos y decisiones técnicas
+- [x] Requisitos previos
+- [x] Instalación y variables de entorno
+- [x] Comandos para Docker, migraciones, seeders y servidor
+- [x] Estructura del backend
+- [x] Listado de endpoints y roles
+- [x] Credenciales de demostración sin secretos reales
+- [x] Problemas conocidos y decisiones técnicas
 
 # TODO — Demostración mínima
 
-- [ ] 1. Mostrar PostgreSQL healthy
-- [ ] 2. Ejecutar migraciones y seeders
-- [ ] 3. Mostrar `/api/health` y `/api/health/database`
-- [ ] 4. Registrar o crear un usuario
-- [ ] 5. Iniciar sesión y consultar `/api/auth/me`
-- [ ] 6. Demostrar un 403 por rol insuficiente
-- [ ] 7. Crear categoría y producto
-- [ ] 8. Demostrar rechazo de SKU duplicado
-- [ ] 9. Listar productos usando paginación y búsqueda
+- [x] 1. Mostrar PostgreSQL healthy
+- [x] 2. Ejecutar migraciones y seeders
+- [x] 3. Mostrar `/api/health` y `/api/health/database`
+- [x] 4. Registrar o crear un usuario
+- [x] 5. Iniciar sesión y consultar `/api/auth/me`
+- [x] 6. Demostrar un 403 por rol insuficiente
+- [x] 7. Crear categoría y producto
+- [x] 8. Demostrar rechazo de SKU duplicado
+- [x] 9. Listar productos usando paginación y búsqueda
 
 # TODO — Cierre Sprint 1
 
-- [ ] Dejar todos los PR del Sprint 1 hacia `dev` listos para revisión
-- [ ] No fusionar a `main` ni crear `v0.2.0` hasta recibir aprobación
+- [x] Dejar todos los PR del Sprint 1 hacia `dev` listos para revisión
+- [x] No fusionar a `main` ni crear `v0.2.0` hasta recibir aprobación

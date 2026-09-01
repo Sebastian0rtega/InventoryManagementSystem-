@@ -1,0 +1,24 @@
+meta {
+  name: Obtener usuario con ID inválido → 400
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://localhost:3000/api/users/abc
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 400
+  res.body.details: isDefined
+}
