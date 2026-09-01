@@ -1,0 +1,35 @@
+meta {
+  name: Crear producto con precios inválidos → 400
+  type: http
+  seq: 12
+}
+
+post {
+  url: http://localhost:3000/api/products
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "categoryId": 1,
+    "sku": "TEST-PRECIO-INVALIDO",
+    "name": "Producto con precios inválidos",
+    "purchasePrice": 0,
+    "salePrice": -1500
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.details: isDefined
+}
