@@ -25,7 +25,11 @@ export const env = {
   db: {
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT || "5432", 10),
-    name: process.env.DB_NAME,
+    // En NODE_ENV=test se usa la base de prueba aislada (inventory_test_db)
+    name:
+      process.env.NODE_ENV === "test"
+        ? process.env.DB_NAME_TEST || "inventory_test_db"
+        : process.env.DB_NAME,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
   },
