@@ -1,0 +1,33 @@
+meta {
+  name: Crear cliente email duplicado -> 409
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3000/api/customers
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "nombre": "Otro Cliente",
+    "rut": "15345678-4",
+    "email": "camila@correo.com"
+  }
+}
+
+assert {
+  res.status: eq 409
+  res.body.error.code: eq "CONFLICT"
+}

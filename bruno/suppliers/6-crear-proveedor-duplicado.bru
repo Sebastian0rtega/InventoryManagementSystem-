@@ -1,0 +1,33 @@
+meta {
+  name: Crear proveedor duplicado (RUT) -> 409
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:3000/api/suppliers
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "nombre": "Otra Distribuidora",
+    "rut": "76543210-K",
+    "email": "otra@dist.cl"
+  }
+}
+
+assert {
+  res.status: eq 409
+  res.body.error.code: eq "CONFLICT"
+}

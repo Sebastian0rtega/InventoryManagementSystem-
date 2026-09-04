@@ -1,0 +1,33 @@
+meta {
+  name: Crear proveedor RUT invalido -> 400
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:3000/api/suppliers
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "nombre": "Proveedor Malo",
+    "rut": "11111111-2",
+    "email": "malo@proveedor.cl"
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.error.code: eq "VALIDATION_ERROR"
+}

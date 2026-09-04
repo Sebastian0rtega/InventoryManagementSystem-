@@ -1,0 +1,26 @@
+meta {
+  name: Listar proveedores (ADMIN/WAREHOUSE) -> 200
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:3000/api/suppliers?page=1&limit=10
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.data: isDefined
+  res.body.total: isDefined
+  res.body.page: eq 1
+}
