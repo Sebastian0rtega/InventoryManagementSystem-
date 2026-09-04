@@ -1,0 +1,38 @@
+meta {
+  name: Documento duplicado -> 409
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3000/api/purchases
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "supplierId": 1,
+    "storeId": 1,
+    "documentType": "FACTURA",
+    "documentNumber": "F-1001",
+    "paymentMethod": "TRANSFERENCIA",
+    "items": [
+      { "productId": 1, "quantity": 2, "unitCost": 1000 }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 409
+  res.body.error.code: eq "CONFLICT"
+}

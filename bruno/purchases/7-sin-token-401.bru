@@ -1,0 +1,30 @@
+meta {
+  name: Crear compra sin token -> 401
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:3000/api/purchases
+  body: json
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "supplierId": 1,
+    "storeId": 1,
+    "documentType": "BOLETA",
+    "documentNumber": "F-X3",
+    "items": [
+      { "productId": 1, "quantity": 1, "unitCost": 100 }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 401
+}
