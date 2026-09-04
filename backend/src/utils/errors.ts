@@ -59,3 +59,11 @@ export class ConflictError extends AppError {
     super(409, "CONFLICT", message, details);
   }
 }
+
+/** Error de stock insuficiente para ventas (409). */
+export class InsufficientStockError extends AppError {
+  constructor(message = "Stock insuficiente para completar la venta.", details: unknown[] = []) {
+    super(409, "STOCK_INSUFFICIENT", message, details);
+  }
+}
+

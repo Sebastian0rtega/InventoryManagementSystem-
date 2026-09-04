@@ -1,0 +1,35 @@
+meta {
+  name: Crear venta valida -> 201
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/api/sales
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "customerId": 1,
+    "items": [
+      { "productId": 1, "quantity": 2 }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.venta_id: isDefined
+  res.body.total: isDefined
+}

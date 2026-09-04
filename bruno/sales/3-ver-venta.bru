@@ -1,0 +1,25 @@
+meta {
+  name: Ver venta por id -> 200
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://localhost:3000/api/sales/1
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.venta_id: eq 1
+  res.body.detalles: isDefined
+}

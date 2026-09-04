@@ -1,0 +1,33 @@
+meta {
+  name: Venta stock exacto -> 201 (deja stock en cero)
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3000/api/sales
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "items": [
+      { "productId": 2, "quantity": 50 }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.venta_id: isDefined
+}

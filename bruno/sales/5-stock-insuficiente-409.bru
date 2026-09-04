@@ -1,0 +1,33 @@
+meta {
+  name: Stock insuficiente -> 409 STOCK_INSUFFICIENT
+  type: http
+  seq: 5
+}
+
+post {
+  url: http://localhost:3000/api/sales
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "items": [
+      { "productId": 1, "quantity": 999999 }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 409
+  res.body.error.code: eq "STOCK_INSUFFICIENT"
+}
