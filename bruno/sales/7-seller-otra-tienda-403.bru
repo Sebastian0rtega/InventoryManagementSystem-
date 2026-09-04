@@ -1,0 +1,34 @@
+meta {
+  name: SELLER intenta vender desde otra tienda -> 403
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://localhost:3000/api/sales
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{tokenSeller}}
+}
+
+auth:bearer {
+  token: {{tokenSeller}}
+}
+
+body:json {
+  {
+    "storeId": 2,
+    "items": [
+      { "productId": 1, "quantity": 1 }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 403
+  res.body.error.code: eq "FORBIDDEN"
+}

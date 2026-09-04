@@ -10,6 +10,7 @@ import productRoutes from "./routes/productRoutes";
 import supplierRoutes from "./routes/supplierRoutes";
 import customerRoutes from "./routes/customerRoutes";
 import purchaseRoutes from "./routes/purchaseRoutes";
+import saleRoutes from "./routes/saleRoutes";
 
 const app = express();
 
@@ -25,6 +26,8 @@ app.use("/api/products", productRoutes);
 app.use("/api/suppliers", supplierRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/purchases", purchaseRoutes);
+app.use("/api/sales", saleRoutes);
+
 
 
 app.get("/api/health", (req: Request, res: Response) => {
