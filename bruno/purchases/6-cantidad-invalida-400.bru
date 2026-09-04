@@ -1,0 +1,38 @@
+meta {
+  name: Cantidad invalida -> 400
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:3000/api/purchases
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "supplierId": 1,
+    "storeId": 1,
+    "documentType": "BOLETA",
+    "documentNumber": "F-X2",
+    "paymentMethod": "EFECTIVO",
+    "items": [
+      { "productId": 1, "quantity": 0, "unitCost": 100 }
+    ]
+  }
+}
+
+assert {
+  res.status: eq 400
+  res.body.error.code: eq "VALIDATION_ERROR"
+}

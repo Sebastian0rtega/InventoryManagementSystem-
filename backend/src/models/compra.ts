@@ -1,4 +1,4 @@
-import { DataTypes, Model, Optional } from "sequelize";
+﻿import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/db";
 import type { Tienda } from "./tienda";
 import type { Producto } from "./producto";
@@ -13,6 +13,7 @@ export interface CompraAttributes {
   usuario_id: number;
   tipo_documento: string;
   numero_documento: string;
+  metodo_pago: string;
   fecha_compra: Date;
   total: string;
   created_at: Date;
@@ -25,7 +26,7 @@ export interface CompraAttributes {
 
 type Creation = Optional<
   CompraAttributes,
-  "compra_id" | "fecha_compra" | "total" | "created_at" | "updated_at"
+  "compra_id" | "metodo_pago" | "fecha_compra" | "total" | "created_at" | "updated_at"
 >;
 
 export class Compra
@@ -38,6 +39,7 @@ export class Compra
   public usuario_id!: number;
   public tipo_documento!: string;
   public numero_documento!: string;
+  public metodo_pago!: string;
   public fecha_compra!: Date;
   public total!: string;
   public created_at!: Date;
@@ -56,6 +58,7 @@ Compra.init(
     usuario_id: { type: DataTypes.INTEGER, allowNull: false },
     tipo_documento: { type: DataTypes.STRING(20), allowNull: false },
     numero_documento: { type: DataTypes.STRING(50), allowNull: false },
+    metodo_pago: { type: DataTypes.STRING(20), allowNull: false, defaultValue: "OTRO" },
     fecha_compra: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     total: { type: DataTypes.DECIMAL(12, 2), allowNull: false, defaultValue: 0 },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
