@@ -1,0 +1,23 @@
+meta {
+  name: Desactivar proveedor ya inactivo -> 409
+  type: http
+  seq: 12
+}
+
+delete {
+  url: http://localhost:3000/api/suppliers/{{proveedor_id}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+assert {
+  res.status: eq 409
+}

@@ -7,6 +7,8 @@ import authRoutes from "./routes/authRoutes";
 import userRoutes from "./routes/userRoutes";
 import categoryRoutes from "./routes/categoryRoutes";
 import productRoutes from "./routes/productRoutes";
+import supplierRoutes from "./routes/supplierRoutes";
+import customerRoutes from "./routes/customerRoutes";
 
 const app = express();
 
@@ -19,6 +21,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/suppliers", supplierRoutes);
+app.use("/api/customers", customerRoutes);
 
 
 app.get("/api/health", (req: Request, res: Response) => {

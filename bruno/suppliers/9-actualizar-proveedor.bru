@@ -1,0 +1,31 @@
+meta {
+  name: Actualizar proveedor -> 200
+  type: http
+  seq: 9
+}
+
+patch {
+  url: http://localhost:3000/api/suppliers/{{proveedor_id}}
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "telefono": "+56988887777"
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.telefono: eq "+56988887777"
+}

@@ -1,0 +1,30 @@
+meta {
+  name: Ver proveedor por id -> 200
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:3000/api/suppliers/{{proveedor_id}}
+  body: none
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{token}}
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+script:post-response {
+  if (res.status === 200 && res.body.proveedor_id) {
+    bru.setVar("proveedor_id", res.body.proveedor_id);
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.proveedor_id: isDefined
+}

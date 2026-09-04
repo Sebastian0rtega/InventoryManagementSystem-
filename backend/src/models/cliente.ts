@@ -7,12 +7,13 @@ interface ClienteAttributes {
   rut: string;
   telefono: string | null;
   email: string;
+  activo: boolean;
   created_at: Date;
   updated_at: Date;
 }
 
 interface ClienteCreationAttributes
-  extends Optional<ClienteAttributes, "cliente_id" | "telefono" | "created_at" | "updated_at"> {}
+  extends Optional<ClienteAttributes, "cliente_id" | "telefono" | "activo" | "created_at" | "updated_at"> {}
 
 export class Cliente
   extends Model<ClienteAttributes, ClienteCreationAttributes>
@@ -23,6 +24,7 @@ export class Cliente
   public rut!: string;
   public telefono!: string | null;
   public email!: string;
+  public activo!: boolean;
   public created_at!: Date;
   public updated_at!: Date;
 }
@@ -52,6 +54,11 @@ Cliente.init(
       type: DataTypes.STRING(100),
       allowNull: false,
       unique: true,
+    },
+    activo: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
     },
     created_at: {
       type: DataTypes.DATE,

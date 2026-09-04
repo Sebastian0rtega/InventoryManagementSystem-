@@ -1,0 +1,32 @@
+meta {
+  name: Crear proveedor como SELLER -> 403
+  type: http
+  seq: 8
+}
+
+post {
+  url: http://localhost:3000/api/suppliers
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{token_seller}}
+}
+
+auth:bearer {
+  token: {{token_seller}}
+}
+
+body:json {
+  {
+    "nombre": "Proveedor No Autorizado",
+    "rut": "12345678-5",
+    "email": "noautorizado@prov.cl"
+  }
+}
+
+assert {
+  res.status: eq 403
+}
