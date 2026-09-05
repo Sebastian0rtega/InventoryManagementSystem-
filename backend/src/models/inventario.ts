@@ -1,4 +1,4 @@
-import { DataTypes, Model, Optional } from "sequelize";
+﻿import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/db";
 import type { Tienda } from "./tienda";
 import type { Producto } from "./producto";
@@ -9,6 +9,7 @@ export interface InventarioAttributes {
   tienda_id: number;
   producto_id: number;
   cantidad: number;
+  stock_minimo: number;
   created_at: Date;
   updated_at: Date;
   tienda?: Tienda;
@@ -18,7 +19,7 @@ export interface InventarioAttributes {
 
 type Creation = Optional<
   InventarioAttributes,
-  "inventario_id" | "cantidad" | "created_at" | "updated_at"
+  "inventario_id" | "cantidad" | "stock_minimo" | "created_at" | "updated_at"
 >;
 
 export class Inventario
@@ -29,6 +30,7 @@ export class Inventario
   public tienda_id!: number;
   public producto_id!: number;
   public cantidad!: number;
+  public stock_minimo!: number;
   public created_at!: Date;
   public updated_at!: Date;
   public readonly tienda?: Tienda;
@@ -42,6 +44,7 @@ Inventario.init(
     tienda_id: { type: DataTypes.INTEGER, allowNull: false },
     producto_id: { type: DataTypes.INTEGER, allowNull: false },
     cantidad: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0, validate: { min: 0 } },
+    stock_minimo: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0, validate: { min: 0 } },
     created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
     updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
   },
