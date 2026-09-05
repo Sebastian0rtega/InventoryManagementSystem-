@@ -1,4 +1,4 @@
-import { DataTypes, Model, Optional } from "sequelize";
+﻿import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/db";
 import type { Inventario } from "./inventario";
 import type { Usuario } from "./usuario";
@@ -15,6 +15,7 @@ export interface MovimientoInventarioAttributes {
   inventario_id: number;
   tipo_movimiento: TipoMovimiento;
   cantidad: number;
+  motivo: string | null;
   referencia_tipo: string | null;
   referencia_id: number | null;
   usuario_id: number | null;
@@ -26,7 +27,7 @@ export interface MovimientoInventarioAttributes {
 
 type Creation = Optional<
   MovimientoInventarioAttributes,
-  "movimiento_id" | "referencia_tipo" | "referencia_id" | "usuario_id" | "created_at" | "updated_at"
+  "movimiento_id" | "motivo" | "referencia_tipo" | "referencia_id" | "usuario_id" | "created_at" | "updated_at"
 >;
 
 export class MovimientoInventario
@@ -37,6 +38,7 @@ export class MovimientoInventario
   public inventario_id!: number;
   public tipo_movimiento!: TipoMovimiento;
   public cantidad!: number;
+  public motivo!: string | null;
   public referencia_tipo!: string | null;
   public referencia_id!: number | null;
   public usuario_id!: number | null;
@@ -52,6 +54,7 @@ MovimientoInventario.init(
     inventario_id: { type: DataTypes.INTEGER, allowNull: false },
     tipo_movimiento: { type: DataTypes.STRING(20), allowNull: false },
     cantidad: { type: DataTypes.INTEGER, allowNull: false, validate: { min: 1 } },
+    motivo: { type: DataTypes.STRING(255), allowNull: true },
     referencia_tipo: { type: DataTypes.STRING(20), allowNull: true },
     referencia_id: { type: DataTypes.INTEGER, allowNull: true },
     usuario_id: { type: DataTypes.INTEGER, allowNull: true },
