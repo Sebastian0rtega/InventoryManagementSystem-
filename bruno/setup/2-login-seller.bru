@@ -1,0 +1,34 @@
+meta {
+  name: Login SELLER (guarda tokenSeller)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "nuevo.vendedor@empresa.com",
+    "password": "clave123"
+  }
+}
+
+script:post-response {
+  if (res.status === 200 && res.body.token) {
+    bru.setEnvVar("tokenSeller", res.body.token);
+  }
+}
+
+assert {
+  res.status: eq 200
+  res.body.token: isDefined
+  res.body.usuario: not contains password_hash
+}

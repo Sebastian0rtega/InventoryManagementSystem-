@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: http://localhost:3000/api/sales/1
+  url: {{baseUrl}}/api/sales/{{ventaId}}
   body: none
   auth: bearer
 }
@@ -20,6 +20,6 @@ auth:bearer {
 
 assert {
   res.status: eq 200
-  res.body.venta_id: eq 1
+  res.body.venta_id: isDefined
   res.body.detalles: isDefined
 }

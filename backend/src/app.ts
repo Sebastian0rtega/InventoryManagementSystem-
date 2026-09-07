@@ -12,6 +12,8 @@ import customerRoutes from "./routes/customerRoutes";
 import purchaseRoutes from "./routes/purchaseRoutes";
 import saleRoutes from "./routes/saleRoutes";
 import inventoryRoutes from "./routes/inventoryRoutes";
+import swaggerUi from "swagger-ui-express";
+import openapiSpec from "./docs/openapi";
 
 const app = express();
 
@@ -32,6 +34,19 @@ app.use("/api/inventory", inventoryRoutes);
 
 
 
+/**
+ * DÍA 6 · Documentación OpenAPI.
+ * UI interactiva en /api/docs · JSON crudo en /api/docs.json.
+ */
+app.get("/api/docs.json", (_req: Request, res: Response) => {
+  res.status(200).json(openapiSpec);
+});
+app.use(
+  "/api/docs",
+  swaggerUi.serve,
+  swaggerUi.setup(openapiSpec, { customSiteTitle: "Inventory API Docs" }),
+);
+
 app.get("/api/health", (req: Request, res: Response) => {
   res.status(200).json({
     status: "ok",
@@ -43,8 +58,10 @@ app.get('/api/health/database', async (req, res) => {
   try {
     await sequelize.authenticate();
     res.status(200).json({ status: 'connected', message: 'Conexión a PostgreSQL exitosa.' });
-  } catch (error) {
-    res.status(500).json({ status: 'disconnected', error: (error as Error).message });
+  } catch {
+    // DÍA 6 · Seguridad: nunca exponer el mensaje interno del driver
+    // (host, credenciales o SQL) en la respuesta HTTP.
+    res.status(500).json({ status: 'disconnected', message: 'No se pudo conectar a la base de datos.' });
   }
 });
 
