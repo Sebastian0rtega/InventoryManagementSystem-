@@ -16,8 +16,17 @@ const router = Router();
 router.use(authenticate);
 
 /**
- * GET /api/inventory — listado de stock por tienda.
- * Autenticado; SELLER/WAREHOUSE limitados a su tienda (se fuerza en el servicio).
+ * GET /api/inventory
+ * @tags Inventory
+ * @security bearerAuth
+ * @operationId listarInventario
+ * @summary Stock por tienda. SELLER/WAREHOUSE limitados a su tienda (forzado en servicio).
+ * @param {integer} storeId.query - Filtrar por tienda
+ * @param {integer} productId.query - Filtrar por producto
+ * @return {InventarioItem} 200 - { data: InventarioItem[], total }
+ * @return {Error} 400 - Parámetros inválidos
+ * @return {Error} 401 - Sin token
+ * @return {Error} 403 - Rol sin permiso
  */
 router.get(
   "/",
@@ -27,8 +36,17 @@ router.get(
 );
 
 /**
- * POST /api/inventory/adjustments — ajuste manual de stock (ADMIN · WAREHOUSE).
- * El movimiento queda registrado en la bitácora desde el servicio.
+ * POST /api/inventory/adjustments
+ * @tags Inventory
+ * @security bearerAuth
+ * @operationId ajustarInventario
+ * @summary Ajuste manual de stock con registro en bitácora (ADMIN · WAREHOUSE).
+ * @param {AjusteInventarioInput} request.body.required - Cantidad con signo y motivo obligatorio
+ * @return {MovimientoInventario} 201 - Ajuste y movimiento AJUSTE_POSITIVO/NEGATIVO registrados
+ * @return {Error} 400 - VALIDATION_ERROR: motivo vacío o cantidad inválida
+ * @return {Error} 401 - Sin token
+ * @return {Error} 403 - Rol sin permiso (SELLER no puede ajustar)
+ * @return {Error} 404 - Producto/tienda inexistente
  */
 router.post(
   "/adjustments",
@@ -38,9 +56,18 @@ router.post(
 );
 
 /**
- * GET /api/inventory/:id/movements — bitácora de movimientos (ADMIN · WAREHOUSE).
- * SOLO LECTURA: no existe POST/PUT/DELETE para movimientos; el historial
- * se genera exclusivamente desde los servicios de negocio.
+ * GET /api/inventory/{id}/movements
+ * @tags Inventory
+ * @security bearerAuth
+ * @operationId movimientosDeInventario
+ * @summary Bitácora de movimientos de un ítem de inventario (solo lectura).
+ * @description SOLO LECTURA: no existe POST/PUT/DELETE para movimientos; el historial
+ * se genera exclusivamente desde los servicios de negocio (compras, ventas, ajustes).
+ * @param {integer} id.path.required - ID del registro de inventario
+ * @return {MovimientoInventario} 200 - { data: MovimientoInventario[], total }
+ * @return {Error} 401 - Sin token
+ * @return {Error} 403 - Rol sin permiso
+ * @return {Error} 404 - Inventario inexistente
  */
 router.get(
   "/:id/movements",

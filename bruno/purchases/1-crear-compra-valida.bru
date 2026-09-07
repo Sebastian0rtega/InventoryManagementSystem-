@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: http://localhost:3000/api/purchases
+  url: {{baseUrl}}/api/purchases
   body: json
   auth: bearer
 }
@@ -24,11 +24,18 @@ body:json {
     "supplierId": 1,
     "storeId": 1,
     "documentType": "FACTURA",
-    "documentNumber": "F-1001",
+    "documentNumber": "F-{{timestamp}}",
     "paymentMethod": "TRANSFERENCIA",
     "items": [
       { "productId": 1, "quantity": 5, "unitCost": 12000 }
     ]
+  }
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setEnvVar("compraId", String(res.body.compra_id));
+    bru.setEnvVar("docNumeroTest", res.body.numero_documento || "");
   }
 }
 
