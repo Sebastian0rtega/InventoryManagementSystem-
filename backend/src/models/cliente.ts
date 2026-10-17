@@ -19,14 +19,14 @@ export class Cliente
   extends Model<ClienteAttributes, ClienteCreationAttributes>
   implements ClienteAttributes
 {
-  public cliente_id!: number;
-  public nombre!: string;
-  public rut!: string;
-  public telefono!: string | null;
-  public email!: string;
-  public activo!: boolean;
-  public created_at!: Date;
-  public updated_at!: Date;
+  declare cliente_id: number;
+  declare nombre: string;
+  declare rut: string;
+  declare telefono: string | null;
+  declare email: string;
+  declare activo: boolean;
+  declare created_at: Date;
+  declare updated_at: Date;
 }
 
 Cliente.init(

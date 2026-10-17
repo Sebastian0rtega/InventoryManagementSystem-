@@ -72,13 +72,6 @@ router.get(
 router.get(
   "/:id",
   authorize(ROLES.ADMIN, ROLES.SELLER),
-  validar(listaVentasQuerySchema, "query"),
-  saleController.list,
-);
-
-router.get(
-  "/:id",
-  authorize(ROLES.ADMIN, ROLES.SELLER),
   validar(idParamSchema, "params"),
   saleController.get,
 );

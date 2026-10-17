@@ -162,6 +162,12 @@ backend/
 - **Vendedor Demo (Seller)**:
   - **Email**: `vendedor.demo@example.com`
   - **Password**: valor de `ADMIN_PASSWORD` en tu `.env` con sufijo `-seller`
+- **Bodeguero Demo (Warehouse)**:
+  - **Email**: `bodega@empresa.com`
+  - **Password**: valor de `ADMIN_PASSWORD` en tu `.env` con sufijo `-warehouse`
+
+En Bruno, configura `adminPassword`, `sellerPassword` y `warehousePassword` en el
+environment `local` para que coincidan con `ADMIN_PASSWORD` y sus sufijos.
 
 ---
 

@@ -1,4 +1,4 @@
-﻿import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/db";
 import type { Tienda } from "./tienda";
 import type { Producto } from "./producto";
@@ -26,16 +26,16 @@ export class Inventario
   extends Model<InventarioAttributes, Creation>
   implements InventarioAttributes
 {
-  public inventario_id!: number;
-  public tienda_id!: number;
-  public producto_id!: number;
-  public cantidad!: number;
-  public stock_minimo!: number;
-  public created_at!: Date;
-  public updated_at!: Date;
-  public readonly tienda?: Tienda;
-  public readonly producto?: Producto;
-  public readonly movimientos?: MovimientoInventario[];
+  declare inventario_id: number;
+  declare tienda_id: number;
+  declare producto_id: number;
+  declare cantidad: number;
+  declare stock_minimo: number;
+  declare created_at: Date;
+  declare updated_at: Date;
+  declare readonly tienda?: Tienda;
+  declare readonly producto?: Producto;
+  declare readonly movimientos?: MovimientoInventario[];
 }
 
 Inventario.init(

@@ -1,4 +1,4 @@
-﻿import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/db";
 import type { Tienda } from "./tienda";
 import type { Producto } from "./producto";
@@ -33,21 +33,21 @@ export class Compra
   extends Model<CompraAttributes, Creation>
   implements CompraAttributes
 {
-  public compra_id!: number;
-  public proveedor_id!: number;
-  public tienda_id!: number;
-  public usuario_id!: number;
-  public tipo_documento!: string;
-  public numero_documento!: string;
-  public metodo_pago!: string;
-  public fecha_compra!: Date;
-  public total!: string;
-  public created_at!: Date;
-  public updated_at!: Date;
-  public readonly proveedor?: Proveedor;
-  public readonly tienda?: Tienda;
-  public readonly usuario?: Usuario;
-  public readonly detalles?: DetalleCompra[];
+  declare compra_id: number;
+  declare proveedor_id: number;
+  declare tienda_id: number;
+  declare usuario_id: number;
+  declare tipo_documento: string;
+  declare numero_documento: string;
+  declare metodo_pago: string;
+  declare fecha_compra: Date;
+  declare total: string;
+  declare created_at: Date;
+  declare updated_at: Date;
+  declare readonly proveedor?: Proveedor;
+  declare readonly tienda?: Tienda;
+  declare readonly usuario?: Usuario;
+  declare readonly detalles?: DetalleCompra[];
 }
 
 Compra.init(

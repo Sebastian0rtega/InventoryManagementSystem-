@@ -61,12 +61,12 @@ describe("DÍA 2 · /api/suppliers", () => {
       .set("Authorization", `Bearer ${TOKEN_ADMIN}`)
       .send({
         nombre: "  Distribuidora   Test SpA ",
-        rut: "77.111.222-3",
+        rut: "77.111.222-6",
         email: "TEST@Distribuidora.Cl",
       });
     expect(res.status).toBe(201);
     expect(res.body.nombre).toBe("Distribuidora Test SpA");
-    expect(res.body.rut).toBe("77111222-3");
+    expect(res.body.rut).toBe("77111222-6");
     expect(res.body.email).toBe("test@distribuidora.cl");
     expect(res.body.activo).toBe(true);
     proveedorId = res.body.proveedor_id;
@@ -87,7 +87,7 @@ describe("DÍA 2 · /api/suppliers", () => {
       .set("Authorization", `Bearer ${TOKEN_ADMIN}`)
       .send({
         nombre: "Otra Distribuidora",
-        rut: "77111222-3",
+        rut: "77111222-6",
         email: "otra@dist.cl",
       });
     expect(res.status).toBe(409);
@@ -176,12 +176,12 @@ describe("DÍA 2 · /api/customers", () => {
       .set("Authorization", `Bearer ${TOKEN_SELLER}`)
       .send({
         nombre: "  Camila   Rojas ",
-        rut: "14.234.567-8",
+        rut: "14.234.567-6",
         email: "Camila@Correo.COM",
       });
     expect(res.status).toBe(201);
     expect(res.body.nombre).toBe("Camila Rojas");
-    expect(res.body.rut).toBe("14234567-8");
+    expect(res.body.rut).toBe("14234567-6");
     expect(res.body.email).toBe("camila@correo.com");
     clienteId = res.body.cliente_id;
   });
@@ -192,7 +192,7 @@ describe("DÍA 2 · /api/customers", () => {
       .set("Authorization", `Bearer ${TOKEN_SELLER}`)
       .send({
         nombre: "Otro Cliente",
-        rut: "15345678-4",
+        rut: "15345678-K",
         email: "CAMILA@correo.com",
       });
     expect(res.status).toBe(409);

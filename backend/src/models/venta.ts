@@ -29,18 +29,18 @@ export class Venta
   extends Model<VentaAttributes, Creation>
   implements VentaAttributes
 {
-  public venta_id!: number;
-  public cliente_id!: number | null;
-  public tienda_id!: number;
-  public usuario_id!: number;
-  public fecha_venta!: Date;
-  public total!: string;
-  public created_at!: Date;
-  public updated_at!: Date;
-  public readonly cliente?: Cliente;
-  public readonly tienda?: Tienda;
-  public readonly usuario?: Usuario;
-  public readonly detalles?: DetalleVenta[];
+  declare venta_id: number;
+  declare cliente_id: number | null;
+  declare tienda_id: number;
+  declare usuario_id: number;
+  declare fecha_venta: Date;
+  declare total: string;
+  declare created_at: Date;
+  declare updated_at: Date;
+  declare readonly cliente?: Cliente;
+  declare readonly tienda?: Tienda;
+  declare readonly usuario?: Usuario;
+  declare readonly detalles?: DetalleVenta[];
 }
 
 Venta.init(

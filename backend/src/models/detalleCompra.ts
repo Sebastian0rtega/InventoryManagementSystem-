@@ -25,16 +25,16 @@ export class DetalleCompra
   extends Model<DetalleCompraAttributes, Creation>
   implements DetalleCompraAttributes
 {
-  public detalle_compra_id!: number;
-  public compra_id!: number;
-  public producto_id!: number;
-  public cantidad!: number;
-  public precio_compra!: string;
-  public subtotal!: string;
-  public created_at!: Date;
-  public updated_at!: Date;
-  public readonly compra?: Compra;
-  public readonly producto?: Producto;
+  declare detalle_compra_id: number;
+  declare compra_id: number;
+  declare producto_id: number;
+  declare cantidad: number;
+  declare precio_compra: string;
+  declare subtotal: string;
+  declare created_at: Date;
+  declare updated_at: Date;
+  declare readonly compra?: Compra;
+  declare readonly producto?: Producto;
 }
 
 DetalleCompra.init(
