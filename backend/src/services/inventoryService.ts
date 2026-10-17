@@ -68,8 +68,8 @@ export async function listInventory(query: ListaInventarioQuery, userPayload: Jw
     };
   }
 
-  // Filtro por estado calculado en SQL (cláusula HAVING sobre CASE)
-  const havingEstado = status
+  // El estado es calculado en SQL para filtrar sin traer filas extra.
+  const condicionEstado = status
     ? sequelize.where(
         sequelize.literal(
           `CASE WHEN "Inventario"."cantidad" = 0 THEN 'OUT'
@@ -104,7 +104,9 @@ export async function listInventory(query: ListaInventarioQuery, userPayload: Jw
     distinct: true,
   };
 
-  if (havingEstado) options.having = havingEstado;
+  if (condicionEstado) {
+    options.where = { [Op.and]: [where, condicionEstado] };
+  }
 
   const { rows, count } = await Inventario.findAndCountAll(options as never);
 
