@@ -10,6 +10,7 @@ module.exports = {
     // El README documenta un vendedor de demostración; se crea aquí para que
     // las credenciales listadas existan realmente tras ejecutar los seeders.
     const sellerHash = await bcrypt.hash(process.env.ADMIN_PASSWORD + '-seller', 10);
+    const warehouseHash = await bcrypt.hash(process.env.ADMIN_PASSWORD + '-warehouse', 10);
 
     await queryInterface.bulkInsert('usuarios', [
       {
@@ -32,13 +33,23 @@ module.exports = {
         activo: true,
         created_at: new Date(),
         updated_at: new Date()
+      },
+      {
+        rol_id: 3, // WAREHOUSE
+        tienda_id: 1,
+        email: 'bodega@empresa.com',
+        nombre: 'Bodega Demo',
+        password_hash: warehouseHash,
+        activo: true,
+        created_at: new Date(),
+        updated_at: new Date()
       }
     ], {});
   },
 
   down: async (queryInterface, Sequelize) => {
     await queryInterface.bulkDelete('usuarios', {
-      email: ['admin@inventory.com', 'vendedor.demo@example.com']
+      email: ['admin@inventory.com', 'vendedor.demo@example.com', 'bodega@empresa.com']
     }, {});
   }
 };

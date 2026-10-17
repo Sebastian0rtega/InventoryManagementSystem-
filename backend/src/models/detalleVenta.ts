@@ -25,16 +25,16 @@ export class DetalleVenta
   extends Model<DetalleVentaAttributes, Creation>
   implements DetalleVentaAttributes
 {
-  public detalle_venta_id!: number;
-  public venta_id!: number;
-  public producto_id!: number;
-  public cantidad!: number;
-  public precio_venta!: string;
-  public subtotal!: string;
-  public created_at!: Date;
-  public updated_at!: Date;
-  public readonly venta?: Venta;
-  public readonly producto?: Producto;
+  declare detalle_venta_id: number;
+  declare venta_id: number;
+  declare producto_id: number;
+  declare cantidad: number;
+  declare precio_venta: string;
+  declare subtotal: string;
+  declare created_at: Date;
+  declare updated_at: Date;
+  declare readonly venta?: Venta;
+  declare readonly producto?: Producto;
 }
 
 DetalleVenta.init(

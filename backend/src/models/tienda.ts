@@ -15,11 +15,11 @@ export class Tienda
   extends Model<TiendaAttributes, TiendaCreationAttributes>
   implements TiendaAttributes
 {
-  public tienda_id!: number;
-  public nombre!: string;
-  public direccion!: string;
-  public created_at!: Date;
-  public updated_at!: Date;
+  declare tienda_id: number;
+  declare nombre: string;
+  declare direccion: string;
+  declare created_at: Date;
+  declare updated_at: Date;
 }
 
 Tienda.init(

@@ -71,12 +71,6 @@ router.get(
 router.get(
   "/:id",
   authorize(ROLES.ADMIN, ROLES.WAREHOUSE),
-  validar(listaComprasQuerySchema, "query"),
-  purchaseController.list,
-);
-router.get(
-  "/:id",
-  authorize(ROLES.ADMIN, ROLES.WAREHOUSE),
   validar(idParamSchema, "params"),
   purchaseController.get,
 );

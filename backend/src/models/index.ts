@@ -40,6 +40,8 @@ once("Inventario.hasMany:movimientos", () =>
   Inventario.hasMany(MovimientoInventario, { foreignKey: "inventario_id", as: "movimientos" }));
 once("Movimiento.belongsTo:inventario", () =>
   MovimientoInventario.belongsTo(Inventario, { foreignKey: "inventario_id", as: "inventario" }));
+once("Movimiento.belongsTo:usuario", () =>
+  MovimientoInventario.belongsTo(Usuario, { foreignKey: "usuario_id", as: "usuario" }));
 
 // Compras (cabecera/detalle)
 once("Compra.belongsTo:proveedor", () =>
