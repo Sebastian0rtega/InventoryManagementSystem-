@@ -3,15 +3,13 @@ import request from "supertest";
 import { sequelize } from "../models";
 import app from "../app";
 import { env } from "../config/env";
+import { requireTestDatabase } from "./testDatabase";
 
 /**
  * Pruebas de integración DÍA 2: CRUD de proveedores y clientes.
  *
  * Requieren inventory_test_db con migraciones y seeders aplicados:
  *   npm run db:test:setup
- *
- * Si la base no está alcanzable, la suite se salta con aviso (igual
- * que la smoke del DÍA 1) para que `npm test` siga siendo útil.
  *
  * Los tokens se firman localmente con el JWT_SECRET del entorno de test;
  * authenticate() solo verifica la firma y el payload { id, rol }.
@@ -24,32 +22,14 @@ const TOKEN_ADMIN = tokenDe("ADMIN");
 const TOKEN_SELLER = tokenDe("SELLER");
 const TOKEN_WAREHOUSE = tokenDe("WAREHOUSE");
 
-let dbOk = false;
-
-beforeAll(async () => {
-  try {
-    await Promise.race([
-      sequelize.authenticate(),
-      new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 4000)),
-    ]);
-    dbOk = true;
-  } catch {
-    dbOk = false;
-    console.warn(
-      "[SKIP] inventory_test_db no está alcanzable; ejecuta npm run db:test:setup con la base arriba.",
-    );
-  }
-});
+beforeAll(requireTestDatabase);
 
 afterAll(async () => {
   await sequelize.close().catch(() => undefined);
 });
 
 const itDb = (name: string, fn: () => Promise<void>) =>
-  test(name, async () => {
-    if (!dbOk) return;
-    await fn();
-  });
+  test(name, fn);
 
 let proveedorId: number;
 let clienteId: number;

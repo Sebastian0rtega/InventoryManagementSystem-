@@ -51,3 +51,16 @@
 
 - [x] Dejar todos los PR del Sprint 1 hacia `dev` listos para revisión
 - [x] No fusionar a `main` ni crear `v0.2.0` hasta recibir aprobación
+
+# TODO — Cierre Semana 3
+
+- [x] Hacer que las suites de integración fallen si PostgreSQL de pruebas no responde
+- [x] Dar defaults de entorno a Jest para no depender de `backend/.env`
+- [x] Generar paths Swagger y alinear esquemas de compras, ventas y ajustes con Zod
+- [x] Persistir ajustes manuales como `AJUSTE_ENTRADA` o `AJUSTE_SALIDA` con migración compatible
+- [x] Limitar creación, listado y detalle de compras de WAREHOUSE a su tienda
+- [x] Agregar requests Bruno para inventario, ajustes y consulta de movimientos
+- [x] Actualizar README y roadmap de la semana
+- [x] Ejecutar build y lint (0 errores; 2 warnings existentes)
+- [ ] Ejecutar migraciones, seeders y suite completa contra PostgreSQL de pruebas real
+- [ ] Ejecutar la colección Bruno contra el backend levantado

@@ -11,14 +11,13 @@ import {
 import app from "../app";
 import { env } from "../config/env";
 import { crearVentaSchema } from "../validators/ventas";
+import { requireTestDatabase } from "./testDatabase";
 
 /**
  * Pruebas unitarias e integración DÍA 4: ventas y salida segura de stock.
  *
  * Requieren inventory_test_db con migraciones y seeders aplicados:
  *   npm run db:test:setup
- * Si la base de datos no está alcanzable, los tests de integración se saltan
- * de forma limpia mientras que las pruebas unitarias de validación siempre corren.
  */
 
 function tokenDe(rol: "ADMIN" | "SELLER" | "WAREHOUSE", id = 1): string {
@@ -29,30 +28,13 @@ const TOKEN_ADMIN = tokenDe("ADMIN", 1); // Admin en tienda 1
 const TOKEN_SELLER = tokenDe("SELLER", 2); // Vendedor demo en tienda 1
 const TOKEN_WAREHOUSE = tokenDe("WAREHOUSE", 3);
 
-let dbOk = false;
-
-beforeAll(async () => {
-  try {
-    await Promise.race([
-      sequelize.authenticate(),
-      new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 4000)),
-    ]);
-    dbOk = true;
-  } catch {
-    dbOk = false;
-    console.warn(
-      "[SKIP] inventory_test_db no está alcanzable; ejecuta npm run db:test:setup con la base arriba.",
-    );
-  }
-});
-
 afterAll(async () => {
   await sequelize.close().catch(() => undefined);
 });
 
 const itDb = (name: string, fn: () => Promise<void>) =>
   test(name, async () => {
-    if (!dbOk) return;
+    await requireTestDatabase();
     await fn();
   });
 

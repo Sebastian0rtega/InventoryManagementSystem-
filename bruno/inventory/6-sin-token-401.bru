@@ -1,0 +1,14 @@
+meta {
+  name: Inventario sin token -> 401
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/inventory
+  auth: none
+}
+
+assert {
+  res.status: eq 401
+}

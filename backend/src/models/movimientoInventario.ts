@@ -7,6 +7,8 @@ export type TipoMovimiento =
   | "ENTRADA_COMPRA"
   | "SALIDA_VENTA"
   | "AJUSTE"
+  | "AJUSTE_ENTRADA"
+  | "AJUSTE_SALIDA"
   | "MERMA"
   | "TRASLADO";
 
