@@ -62,5 +62,5 @@
 - [x] Agregar requests Bruno para inventario, ajustes y consulta de movimientos
 - [x] Actualizar README y roadmap de la semana
 - [x] Ejecutar build y lint (0 errores; 2 warnings existentes)
-- [ ] Ejecutar migraciones, seeders y suite completa contra PostgreSQL de pruebas real
+- [x] Ejecutar migraciones y seeders en PostgreSQL de pruebas; tests: 7 suites y 82 tests aprobados
 - [ ] Ejecutar la colección Bruno contra el backend levantado

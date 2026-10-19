@@ -17,4 +17,5 @@
 - Swagger/OpenAPI publica las rutas reales y sus contratos de entrada principales.
 - Bruno incluye casos de inventario, movimientos y autorización por tienda.
 - Validación local: build y lint ejecutados; lint sin errores y con dos warnings preexistentes.
-- Pendiente de cierre: ejecutar migraciones, seeders y tests de integración contra PostgreSQL de pruebas, además de correr Bruno contra la API.
+- Validación en AWS: migraciones y seeders completados en PostgreSQL de pruebas; build pasó y la suite completa aprobó 7/7 suites (82/82 tests).
+- Pendiente de cierre: correr los requests de Bruno contra la API.
