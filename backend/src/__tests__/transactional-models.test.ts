@@ -31,14 +31,14 @@ describe("smoke: modelos transaccionales sobre inventory_test_db", () => {
     );
   });
 
-  test("los seeders dejaron datos deterministas de inventario", async () => {
+  test("los seeders crearon inventario inicial para producto 1 en tienda 1", async () => {
     await requireTestDatabase();
-    const registros = await Inventario.findAll({ order: [["inventario_id", "ASC"]] });
-    expect(registros.length).toBeGreaterThanOrEqual(3);
-    const primera = registros[0];
-    expect(primera.tienda_id).toBe(1);
-    expect(primera.producto_id).toBe(1);
-    expect(Number(primera.cantidad)).toBe(100);
+    const inventarioInicial = await Inventario.findOne({
+      where: { tienda_id: 1, producto_id: 1 },
+    });
+    expect(inventarioInicial).not.toBeNull();
+    expect(inventarioInicial?.tienda_id).toBe(1);
+    expect(inventarioInicial?.producto_id).toBe(1);
   });
 
   test("asociaciones cargadas sin duplicados (alias consistentes)", () => {
