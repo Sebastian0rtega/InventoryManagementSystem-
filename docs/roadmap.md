@@ -18,4 +18,4 @@
 - Bruno incluye casos de inventario, movimientos y autorización por tienda.
 - Validación local: build y lint ejecutados; lint sin errores y con dos warnings preexistentes.
 - Validación en AWS: migraciones y seeders completados en PostgreSQL de pruebas; build pasó y la suite completa aprobó 7/7 suites (82/82 tests).
-- Pendiente de cierre: correr los requests de Bruno contra la API.
+- Bruno en AWS: 6 requests de inventario aprobados, con 12/12 assertions (incluye autorización 401/403).

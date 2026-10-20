@@ -63,4 +63,4 @@
 - [x] Actualizar README y roadmap de la semana
 - [x] Ejecutar build y lint (0 errores; 2 warnings existentes)
 - [x] Ejecutar migraciones y seeders en PostgreSQL de pruebas; tests: 7 suites y 82 tests aprobados
-- [ ] Ejecutar la colección Bruno contra el backend levantado
+- [x] Ejecutar Bruno contra la API de pruebas en AWS (inventario: 6 requests, 12 assertions aprobadas)
