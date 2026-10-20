@@ -1,0 +1,34 @@
+meta {
+  name: Ajuste SALIDA WAREHOUSE -> 201
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/inventory/adjustments
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{tokenWarehouse}}
+}
+
+auth:bearer {
+  token: {{tokenWarehouse}}
+}
+
+body:json {
+  {
+    "productId": 3,
+    "tipo": "SALIDA",
+    "cantidad": 1,
+    "motivo": "Bruno: salida de inventario"
+  }
+}
+
+assert {
+  res.status: eq 201
+  res.body.ajuste.tipo: eq SALIDA
+}

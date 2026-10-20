@@ -1,0 +1,34 @@
+meta {
+  name: WAREHOUSE no ajusta tienda ajena -> 403
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/inventory/adjustments
+  body: json
+  auth: bearer
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{tokenWarehouse}}
+}
+
+auth:bearer {
+  token: {{tokenWarehouse}}
+}
+
+body:json {
+  {
+    "storeId": 2,
+    "productId": 3,
+    "tipo": "ENTRADA",
+    "cantidad": 1,
+    "motivo": "Bruno: intento de otra tienda"
+  }
+}
+
+assert {
+  res.status: eq 403
+}

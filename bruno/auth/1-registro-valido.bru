@@ -24,5 +24,6 @@ body:json {
 
 assert {
   res.status: eq 201
-  res.body: isNumber 0
+  res.body.usuario_id: isDefined
+  res.body.email: eq nuevo.vendedor@empresa.com
 }

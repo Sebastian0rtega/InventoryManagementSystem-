@@ -5,6 +5,7 @@ import app from "../app";
 import { env } from "../config/env";
 import { calcularEstado } from "../services/inventoryService";
 import { ajusteInventarioSchema, listaInventarioQuerySchema } from "../validators/inventario";
+import { requireTestDatabase } from "./testDatabase";
 
 /**
  * Pruebas DÍA 5 · Inventario y movimientos.
@@ -20,28 +21,13 @@ const TOKEN_ADMIN = tokenDe("ADMIN", 1);
 const TOKEN_SELLER = tokenDe("SELLER", 2);
 const TOKEN_WAREHOUSE = tokenDe("WAREHOUSE", 3);
 
-let dbOk = false;
-
-beforeAll(async () => {
-  try {
-    await Promise.race([
-      sequelize.authenticate(),
-      new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 4000)),
-    ]);
-    dbOk = true;
-  } catch {
-    dbOk = false;
-    console.warn("[SKIP] inventory_test_db no está alcanzable; ejecuta npm run db:test:setup.");
-  }
-});
-
 afterAll(async () => {
   await sequelize.close().catch(() => undefined);
 });
 
 const itDb = (name: string, fn: () => Promise<void>) =>
   test(name, async () => {
-    if (!dbOk) return;
+    await requireTestDatabase();
     await fn();
   });
 
@@ -193,7 +179,7 @@ describe("DÍA 5 · POST /api/inventory/adjustments", () => {
 
     const mov = await MovimientoInventario.findByPk(res.body.ajuste.movimiento_id);
     expect(mov).not.toBeNull();
-    expect(mov!.tipo_movimiento).toBe("AJUSTE");
+    expect(mov!.tipo_movimiento).toBe("AJUSTE_ENTRADA");
     expect(mov!.motivo).toBe("conteo físico: faltante detectado");
     expect(mov!.usuario_id).toBe(1);
   });
@@ -242,6 +228,8 @@ describe("DÍA 5 · POST /api/inventory/adjustments", () => {
     expect(res.status).toBe(201);
     expect(res.body.inventario.stock_actual).toBe(0);
     expect(res.body.inventario.status).toBe("OUT");
+    const movimiento = await MovimientoInventario.findByPk(res.body.ajuste.movimiento_id);
+    expect(movimiento?.tipo_movimiento).toBe("AJUSTE_SALIDA");
   });
 
   itDb("SELLER no puede ajustar inventario: 403", async () => {
