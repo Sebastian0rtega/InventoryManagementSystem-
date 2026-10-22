@@ -2,7 +2,7 @@
 
 - **Sprint 0 (Semana 1):** Configuración inicial del repositorio, GitHub Project, Issues, diseño de base de datos, documentación.
 - **Sprint 1 (Semana 2):** Implementar autenticación y roles de usuario.
-- **Sprint 2 (Semana 3):** CRUD de productos y categorías.
+- **Sprint 2 (Semana 3):** Módulos de compras, ventas e inventario.
 - **Sprint 3 (Semana 4):** CRUD de proveedores y clientes.
 - **Sprint 4 (Semana 5):** Módulo de compras y ventas.
 - **Sprint 5 (Semana 6):** Movimientos de inventario y reportes básicos.
