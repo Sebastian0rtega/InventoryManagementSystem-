@@ -96,43 +96,27 @@ npm start
 
 ```
 backend/
-├── .env.example          # Plantilla de variables de entorno
-├── package.json          # Dependencias y scripts
-├── tsconfig.json         # Configuración compilador TypeScript
+├── .env.example
+├── package.json
+├── tsconfig.json
 ├── src/
-│   ├── server.ts         # Punto de entrada del servidor HTTP
-│   ├── app.ts            # Configuración de Express, middlewares y rutas
+│   ├── server.ts
+│   ├── app.ts
 │   ├── config/
-│   │   ├── env.ts        # Validación de variables de entorno
-│   │   └── db.ts         # Instancia de conexión Sequelize
-│   ├── controllers/      # Controladores HTTP (Manejo de request/response)
-│   │   ├── authController.ts
-│   │   ├── categoryController.ts
-│   │   ├── productController.ts
-│   │   └── userController.ts
-│   ├── services/         # Capa de Lógica de Negocio
-│   │   ├── authService.ts
-│   │   ├── categoryService.ts
-│   │   ├── productService.ts
-│   │   └── userService.ts
-│   ├── models/           # Modelos Sequelize en TypeScript
-│   │   ├── index.ts
-│   │   ├── usuario.ts
-│   │   ├── rol.ts
-│   │   ├── tienda.ts
-│   │   ├── categoria.ts
-│   │   └── producto.ts
-│   ├── middlewares/      # Interceptores (Auth, Roles, Error Handler)
-│   │   ├── authenticate.ts
-│   │   ├── authorize.ts
-│   │   └── errorHandler.ts
-│   ├── routes/           # Rutas y enrutadores Express
-│   │   ├── authRoutes.ts
-│   │   ├── categoryRoutes.ts
-│   │   ├── productRoutes.ts
-│   │   └── userRoutes.ts
-│   └── utils/            # Utilidades y clases de error estandarizadas
-│       └── errors.ts
+│   ├── config/           # Entorno y conexiones de base de datos
+│   ├── controllers/      # auth, users, categories, products, suppliers,
+│   │                     # customers, purchases, sales e inventory
+│   ├── docs/             # OpenAPI y anotaciones de rutas
+│   ├── middlewares/      # Autenticación, autorización, validación y errores
+│   ├── migrations/       # Migraciones de Sequelize
+│   ├── models/           # Modelos y relaciones de Sequelize
+│   ├── routes/           # Rutas Express por módulo
+│   ├── seeders/          # Datos iniciales y de demostración
+│   ├── services/         # Lógica de negocio por módulo
+│   ├── types/            # Extensiones de tipos de Express
+│   ├── utils/            # Errores y utilidades compartidas
+│   ├── validators/       # Esquemas de validación de compras, ventas e inventario
+│   └── __tests__/        # Pruebas unitarias y de integración
 ```
 
 ---

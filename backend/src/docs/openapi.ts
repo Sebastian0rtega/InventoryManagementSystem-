@@ -275,7 +275,9 @@ const spec = swaggerJsdoc({
     },
     security: [{ bearerAuth: [] }],
   },
-  apis: [path.join(__dirname, "openapiRoutes.{ts,js}")],
+  apis: [
+    path.join(__dirname, "openapiRoutes.{ts,js}").replace(/\\/g, "/"),
+  ],
 });
 
 export default spec;
