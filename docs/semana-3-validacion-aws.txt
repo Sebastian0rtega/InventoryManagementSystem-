@@ -1,0 +1,208 @@
+===== npm run build =====
+
+> Inventory-Backend@1.0.0 build
+> rimraf dist && tsc
+
+===== npm run lint =====
+
+> Inventory-Backend@1.0.0 lint
+> eslint "src/**/*.ts"
+
+
+/home/ec2-user/inventory/InventoryManagementSystem-/backend/src/models/compra.ts
+  4:15  warning  'Producto' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ec2-user/inventory/InventoryManagementSystem-/backend/src/models/usuario.ts
+  40:28  warning  '_passwordHash' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 2 problems (0 errors, 2 warnings)
+
+===== npm run db:test:setup =====
+
+> Inventory-Backend@1.0.0 db:test:setup
+> cross-env NODE_ENV=test npx sequelize-cli db:migrate:undo:all && cross-env NODE_ENV=test npx sequelize-cli db:migrate && cross-env NODE_ENV=test npx sequelize-cli db:seed:all
+
+
+Sequelize CLI [Node: 22.23.3, CLI: 6.6.5, ORM: 6.37.8]
+
+Loaded configuration file "src/config/database.js".
+Using environment "test".
+== 20261018000000-distinguish-manual-adjustment-direction: reverting =======
+== 20261018000000-distinguish-manual-adjustment-direction: reverted (0.018s)
+
+== 20260723000000-add-stock-minimo-y-motivo: reverting =======
+== 20260723000000-add-stock-minimo-y-motivo: reverted (0.010s)
+
+== 20260722000000-add-metodo-pago-to-compras: reverting =======
+== 20260722000000-add-metodo-pago-to-compras: reverted (0.008s)
+
+== 20260721000000-add-activo-to-proveedores-y-clientes: reverting =======
+== 20260721000000-add-activo-to-proveedores-y-clientes: reverted (0.010s)
+
+== 20260720010600-create-movimientos-inventarios: reverting =======
+== 20260720010600-create-movimientos-inventarios: reverted (0.013s)
+
+== 20260720010500-create-detalle-ventas: reverting =======
+== 20260720010500-create-detalle-ventas: reverted (0.013s)
+
+== 20260720010400-create-ventas: reverting =======
+== 20260720010400-create-ventas: reverted (0.013s)
+
+== 20260720010300-create-detalle-compras: reverting =======
+== 20260720010300-create-detalle-compras: reverted (0.013s)
+
+== 20260720010200-create-compras: reverting =======
+== 20260720010200-create-compras: reverted (0.016s)
+
+== 20260720010100-create-inventarios: reverting =======
+== 20260720010100-create-inventarios: reverted (0.013s)
+
+== 20260720010000-create-proveedores: reverting =======
+== 20260720010000-create-proveedores: reverted (0.011s)
+
+== 20260720000000-make-codigo-barras-optional: reverting =======
+== 20260720000000-make-codigo-barras-optional: reverted (0.018s)
+
+== 20260719000000-add-activo-to-productos: reverting =======
+== 20260719000000-add-activo-to-productos: reverted (0.007s)
+
+== 20260718000200-add-activo-to-usuarios: reverting =======
+== 20260718000200-add-activo-to-usuarios: reverted (0.007s)
+
+== 20260718000100-sync-roles: reverting =======
+== 20260718000100-sync-roles: reverted (0.011s)
+
+== 20260717173927-create-usuarios: reverting =======
+== 20260717173927-create-usuarios: reverted (0.012s)
+
+== 20260717050156-create-productos: reverting =======
+== 20260717050156-create-productos: reverted (0.013s)
+
+== 20260717050150-create-clientes: reverting =======
+== 20260717050150-create-clientes: reverted (0.010s)
+
+== 20260717050142-create-categorias: reverting =======
+== 20260717050142-create-categorias: reverted (0.011s)
+
+== 20260717050136-create-tiendas: reverting =======
+== 20260717050136-create-tiendas: reverted (0.010s)
+
+== 20260717050128-create-roles: reverting =======
+== 20260717050128-create-roles: reverted (0.010s)
+
+
+Sequelize CLI [Node: 22.23.3, CLI: 6.6.5, ORM: 6.37.8]
+
+Loaded configuration file "src/config/database.js".
+Using environment "test".
+== 20260717050128-create-roles: migrating =======
+== 20260717050128-create-roles: migrated (0.024s)
+
+== 20260717050136-create-tiendas: migrating =======
+== 20260717050136-create-tiendas: migrated (0.017s)
+
+== 20260717050142-create-categorias: migrating =======
+== 20260717050142-create-categorias: migrated (0.017s)
+
+== 20260717050150-create-clientes: migrating =======
+== 20260717050150-create-clientes: migrated (0.022s)
+
+== 20260717050156-create-productos: migrating =======
+== 20260717050156-create-productos: migrated (0.029s)
+
+== 20260717173927-create-usuarios: migrating =======
+== 20260717173927-create-usuarios: migrated (0.019s)
+
+== 20260718000100-sync-roles: migrating =======
+== 20260718000100-sync-roles: migrated (0.008s)
+
+== 20260718000200-add-activo-to-usuarios: migrating =======
+== 20260718000200-add-activo-to-usuarios: migrated (0.011s)
+
+== 20260719000000-add-activo-to-productos: migrating =======
+== 20260719000000-add-activo-to-productos: migrated (0.010s)
+
+== 20260720000000-make-codigo-barras-optional: migrating =======
+== 20260720000000-make-codigo-barras-optional: migrated (0.016s)
+
+== 20260720010000-create-proveedores: migrating =======
+== 20260720010000-create-proveedores: migrated (0.020s)
+
+== 20260720010100-create-inventarios: migrating =======
+== 20260720010100-create-inventarios: migrated (0.025s)
+
+== 20260720010200-create-compras: migrating =======
+== 20260720010200-create-compras: migrated (0.025s)
+
+== 20260720010300-create-detalle-compras: migrating =======
+== 20260720010300-create-detalle-compras: migrated (0.023s)
+
+== 20260720010400-create-ventas: migrating =======
+== 20260720010400-create-ventas: migrated (0.018s)
+
+== 20260720010500-create-detalle-ventas: migrating =======
+== 20260720010500-create-detalle-ventas: migrated (0.022s)
+
+== 20260720010600-create-movimientos-inventarios: migrating =======
+== 20260720010600-create-movimientos-inventarios: migrated (0.020s)
+
+== 20260721000000-add-activo-to-proveedores-y-clientes: migrating =======
+== 20260721000000-add-activo-to-proveedores-y-clientes: migrated (0.011s)
+
+== 20260722000000-add-metodo-pago-to-compras: migrating =======
+== 20260722000000-add-metodo-pago-to-compras: migrated (0.008s)
+
+== 20260723000000-add-stock-minimo-y-motivo: migrating =======
+== 20260723000000-add-stock-minimo-y-motivo: migrated (0.011s)
+
+== 20261018000000-distinguish-manual-adjustment-direction: migrating =======
+== 20261018000000-distinguish-manual-adjustment-direction: migrated (0.011s)
+
+
+Sequelize CLI [Node: 22.23.3, CLI: 6.6.5, ORM: 6.37.8]
+
+Loaded configuration file "src/config/database.js".
+Using environment "test".
+== 20260717051605-demo-roles: migrating =======
+== 20260717051605-demo-roles: migrated (0.010s)
+
+== 20260717051613-demo-tiendas: migrating =======
+== 20260717051613-demo-tiendas: migrated (0.005s)
+
+== 20260717051619-demo-categorias: migrating =======
+== 20260717051619-demo-categorias: migrated (0.003s)
+
+== 20260717051626-demo-clientes: migrating =======
+== 20260717051626-demo-clientes: migrated (0.003s)
+
+== 20260717051633-demo-productos: migrating =======
+== 20260717051633-demo-productos: migrated (0.005s)
+
+== 20260717174004-demo-usuarios: migrating =======
+== 20260717174004-demo-usuarios: migrated (0.195s)
+
+== 20260720010000-demo-proveedores: migrating =======
+== 20260720010000-demo-proveedores: migrated (0.003s)
+
+== 20260720010100-demo-inventarios: migrating =======
+== 20260720010100-demo-inventarios: migrated (0.005s)
+
+===== npm test =====
+
+> Inventory-Backend@1.0.0 test
+> jest --runInBand
+
+PASS src/__tests__/sales.test.ts
+PASS src/__tests__/transactional-models.test.ts
+PASS src/__tests__/inventory.test.ts
+PASS src/__tests__/purchases.test.ts
+PASS src/__tests__/suppliers-customers.test.ts
+PASS src/__tests__/openapi.test.ts
+PASS src/__tests__/money.test.ts
+
+Test Suites: 7 passed, 7 total
+Tests:       82 passed, 82 total
+Snapshots:   0 total
+Time:        6.794 s, estimated 13 s
+Ran all test suites.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
