@@ -53,4 +53,3 @@ Categoria.init(
     modelName: "Categoria",
   },
 );
-

@@ -68,17 +68,16 @@ export async function listInventory(query: ListaInventarioQuery, userPayload: Jw
     };
   }
 
-  // El estado es calculado en SQL para filtrar sin traer filas extra.
-  const condicionEstado = status
-    ? sequelize.where(
-        sequelize.literal(
-          `CASE WHEN "Inventario"."cantidad" = 0 THEN 'OUT'
-                WHEN "Inventario"."cantidad" <= "Inventario"."stock_minimo" THEN 'LOW'
-                ELSE 'NORMAL' END`,
-        ),
-        status,
-      )
-    : null;
+  if (status) {
+    where[Op.and] = sequelize.where(
+      sequelize.literal(
+        `CASE WHEN "Inventario"."cantidad" = 0 THEN 'OUT'
+              WHEN "Inventario"."cantidad" <= "Inventario"."stock_minimo" THEN 'LOW'
+              ELSE 'NORMAL' END`,
+      ),
+      status,
+    );
+  }
 
   const order: Array<[string, "ASC" | "DESC"]> =
     sort === "stock_actual"
@@ -103,10 +102,6 @@ export async function listInventory(query: ListaInventarioQuery, userPayload: Jw
     limit,
     distinct: true,
   };
-
-  if (condicionEstado) {
-    options.where = { [Op.and]: [where, condicionEstado] };
-  }
 
   const { rows, count } = await Inventario.findAndCountAll(options as never);
 

@@ -58,4 +58,3 @@ Tienda.init(
     modelName: "Tienda",
   },
 );
-

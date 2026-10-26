@@ -49,4 +49,3 @@ Rol.init(
     modelName: "Rol",
   },
 );
-

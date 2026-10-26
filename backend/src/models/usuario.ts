@@ -37,7 +37,8 @@ export class Usuario
 
   /** Devuelve una copia del usuario sin el password_hash. */
   public toPublicJSON(): Omit<UsuarioAttributes, "password_hash"> {
-    const { password_hash: _passwordHash, ...userWithoutPassword } = this.toJSON() as UsuarioAttributes;
+    const userWithoutPassword = { ...this.toJSON() };
+    Reflect.deleteProperty(userWithoutPassword, "password_hash");
     return userWithoutPassword;
   }
 }
@@ -95,4 +96,3 @@ Usuario.init(
     modelName: "Usuario",
   },
 );
-

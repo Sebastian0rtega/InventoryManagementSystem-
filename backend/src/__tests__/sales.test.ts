@@ -149,7 +149,8 @@ describe("DÍA 4 · POST /api/sales", () => {
   });
 
   itDb("stock exacto: la venta deja stock exactamente en cero", async () => {
-    // Reiniciar el stock hace que la prueba sea repetible entre ejecuciones.
+    // Reiniciar este inventario hace la prueba independiente del seeder y del
+    // stock consumido por otras pruebas de la suite.
     let inv = await Inventario.findOne({ where: { tienda_id: 1, producto_id: 2 } });
     if (!inv) {
       inv = await Inventario.create({ tienda_id: 1, producto_id: 2, cantidad: 4 });

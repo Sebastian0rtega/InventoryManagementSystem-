@@ -59,14 +59,14 @@ describe("DÍA 2 · /api/suppliers", () => {
       .post("/api/suppliers")
       .set("Authorization", `Bearer ${TOKEN_ADMIN}`)
       .send({
-        nombre: `  Distribuidora   Test ${runId} SpA `,
-        rut: rutProveedor,
-        email: emailProveedor.toUpperCase(),
+        nombre: "  Distribuidora   Test SpA ",
+        rut: "77.111.222-6",
+        email: "TEST@Distribuidora.Cl",
       });
     expect(res.status).toBe(201);
-    expect(res.body.nombre).toBe(`Distribuidora Test ${runId} SpA`);
-    expect(res.body.rut).toBe(rutProveedor);
-    expect(res.body.email).toBe(emailProveedor);
+    expect(res.body.nombre).toBe("Distribuidora Test SpA");
+    expect(res.body.rut).toBe("77111222-6");
+    expect(res.body.email).toBe("test@distribuidora.cl");
     expect(res.body.activo).toBe(true);
     proveedorId = res.body.proveedor_id;
   });
@@ -86,7 +86,7 @@ describe("DÍA 2 · /api/suppliers", () => {
       .set("Authorization", `Bearer ${TOKEN_ADMIN}`)
       .send({
         nombre: "Otra Distribuidora",
-        rut: rutProveedor,
+        rut: "77111222-6",
         email: "otra@dist.cl",
       });
     expect(res.status).toBe(409);
@@ -175,13 +175,13 @@ describe("DÍA 2 · /api/customers", () => {
       .set("Authorization", `Bearer ${TOKEN_SELLER}`)
       .send({
         nombre: "  Camila   Rojas ",
-        rut: rutCliente,
-        email: emailCliente.toUpperCase(),
+        rut: "14.234.567-6",
+        email: "Camila@Correo.COM",
       });
     expect(res.status).toBe(201);
     expect(res.body.nombre).toBe("Camila Rojas");
-    expect(res.body.rut).toBe(rutCliente);
-    expect(res.body.email).toBe(emailCliente);
+    expect(res.body.rut).toBe("14234567-6");
+    expect(res.body.email).toBe("camila@correo.com");
     clienteId = res.body.cliente_id;
   });
 
@@ -191,8 +191,8 @@ describe("DÍA 2 · /api/customers", () => {
       .set("Authorization", `Bearer ${TOKEN_SELLER}`)
       .send({
         nombre: "Otro Cliente",
-        rut: rutConDigitoValido(10_000_000 + ((runId + 2) % 80_000_000)),
-        email: emailCliente.toUpperCase(),
+        rut: "15345678-K",
+        email: "CAMILA@correo.com",
       });
     expect(res.status).toBe(409);
   });
