@@ -1,40 +1,49 @@
 Semana 4 - linea base de calidad
 Fecha: 2026-10-26
 Rama de trabajo: feat/quality-baseline
-Commit base: 295f4a9
+Commit probado en AWS: 1a01d71
 
-Validaciones ejecutadas desde backend/
+Validacion ejecutada en AWS desde backend/
 
+- DB_NAME_TEST=inventory_test_db se exporto antes de la validacion.
+- npm ci: completado.
 - npm run build: aprobado.
-- npm run lint: aprobado, 0 errores y 0 warnings propios.
-- npm run db:test:setup: bloqueado; Sequelize CLI selecciono el entorno test,
-  pero no hay un servidor PostgreSQL disponible en este entorno.
-- npm test sin base preparada: 6 suites y 76 tests reportados como aprobados.
-  Las pruebas que requieren PostgreSQL se omitieron porque inventory_test_db
-  no estaba disponible; este resultado no acredita la linea base completa.
-- npm run verify: falla en db:test:setup al no poder conectar PostgreSQL.
-  verify prepara inventory_test_db antes de correr las pruebas para evitar
-  considerar exitosos tests de integracion omitidos.
+- npm run lint: aprobado, sin errores ni warnings propios del codigo.
+- npm run db:test:setup: aprobado; revirtio y aplico las migraciones, luego
+  aplico los seeders en el entorno test.
+- npm test: 6 suites y 76 tests aprobados, sin fallos ni omisiones.
+- npm run verify: completado con codigo 0; incluye build, lint,
+  db:test:setup y test.
 - backend/test.sh: comprobado con un npm simulado que devuelve codigo 37 en
   npm ci; el script devuelve 37 y no ejecuta los comandos posteriores.
+
+Advertencias observadas
+
+- ESLint funciona, pero @typescript-eslint/typescript-estree advierte que
+  TypeScript 5.9.3 esta fuera del rango oficialmente soportado por la version
+  instalada del parser (<5.6.0). No produjo errores ni warnings de lint.
+- npm ci reporto paquetes deprecated y 10 vulnerabilidades (6 moderadas,
+  3 altas y 1 critica). No se ejecuto npm audit fix ni se forzaron upgrades;
+  requieren revision separada antes de decidir cambios.
 
 Bruno
 
 - bruno/environments/local.bru mantiene vacios los valores de token e IDs,
   incluido inventarioId.
 - El escaneo de archivos .bru no encontro credenciales fijadas; las cuatro
-  coincidencias de "token" son aserciones que verifican respuestas de login.
-- No hay una solicitud Bruno de ajuste de inventario en este repositorio, por
-  lo que no fue posible verificar una asignacion dinamica de inventarioId.
+  coincidencias de "token" son aserciones de respuestas de login.
+- No existe una solicitud Bruno de ajuste de inventario en esta rama; por
+  tanto, no hay asignacion dinamica de inventarioId que conservar o verificar.
 
-Pendiente para cerrar la linea base
+Nota sobre el conteo
 
-- Levantar PostgreSQL con la configuracion local y ejecutar npm run verify
-  desde backend/.
-- Confirmar las 7 suites y 82 pruebas esperadas sobre inventory_test_db.
-- Verificar la asignacion dinamica de inventarioId cuando exista la solicitud
-  Bruno del ajuste de entrada.
+- El plan inicial indicaba 7 suites y 82 pruebas, pero el commit probado en
+  AWS contiene 6 suites y 76 tests. La ejecucion completa aprobo todos los
+  tests presentes; la diferencia de conteo debe reconciliarse contra la
+  version de Semana 3 antes de afirmar que se cumplieron los 82 esperados.
 
-Nota: db:test:setup recrea la base indicada por DB_NAME_TEST (por defecto
-inventory_test_db). No apuntar DB_NAME_TEST a una base de desarrollo o
-produccion.
+Nota de seguridad
+
+- db:test:setup ejecuta migraciones undo y puede borrar/recrear esquemas.
+  Usar exclusivamente con la base aislada indicada por DB_NAME_TEST
+  (inventory_test_db); nunca apuntar a desarrollo compartido o produccion.
