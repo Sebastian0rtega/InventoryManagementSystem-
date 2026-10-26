@@ -1,6 +1,13 @@
 import jwt from "jsonwebtoken";
 import request from "supertest";
-import { sequelize, Inventario, MovimientoInventario, Producto } from "../models";
+import {
+  sequelize,
+  Inventario,
+  MovimientoInventario,
+  Producto,
+  Rol,
+  Usuario,
+} from "../models";
 import app from "../app";
 import { env } from "../config/env";
 import { calcularEstado } from "../services/inventoryService";
@@ -18,7 +25,7 @@ function tokenDe(rol: "ADMIN" | "SELLER" | "WAREHOUSE", id = 1): string {
 
 const TOKEN_ADMIN = tokenDe("ADMIN", 1);
 const TOKEN_SELLER = tokenDe("SELLER", 2);
-const TOKEN_WAREHOUSE = tokenDe("WAREHOUSE", 3);
+let TOKEN_WAREHOUSE: string;
 
 let dbOk = false;
 
@@ -32,6 +39,31 @@ beforeAll(async () => {
   } catch {
     dbOk = false;
     console.warn("[SKIP] inventory_test_db no está alcanzable; ejecuta npm run db:test:setup.");
+  }
+
+  if (dbOk) {
+    const warehouseRole = await Rol.findOne({ where: { nombre_rol: "WAREHOUSE" } });
+    if (!warehouseRole) {
+      throw new Error("El rol WAREHOUSE no existe en inventory_test_db.");
+    }
+
+    const [warehouse] = await Usuario.findOrCreate({
+      where: { email: "warehouse.inventory.test@example.com" },
+      defaults: {
+        rol_id: warehouseRole.rol_id,
+        tienda_id: 1,
+        email: "warehouse.inventory.test@example.com",
+        nombre: "Warehouse Inventory Test",
+        password_hash: "test-only-hash",
+        activo: true,
+      },
+    });
+    await warehouse.update({
+      rol_id: warehouseRole.rol_id,
+      tienda_id: 1,
+      activo: true,
+    });
+    TOKEN_WAREHOUSE = tokenDe("WAREHOUSE", warehouse.usuario_id);
   }
 });
 
