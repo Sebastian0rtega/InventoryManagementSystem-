@@ -42,12 +42,24 @@ En PowerShell puedes usar `Copy-Item backend\.env.example backend\.env`. Edita e
 ##  Comandos para Docker, Migraciones, Seeders y Servidor
 
 ###  Docker
-El archivo docker-compose.yaml esta en la raiz del repositorio (no dentro de backend/). Ejecuta desde la raiz:
+El archivo `docker-compose.yaml` esta en la raiz del repositorio. Para levantar API y PostgreSQL en desarrollo, crea la configuracion local a partir del ejemplo y ejecuta los comandos desde la raiz:
 ```bash
+cp backend/.env.example backend/.env
+docker compose --env-file backend/.env build --no-cache
 docker compose --env-file backend/.env up -d database
+docker compose --env-file backend/.env run --rm migrate
+docker compose --env-file backend/.env up -d api
 docker compose --env-file backend/.env ps
+curl --fail http://localhost:3000/api/health/database
 ```
-El `init.sql` crea `inventory_test_db` junto con la base configurada en `DB_NAME`, al inicializar un volumen nuevo.
+
+Compose exige `DB_USER`, `DB_PASSWORD`, `DB_NAME`, `JWT_SECRET` y `PORT`; si falta una, informa que variable debe definirse. Dentro de la red, la API usa `database:5432`; PostgreSQL no publica su puerto en el host por defecto. El healthcheck de la API consulta `/api/health/database` y espera a que PostgreSQL este saludable. `backend/.env.example` usa `localhost` para ejecutar el backend directamente en el host; Compose reemplaza ese valor por `database`.
+
+Al crear un volumen nuevo, `docker/db/init.sql` también crea `inventory_test_db` para las pruebas.
+
+Los cambios de esquema se ejecutan explicitamente mediante el servicio one-shot `migrate`; no ejecuta seeders demo. Para desarrollo local, los seeders pueden aplicarse manualmente despues de configurar `ADMIN_PASSWORD`: `docker compose --env-file backend/.env run --rm migrate npm run db:seed`. No ejecutar seeders demo en produccion.
+
+Los datos sobreviven a recrear `api` y a `docker compose down`, porque PostgreSQL usa el volumen nombrado `pgdata`. Para borrar intencionalmente ese volumen y todos sus datos locales, ejecutar `docker compose down -v`.
 
 #### Imagen de producción del backend
 Desde la raíz del repositorio, construye la imagen identificándola con el SHA del commit:

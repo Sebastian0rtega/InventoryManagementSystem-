@@ -1,24 +1,76 @@
 services:
   database:
     image: postgres:15-alpine
-    container_name: inventory_postgres
-    restart: always
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER:?DB_USER is required in backend/.env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required in backend/.env}
+      POSTGRES_DB: ${DB_NAME:?DB_NAME is required in backend/.env}
       PGDATA: /var/lib/postgresql/data/pgdata
-    ports:
-      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data/pgdata
       - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 5s
       timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  api:
+    image: inventory-api:semana4
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DB_HOST: database
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:?DB_NAME is required in backend/.env}
+      DB_USER: ${DB_USER:?DB_USER is required in backend/.env}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required in backend/.env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required in backend/.env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+    ports:
+      - "${PORT:?PORT is required in backend/.env}:3000"
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health/database').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
       retries: 5
+      start_period: 10s
+
+  migrate:
+    image: inventory-api-migrate:semana4
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: build
+    profiles: ["tools"]
+    restart: "no"
+    environment:
+      NODE_ENV: production
+      DB_HOST: database
+      DB_PORT: "5432"
+      DB_NAME: ${DB_NAME:?DB_NAME is required in backend/.env}
+      DB_USER: ${DB_USER:?DB_USER is required in backend/.env}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required in backend/.env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    command: ["npm", "run", "db:migrate"]
+    depends_on:
+      database:
+        condition: service_healthy
 
 volumes:
   pgdata:
-  
