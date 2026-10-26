@@ -1,0 +1,10 @@
+.env
+.env.*
+node_modules
+dist
+coverage
+.git
+*.log
+test.sh
+src/__tests__
+src/**/*.test.ts

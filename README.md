@@ -49,6 +49,28 @@ docker compose --env-file backend/.env ps
 ```
 El `init.sql` crea `inventory_test_db` junto con la base configurada en `DB_NAME`, al inicializar un volumen nuevo.
 
+#### Imagen de producción del backend
+Desde la raíz del repositorio, construye la imagen identificándola con el SHA del commit:
+```bash
+GIT_SHA=$(git rev-parse HEAD)
+docker build \
+  --pull \
+  --build-arg VCS_REF="$GIT_SHA" \
+  --tag inventory-backend:"$GIT_SHA" \
+  --file backend/Dockerfile \
+  backend
+```
+
+El Dockerfile instala dependencias con `npm ci`, compila sin incluir las pruebas y crea una imagen final con dependencias de producción, ejecutada como el usuario no root `node`. No copia archivos `.env` ni incorpora credenciales. Para ejecutarla, proporciona un archivo de variables seguro fuera de la imagen:
+```bash
+docker run --rm \
+  --publish 3000:3000 \
+  --env-file /ruta/segura/backend.env \
+  inventory-backend:"$GIT_SHA"
+```
+
+El archivo debe definir las variables requeridas por la API (`PORT`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` y `JWT_SECRET`). `DB_HOST` debe ser una dirección de PostgreSQL accesible desde el contenedor; `localhost` dentro del contenedor apunta al propio contenedor. Comprueba la API con `curl http://localhost:3000/api/health`.
+
 ###  Migraciones y Seeders (Sequelize CLI)
 Para ejecutar las migraciones (creación de tablas) y popular los datos semilla (roles, tienda inicial y usuario admin y vendedor de demostracion): los comandos se ejecutan desde la carpeta backend/
 ```bash
