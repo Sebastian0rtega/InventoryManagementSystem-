@@ -50,6 +50,7 @@ function rutConDigitoValido(base: number): string {
 
 const rutProveedor = rutConDigitoValido(10_000_000 + (runId % 80_000_000));
 const rutCliente = rutConDigitoValido(10_000_000 + ((runId + 1) % 80_000_000));
+const rutClienteDuplicado = rutConDigitoValido(10_000_000 + ((runId + 2) % 80_000_000));
 const emailProveedor = `proveedor-${runId}@test.example`;
 const emailCliente = `cliente-${runId}@test.example`;
 
@@ -60,13 +61,13 @@ describe("DÍA 2 · /api/suppliers", () => {
       .set("Authorization", `Bearer ${TOKEN_ADMIN}`)
       .send({
         nombre: "  Distribuidora   Test SpA ",
-        rut: "77.111.222-6",
-        email: "TEST@Distribuidora.Cl",
+        rut: rutProveedor,
+        email: emailProveedor.toUpperCase(),
       });
     expect(res.status).toBe(201);
     expect(res.body.nombre).toBe("Distribuidora Test SpA");
-    expect(res.body.rut).toBe("77111222-6");
-    expect(res.body.email).toBe("test@distribuidora.cl");
+    expect(res.body.rut).toBe(rutProveedor);
+    expect(res.body.email).toBe(emailProveedor);
     expect(res.body.activo).toBe(true);
     proveedorId = res.body.proveedor_id;
   });
@@ -86,8 +87,8 @@ describe("DÍA 2 · /api/suppliers", () => {
       .set("Authorization", `Bearer ${TOKEN_ADMIN}`)
       .send({
         nombre: "Otra Distribuidora",
-        rut: "77111222-6",
-        email: "otra@dist.cl",
+        rut: rutProveedor,
+        email: `duplicate-${emailProveedor}`,
       });
     expect(res.status).toBe(409);
   });
@@ -175,13 +176,13 @@ describe("DÍA 2 · /api/customers", () => {
       .set("Authorization", `Bearer ${TOKEN_SELLER}`)
       .send({
         nombre: "  Camila   Rojas ",
-        rut: "14.234.567-6",
-        email: "Camila@Correo.COM",
+        rut: rutCliente,
+        email: emailCliente.toUpperCase(),
       });
     expect(res.status).toBe(201);
     expect(res.body.nombre).toBe("Camila Rojas");
-    expect(res.body.rut).toBe("14234567-6");
-    expect(res.body.email).toBe("camila@correo.com");
+    expect(res.body.rut).toBe(rutCliente);
+    expect(res.body.email).toBe(emailCliente);
     clienteId = res.body.cliente_id;
   });
 
@@ -191,8 +192,8 @@ describe("DÍA 2 · /api/customers", () => {
       .set("Authorization", `Bearer ${TOKEN_SELLER}`)
       .send({
         nombre: "Otro Cliente",
-        rut: "15345678-K",
-        email: "CAMILA@correo.com",
+        rut: rutClienteDuplicado,
+        email: emailCliente.toUpperCase(),
       });
     expect(res.status).toBe(409);
   });
@@ -207,7 +208,7 @@ describe("DÍA 2 · /api/customers", () => {
 
   itDb("GET lista y búsqueda como SELLER → 200", async () => {
     const res = await request(app)
-      .get("/api/customers?q=camila")
+      .get(`/api/customers?q=${runId}`)
       .set("Authorization", `Bearer ${TOKEN_SELLER}`);
     expect(res.status).toBe(200);
     expect(res.body.data.length).toBeGreaterThanOrEqual(1);
