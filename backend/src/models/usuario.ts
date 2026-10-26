@@ -23,17 +23,17 @@ export class Usuario
   extends Model<UsuarioAttributes, UsuarioCreationAttributes>
   implements UsuarioAttributes
 {
-  public usuario_id!: number;
-  public rol_id!: number;
-  public tienda_id!: number;
-  public email!: string;
-  public nombre!: string;
-  public password_hash!: string;
-  public activo!: boolean;
-  public created_at!: Date;
-  public updated_at!: Date;
-  public readonly rol?: Rol;
-  public readonly tienda?: Tienda;
+  declare usuario_id: number;
+  declare rol_id: number;
+  declare tienda_id: number;
+  declare email: string;
+  declare nombre: string;
+  declare password_hash: string;
+  declare activo: boolean;
+  declare created_at: Date;
+  declare updated_at: Date;
+  declare readonly rol?: Rol;
+  declare readonly tienda?: Tienda;
 
   /** Devuelve una copia del usuario sin el password_hash. */
   public toPublicJSON(): Omit<UsuarioAttributes, "password_hash"> {

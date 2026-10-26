@@ -11,10 +11,10 @@ interface RolAttributes {
 interface RolCreationAttributes extends Optional<RolAttributes, "rol_id" | "created_at" | "updated_at"> {}
 
 export class Rol extends Model<RolAttributes, RolCreationAttributes> implements RolAttributes {
-  public rol_id!: number;
-  public nombre_rol!: string;
-  public created_at!: Date;
-  public updated_at!: Date;
+  declare rol_id: number;
+  declare nombre_rol: string;
+  declare created_at: Date;
+  declare updated_at: Date;
 }
 
 Rol.init(
@@ -49,4 +49,3 @@ Rol.init(
     modelName: "Rol",
   },
 );
-

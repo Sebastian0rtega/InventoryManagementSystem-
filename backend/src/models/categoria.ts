@@ -15,10 +15,10 @@ export class Categoria
   extends Model<CategoriaAttributes, CategoriaCreationAttributes>
   implements CategoriaAttributes
 {
-  public categoria_id!: number;
-  public nombre!: string;
-  public created_at!: Date;
-  public updated_at!: Date;
+  declare categoria_id: number;
+  declare nombre: string;
+  declare created_at: Date;
+  declare updated_at: Date;
 }
 
 Categoria.init(
@@ -53,4 +53,3 @@ Categoria.init(
     modelName: "Categoria",
   },
 );
-

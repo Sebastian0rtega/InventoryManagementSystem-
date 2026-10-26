@@ -27,18 +27,18 @@ export class Producto
   extends Model<ProductoAttributes, ProductoCreationAttributes>
   implements ProductoAttributes
 {
-  public producto_id!: number;
-  public categoria_id!: number;
-  public codigo_barras!: string | null;
-  public sku!: string;
-  public descripcion!: string | null;
-  public nombre!: string;
-  public precio_venta!: number;
-  public precio_compra!: number;
-  public activo!: boolean;
-  public created_at!: Date;
-  public updated_at!: Date;
-  public readonly categoria?: Categoria;
+  declare producto_id: number;
+  declare categoria_id: number;
+  declare codigo_barras: string | null;
+  declare sku: string;
+  declare descripcion: string | null;
+  declare nombre: string;
+  declare precio_venta: number;
+  declare precio_compra: number;
+  declare activo: boolean;
+  declare created_at: Date;
+  declare updated_at: Date;
+  declare readonly categoria?: Categoria;
 }
 
 Producto.init(
@@ -103,4 +103,3 @@ Producto.init(
     modelName: "Producto",
   },
 );
-

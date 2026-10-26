@@ -34,18 +34,18 @@ export class MovimientoInventario
   extends Model<MovimientoInventarioAttributes, Creation>
   implements MovimientoInventarioAttributes
 {
-  public movimiento_id!: number;
-  public inventario_id!: number;
-  public tipo_movimiento!: TipoMovimiento;
-  public cantidad!: number;
-  public motivo!: string | null;
-  public referencia_tipo!: string | null;
-  public referencia_id!: number | null;
-  public usuario_id!: number | null;
-  public created_at!: Date;
-  public updated_at!: Date;
-  public readonly inventario?: Inventario;
-  public readonly usuario?: Usuario;
+  declare movimiento_id: number;
+  declare inventario_id: number;
+  declare tipo_movimiento: TipoMovimiento;
+  declare cantidad: number;
+  declare motivo: string | null;
+  declare referencia_tipo: string | null;
+  declare referencia_id: number | null;
+  declare usuario_id: number | null;
+  declare created_at: Date;
+  declare updated_at: Date;
+  declare readonly inventario?: Inventario;
+  declare readonly usuario?: Usuario;
 }
 
 MovimientoInventario.init(
