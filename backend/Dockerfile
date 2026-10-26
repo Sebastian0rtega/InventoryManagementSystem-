@@ -7,6 +7,7 @@ RUN npm ci
 FROM dependencies AS build
 
 COPY tsconfig.json tsconfig.build.json ./
+COPY .sequelizerc ./
 COPY src ./src
 RUN npm run build
 USER node
