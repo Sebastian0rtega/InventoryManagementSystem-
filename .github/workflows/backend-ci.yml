@@ -1,0 +1,99 @@
+name: backend-ci
+
+on:
+  pull_request:
+    branches:
+      - dev
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-ci:
+    name: backend-ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: inventory_test_db
+          POSTGRES_USER: inventory_ci_user
+          POSTGRES_PASSWORD: inventory_ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U inventory_ci_user -d inventory_test_db"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+          --health-start-period 5s
+
+    env:
+      NODE_ENV: test
+      PORT: "3000"
+      DB_HOST: 127.0.0.1
+      DB_PORT: "5432"
+      DB_NAME: inventory_ci_db
+      DB_NAME_TEST: inventory_test_db
+      DB_USER: inventory_ci_user
+      DB_PASSWORD: inventory_ci_password
+      JWT_SECRET: ci-only-secret-at-least-32-characters-long
+      ADMIN_PASSWORD: ci-only-admin-password
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Check out commit
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Lint backend
+        run: npm run lint
+
+      - name: Set up test database
+        run: npm run db:test:setup
+
+      - name: Run backend tests
+        run: npm test -- --json --outputFile=jest-results.json
+
+      - name: Enforce minimum test coverage count
+        run: >-
+          node -e "const result = require('./jest-results.json');
+          const suites = result.numPassedTestSuites;
+          const tests = result.numPassedTests;
+          console.log('Passed suites: ' + suites + '; passed tests: ' + tests);
+          if (suites < 7 || tests < 82) {
+            console.error('CI requires at least 7 passing suites and 82 passing tests.');
+            process.exit(1);
+          }"
+
+      - name: Build production Docker image
+        run: >-
+          docker build
+          --build-arg VCS_REF=${{ github.sha }}
+          --tag inventory-api:${{ github.sha }}
+          --file Dockerfile
+          .

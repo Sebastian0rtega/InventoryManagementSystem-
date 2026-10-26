@@ -41,6 +41,11 @@ En PowerShell puedes usar `Copy-Item backend\.env.example backend\.env`. Edita e
 
 ##  Comandos para Docker, Migraciones, Seeders y Servidor
 
+### Integración continua
+El workflow `backend-ci` se ejecuta en cada Pull Request dirigido a `dev` y en cada push a `dev`. Instala las dependencias con `npm ci`, compila, ejecuta lint, prepara una base PostgreSQL exclusiva de CI, corre las pruebas y construye la imagen Docker. El check falla si hay menos de 7 suites o 82 pruebas aprobadas.
+
+Para bloquear integraciones con CI rojo, en GitHub configura una regla de protección para `dev` que exija Pull Request y el check `backend-ci`; activa también la prohibición de force-push y borrado de la rama. La revisión humana sigue siendo obligatoria.
+
 ###  Docker
 El archivo `docker-compose.yaml` esta en la raiz del repositorio. Para levantar API y PostgreSQL en desarrollo, crea la configuracion local a partir del ejemplo y ejecuta los comandos desde la raiz:
 ```bash
