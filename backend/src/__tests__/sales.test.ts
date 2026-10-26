@@ -167,10 +167,13 @@ describe("DÍA 4 · POST /api/sales", () => {
   });
 
   itDb("stock exacto: la venta deja stock exactamente en cero", async () => {
-    // Creamos o ajustamos un producto exclusivo para dejar en stock exacto
+    // Reiniciar este inventario hace la prueba independiente del seeder y del
+    // stock consumido por otras pruebas de la suite.
     let inv = await Inventario.findOne({ where: { tienda_id: 1, producto_id: 2 } });
     if (!inv) {
       inv = await Inventario.create({ tienda_id: 1, producto_id: 2, cantidad: 4 });
+    } else {
+      await inv.update({ cantidad: 4 });
     }
     const stockActual = inv.cantidad;
     expect(stockActual).toBeGreaterThan(0);
