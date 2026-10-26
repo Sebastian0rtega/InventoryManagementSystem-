@@ -3,15 +3,13 @@ import request from "supertest";
 import { sequelize } from "../models";
 import app from "../app";
 import { env } from "../config/env";
+import { requireTestDatabase } from "./testDatabase";
 
 /**
  * Pruebas de integración DÍA 2: CRUD de proveedores y clientes.
  *
  * Requieren inventory_test_db con migraciones y seeders aplicados:
  *   npm run db:test:setup
- *
- * Si la base no está alcanzable, la suite se salta con aviso (igual
- * que la smoke del DÍA 1) para que `npm test` siga siendo útil.
  *
  * Los tokens se firman localmente con el JWT_SECRET del entorno de test;
  * authenticate() solo verifica la firma y el payload { id, rol }.
@@ -24,35 +22,36 @@ const TOKEN_ADMIN = tokenDe("ADMIN");
 const TOKEN_SELLER = tokenDe("SELLER");
 const TOKEN_WAREHOUSE = tokenDe("WAREHOUSE");
 
-let dbOk = false;
-
-beforeAll(async () => {
-  try {
-    await Promise.race([
-      sequelize.authenticate(),
-      new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 4000)),
-    ]);
-    dbOk = true;
-  } catch {
-    dbOk = false;
-    console.warn(
-      "[SKIP] inventory_test_db no está alcanzable; ejecuta npm run db:test:setup con la base arriba.",
-    );
-  }
-});
+beforeAll(requireTestDatabase);
 
 afterAll(async () => {
   await sequelize.close().catch(() => undefined);
 });
 
 const itDb = (name: string, fn: () => Promise<void>) =>
-  test(name, async () => {
-    if (!dbOk) return;
-    await fn();
-  });
+  test(name, fn);
 
 let proveedorId: number;
 let clienteId: number;
+const runId = Date.now();
+
+function rutConDigitoValido(base: number): string {
+  const cuerpo = String(base);
+  let suma = 0;
+  let factor = 2;
+  for (let i = cuerpo.length - 1; i >= 0; i--) {
+    suma += Number(cuerpo[i]) * factor;
+    factor = factor === 7 ? 2 : factor + 1;
+  }
+  const resto = 11 - (suma % 11);
+  const digito = resto === 11 ? "0" : resto === 10 ? "K" : String(resto);
+  return `${cuerpo}-${digito}`;
+}
+
+const rutProveedor = rutConDigitoValido(10_000_000 + (runId % 80_000_000));
+const rutCliente = rutConDigitoValido(10_000_000 + ((runId + 1) % 80_000_000));
+const emailProveedor = `proveedor-${runId}@test.example`;
+const emailCliente = `cliente-${runId}@test.example`;
 
 describe("DÍA 2 · /api/suppliers", () => {
   itDb("POST crea proveedor y normaliza RUT/email/nombre → 201", async () => {

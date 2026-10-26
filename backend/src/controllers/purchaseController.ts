@@ -6,7 +6,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
   try {
     const compra = await purchaseService.createPurchase(
       req.body as CrearCompraBody,
-      req.user!.id,
+      req.user!,
     );
     res.status(201).json(compra);
   } catch (err) {
@@ -16,7 +16,10 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const resultado = await purchaseService.listPurchases(req.query as unknown as ListaComprasQuery);
+    const resultado = await purchaseService.listPurchases(
+      req.query as unknown as ListaComprasQuery,
+      req.user!,
+    );
     res.status(200).json(resultado);
   } catch (err) {
     next(err);
@@ -25,7 +28,7 @@ export const list = async (req: Request, res: Response, next: NextFunction): Pro
 
 export const get = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const compra = await purchaseService.getPurchaseById(Number(req.params.id));
+    const compra = await purchaseService.getPurchaseById(Number(req.params.id), req.user!);
     res.status(200).json(compra);
   } catch (err) {
     next(err);

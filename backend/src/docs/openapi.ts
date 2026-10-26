@@ -9,6 +9,7 @@
  *   - respuestas de error estándar 400/401/403/404/409/500.
  */
 import swaggerJsdoc from "swagger-jsdoc";
+import path from "path";
 
 const spec = swaggerJsdoc({
   definition: {
@@ -77,14 +78,13 @@ const spec = swaggerJsdoc({
         /* ---------- Auth ---------- */
         RegistroInput: {
           type: "object",
-          required: ["nombre", "email", "password", "rol"],
+          required: ["nombre", "email", "password"],
           properties: {
             nombre: { type: "string", example: "Ana Pérez" },
             email: { type: "string", format: "email", example: "ana@empresa.com" },
             password: { type: "string", format: "password", minLength: 8, example: "clave123" },
-            rol: { type: "string", enum: ["ADMIN", "SELLER", "WAREHOUSE"], example: "SELLER" },
-            tienda_id: { type: "integer", example: 1 },
           },
+          description: "El registro público crea siempre un usuario SELLER en Casa Matriz.",
         },
         LoginInput: {
           type: "object",
@@ -125,22 +125,28 @@ const spec = swaggerJsdoc({
         },
         ProductoInput: {
           type: "object",
-          required: ["sku", "nombre", "precio_venta", "categoriaId"],
+          required: ["categoryId", "sku", "name", "purchasePrice", "salePrice"],
           properties: {
+            categoryId: { type: "integer", minimum: 1, example: 1 },
             sku: { type: "string", example: "PROD-001" },
-            codigo_barras: { type: "string", nullable: true },
-            nombre: { type: "string", example: "Bebida energética 500ml" },
-            descripcion: { type: "string", nullable: true },
-            precio_venta: { type: "number", example: 1500.5, description: "Decimal exacto; se redondea a 2 decimales en servidor" },
-            categoriaId: { type: "integer", example: 1 },
+            barcode: { type: "string", nullable: true, description: "Opcional; se guarda como null si se omite." },
+            name: { type: "string", example: "Bebida energética 500ml" },
+            description: { type: "string", nullable: true },
+            purchasePrice: { type: "number", minimum: 0.01, example: 1200 },
+            salePrice: { type: "number", minimum: 0.01, example: 1500.5, description: "Precio positivo; se serializa con dos decimales." },
+            active: { type: "boolean", default: true },
           },
         },
         Producto: {
           type: "object",
           properties: {
-            id: { type: "integer" },
+            producto_id: { type: "integer" },
+            categoria_id: { type: "integer" },
             sku: { type: "string" },
             nombre: { type: "string" },
+            codigo_barras: { type: "string", nullable: true },
+            descripcion: { type: "string", nullable: true },
+            precio_compra: { type: "string", example: "1200.00" },
             precio_venta: { type: "string", example: "1500.50" },
             activo: { type: "boolean" },
             categoria: { $ref: "#/components/schemas/Categoria" },
@@ -153,9 +159,9 @@ const spec = swaggerJsdoc({
           properties: {
             supplierId: { type: "integer", example: 1 },
             storeId: { type: "integer", example: 1 },
-            documentType: { type: "string", enum: ["FACTURA", "BOLETA", "GUIA"], example: "FACTURA" },
+            documentType: { type: "string", enum: ["BOLETA", "FACTURA", "GUIA_DESPACHO", "OTRO"], example: "FACTURA" },
             documentNumber: { type: "string", example: "F-1001", description: "Único por proveedor+tipo+número" },
-            paymentMethod: { type: "string", enum: ["EFECTIVO", "TRANSFERENCIA", "TARJETA", "CREDITO"], example: "TRANSFERENCIA" },
+            paymentMethod: { type: "string", enum: ["EFECTIVO", "TRANSFERENCIA", "DEBITO", "CREDITO", "OTRO"], default: "OTRO", example: "TRANSFERENCIA" },
             items: {
               type: "array",
               minItems: 1,
@@ -165,7 +171,7 @@ const spec = swaggerJsdoc({
                 properties: {
                   productId: { type: "integer", example: 1 },
                   quantity: { type: "integer", minimum: 1, example: 5 },
-                  unitCost: { type: "number", minimum: 0, example: 12000 },
+                  unitCost: { type: "number", minimum: 0.01, example: 12000 },
                 },
               },
             },
@@ -197,7 +203,7 @@ const spec = swaggerJsdoc({
         /* ---------- Ventas ---------- */
         CrearVentaInput: {
           type: "object",
-          required: ["customerId", "storeId", "items"],
+          required: ["items"],
           properties: {
             customerId: { type: "integer", example: 1 },
             storeId: { type: "integer", example: 1 },
@@ -206,11 +212,11 @@ const spec = swaggerJsdoc({
               minItems: 1,
               items: {
                 type: "object",
-                required: ["productId", "quantity", "unitPrice"],
+                required: ["productId", "quantity"],
                 properties: {
                   productId: { type: "integer", example: 1 },
                   quantity: { type: "integer", minimum: 1, example: 2 },
-                  unitPrice: { type: "number", minimum: 0, example: 1500.5 },
+                  unitPrice: { type: "number", minimum: 0.01, example: 1500.5 },
                 },
               },
             },
@@ -229,11 +235,12 @@ const spec = swaggerJsdoc({
         /* ---------- Inventario ---------- */
         AjusteInventarioInput: {
           type: "object",
-          required: ["productId", "storeId", "cantidad", "motivo"],
+          required: ["productId", "tipo", "cantidad", "motivo"],
           properties: {
             productId: { type: "integer", example: 1 },
-            storeId: { type: "integer", example: 1 },
-            cantidad: { type: "integer", description: "Positivo = entrada, negativo = salida", example: -2 },
+            storeId: { type: "integer", minimum: 1, description: "Opcional; por defecto la tienda del usuario. ADMIN puede indicar otra.", example: 1 },
+            tipo: { type: "string", enum: ["ENTRADA", "SALIDA"], example: "SALIDA" },
+            cantidad: { type: "integer", minimum: 1, description: "Cantidad positiva; la dirección la determina tipo.", example: 2 },
             motivo: { type: "string", example: "Ajuste por conteo físico" },
           },
         },
@@ -253,7 +260,7 @@ const spec = swaggerJsdoc({
             id: { type: "integer" },
             tipo_movimiento: {
               type: "string",
-              enum: ["ENTRADA_COMPRA", "SALIDA_VENTA", "AJUSTE_POSITIVO", "AJUSTE_NEGATIVO"],
+              enum: ["ENTRADA_COMPRA", "SALIDA_VENTA", "AJUSTE_ENTRADA", "AJUSTE_SALIDA", "AJUSTE", "MERMA", "TRASLADO"],
             },
             cantidad: { type: "integer" },
             stock_resultante: { type: "integer" },
@@ -268,7 +275,9 @@ const spec = swaggerJsdoc({
     },
     security: [{ bearerAuth: [] }],
   },
-  apis: [],
+  apis: [
+    path.join(__dirname, "openapiRoutes.{ts,js}").replace(/\\/g, "/"),
+  ],
 });
 
 export default spec;

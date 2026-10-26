@@ -3,47 +3,30 @@ import request from "supertest";
 import { sequelize, Compra, DetalleCompra, Inventario, MovimientoInventario } from "../models";
 import app from "../app";
 import { env } from "../config/env";
+import { requireTestDatabase } from "./testDatabase";
 
 /**
  * Pruebas de integración DÍA 3: compras y entrada de stock atómica.
  *
  * Requieren inventory_test_db con migraciones y seeders aplicados:
  *   npm run db:test:setup
- * Si la base no está alcanzable, la suite se salta con aviso.
  */
-function tokenDe(rol: "ADMIN" | "SELLER" | "WAREHOUSE"): string {
-  return jwt.sign({ id: 1, rol }, env.jwt.secret, { expiresIn: "1h" });
+function tokenDe(rol: "ADMIN" | "SELLER" | "WAREHOUSE", id = 1): string {
+  return jwt.sign({ id, rol }, env.jwt.secret, { expiresIn: "1h" });
 }
 
 const TOKEN_ADMIN = tokenDe("ADMIN");
 const TOKEN_SELLER = tokenDe("SELLER");
+const TOKEN_WAREHOUSE = tokenDe("WAREHOUSE", 3);
 
-let dbOk = false;
-
-beforeAll(async () => {
-  try {
-    await Promise.race([
-      sequelize.authenticate(),
-      new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 4000)),
-    ]);
-    dbOk = true;
-  } catch {
-    dbOk = false;
-    console.warn(
-      "[SKIP] inventory_test_db no está alcanzable; ejecuta npm run db:test:setup con la base arriba.",
-    );
-  }
-});
+beforeAll(requireTestDatabase);
 
 afterAll(async () => {
   await sequelize.close().catch(() => undefined);
 });
 
 const itDb = (name: string, fn: () => Promise<void>) =>
-  test(name, async () => {
-    if (!dbOk) return;
-    await fn();
-  });
+  test(name, fn);
 
 function bodyCompra(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
@@ -187,5 +170,48 @@ describe("DÍA 3 · GET /api/purchases", () => {
       .get("/api/purchases")
       .set("Authorization", `Bearer ${TOKEN_SELLER}`);
     expect(res.status).toBe(403);
+  });
+
+  itDb("WAREHOUSE crea compras en su tienda asignada", async () => {
+    const res = await request(app)
+      .post("/api/purchases")
+      .set("Authorization", `Bearer ${TOKEN_WAREHOUSE}`)
+      .send(bodyCompra({ documentNumber: `F-WH-${Date.now()}` }));
+
+    expect(res.status).toBe(201);
+    expect(res.body.tienda_id).toBe(1);
+  });
+
+  itDb("WAREHOUSE no crea compras en otra tienda", async () => {
+    const res = await request(app)
+      .post("/api/purchases")
+      .set("Authorization", `Bearer ${TOKEN_WAREHOUSE}`)
+      .send(bodyCompra({ storeId: 2, documentNumber: `F-WH-OTHER-${Date.now()}` }));
+
+    expect(res.status).toBe(403);
+  });
+
+  itDb("WAREHOUSE solo lista compras de su tienda aunque filtre otra", async () => {
+    const res = await request(app)
+      .get("/api/purchases?storeId=2")
+      .set("Authorization", `Bearer ${TOKEN_WAREHOUSE}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.length).toBeGreaterThan(0);
+    expect(res.body.data.every((compra: { tienda_id: number }) => compra.tienda_id === 1)).toBe(true);
+  });
+
+  itDb("WAREHOUSE no consulta compras de otra tienda", async () => {
+    const compraAjena = await request(app)
+      .post("/api/purchases")
+      .set("Authorization", `Bearer ${TOKEN_ADMIN}`)
+      .send(bodyCompra({ storeId: 2, documentNumber: `F-ADMIN-OTHER-${Date.now()}` }));
+    expect(compraAjena.status).toBe(201);
+
+    const res = await request(app)
+      .get(`/api/purchases/${compraAjena.body.compra_id}`)
+      .set("Authorization", `Bearer ${TOKEN_WAREHOUSE}`);
+
+    expect(res.status).toBe(404);
   });
 });

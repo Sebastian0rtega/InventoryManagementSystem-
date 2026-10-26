@@ -1,0 +1,40 @@
+Validacion local Semana 3
+Fecha: 2026-10-22T14:56:32.427Z
+Entorno: Windows local. npm test omitido por indicacion; se ejecutara en AWS Linux.
+PostgreSQL local: localhost:5432 no disponible.
+
+===== npm run build =====
+npm notice run Inventory-Backend@1.0.0 build
+npm notice run rimraf dist && tsc
+Exit code: 0
+
+===== npm run lint =====
+
+C:\Users\sebaw\Downloads\inv\InventoryManagementSystem-\backend\src\models\compra.ts
+  4:15  warning  'Producto' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\sebaw\Downloads\inv\InventoryManagementSystem-\backend\src\models\usuario.ts
+  40:28  warning  '_passwordHash' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 2 problems (0 errors, 2 warnings)
+
+npm notice run Inventory-Backend@1.0.0 lint
+npm notice run eslint "src/**/*.ts"
+Exit code: 0
+
+===== npm run db:test:setup =====
+
+Sequelize CLI [Node: 24.21.0, CLI: 6.6.5, ORM: 6.37.8]
+
+Loaded configuration file "src\config\database.js".
+Using environment "test".
+
+
+npm notice run Inventory-Backend@1.0.0 db:test:setup
+npm notice run cross-env NODE_ENV=test npx sequelize-cli db:migrate:undo:all && cross-env NODE_ENV=test npx sequelize-cli db:migrate && cross-env NODE_ENV=test npx sequelize-cli db:seed:all
+npm notice run Inventory-Backend@1.0.0 npx
+npm notice run sequelize-cli db:migrate:undo:all
+ERROR: 
+Exit code: 1
+
+Nota: db:test:setup fallo antes de migrar; la comprobacion de conectividad confirmo que localhost:5432 rechaza la conexion. Para completarlo hace falta PostgreSQL disponible.

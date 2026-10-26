@@ -26,16 +26,17 @@ cd InventoryManagementSystem-
 
 ### 2. Instalar dependencias
 ```bash
-npm install
+# Desde la raíz del repositorio
+npm ci --prefix backend
 ```
 
 ### 3. Configurar variables de entorno
-Copia el archivo de ejemplo `.env.example` para crear tu `.env`:
+Copia el ejemplo que vive en `backend/` para crear `backend/.env`:
 ```bash
-cp .env.example .env
+# Desde la raíz del repositorio
+cp backend/.env.example backend/.env
 ```
-
-Edita el archivo `.env` según tus credenciales locales o de base de datos
+En PowerShell puedes usar `Copy-Item backend\.env.example backend\.env`. Edita el archivo según tus credenciales locales. No subas `.env` al repositorio.
 
 
 ##  Comandos para Docker, Migraciones, Seeders y Servidor
@@ -43,8 +44,10 @@ Edita el archivo `.env` según tus credenciales locales o de base de datos
 ###  Docker
 El archivo docker-compose.yaml esta en la raiz del repositorio (no dentro de backend/). Ejecuta desde la raiz:
 ```bash
-docker-compose up -d
+docker compose --env-file backend/.env up -d database
+docker compose --env-file backend/.env ps
 ```
+El `init.sql` crea `inventory_test_db` junto con la base configurada en `DB_NAME`, al inicializar un volumen nuevo.
 
 ###  Migraciones y Seeders (Sequelize CLI)
 Para ejecutar las migraciones (creación de tablas) y popular los datos semilla (roles, tienda inicial y usuario admin y vendedor de demostracion): los comandos se ejecutan desde la carpeta backend/
@@ -57,7 +60,23 @@ npm run db:seed
 
 # Deshacer seeders (opcional)
 npm run db:seed:undo
+
+# Compilar y revisar estilo
+npm run build
+npm run lint
 ```
+
+### Pruebas automatizadas
+Desde `backend/`, con PostgreSQL disponible y `DB_NAME_TEST` apuntando a una base aislada:
+```bash
+npm run db:test:setup
+npm test
+```
+`db:test:setup` revierte migraciones, vuelve a migrar y ejecuta seeders **solo en `DB_NAME_TEST`**. No lo ejecutes contra la base de producción. Jest usa valores locales de prueba para las variables de aplicación si no hay `.env`, pero las pruebas de integración fallan explícitamente si PostgreSQL no está disponible.
+
+### Swagger y Bruno
+- Swagger UI: `http://localhost:3000/api/docs`; especificación: `http://localhost:3000/api/docs.json`.
+- En Bruno, ejecuta primero los requests de `setup/` para obtener `tokenWarehouse`. La carpeta `inventory/` incluye listado, ajustes de entrada/salida, consulta de movimientos y casos de autorización.
 
 ###  Servidor de Desarrollo y Producción
 ```bash
@@ -77,43 +96,27 @@ npm start
 
 ```
 backend/
-├── .env.example          # Plantilla de variables de entorno
-├── package.json          # Dependencias y scripts
-├── tsconfig.json         # Configuración compilador TypeScript
+├── .env.example
+├── package.json
+├── tsconfig.json
 ├── src/
-│   ├── server.ts         # Punto de entrada del servidor HTTP
-│   ├── app.ts            # Configuración de Express, middlewares y rutas
+│   ├── server.ts
+│   ├── app.ts
 │   ├── config/
-│   │   ├── env.ts        # Validación de variables de entorno
-│   │   └── db.ts         # Instancia de conexión Sequelize
-│   ├── controllers/      # Controladores HTTP (Manejo de request/response)
-│   │   ├── authController.ts
-│   │   ├── categoryController.ts
-│   │   ├── productController.ts
-│   │   └── userController.ts
-│   ├── services/         # Capa de Lógica de Negocio
-│   │   ├── authService.ts
-│   │   ├── categoryService.ts
-│   │   ├── productService.ts
-│   │   └── userService.ts
-│   ├── models/           # Modelos Sequelize en TypeScript
-│   │   ├── index.ts
-│   │   ├── usuario.ts
-│   │   ├── rol.ts
-│   │   ├── tienda.ts
-│   │   ├── categoria.ts
-│   │   └── producto.ts
-│   ├── middlewares/      # Interceptores (Auth, Roles, Error Handler)
-│   │   ├── authenticate.ts
-│   │   ├── authorize.ts
-│   │   └── errorHandler.ts
-│   ├── routes/           # Rutas y enrutadores Express
-│   │   ├── authRoutes.ts
-│   │   ├── categoryRoutes.ts
-│   │   ├── productRoutes.ts
-│   │   └── userRoutes.ts
-│   └── utils/            # Utilidades y clases de error estandarizadas
-│       └── errors.ts
+│   ├── config/           # Entorno y conexiones de base de datos
+│   ├── controllers/      # auth, users, categories, products, suppliers,
+│   │                     # customers, purchases, sales e inventory
+│   ├── docs/             # OpenAPI y anotaciones de rutas
+│   ├── middlewares/      # Autenticación, autorización, validación y errores
+│   ├── migrations/       # Migraciones de Sequelize
+│   ├── models/           # Modelos y relaciones de Sequelize
+│   ├── routes/           # Rutas Express por módulo
+│   ├── seeders/          # Datos iniciales y de demostración
+│   ├── services/         # Lógica de negocio por módulo
+│   ├── types/            # Extensiones de tipos de Express
+│   ├── utils/            # Errores y utilidades compartidas
+│   ├── validators/       # Esquemas de validación de compras, ventas e inventario
+│   └── __tests__/        # Pruebas unitarias y de integración
 ```
 
 ---
@@ -148,6 +151,19 @@ backend/
 | **POST** | `/api/products` | Crear nuevo producto | Admin |
 | **PATCH** | `/api/products/:id` | Actualizar producto | Admin |
 | **DELETE** | `/api/products/:id` | Desactivar producto (Soft delete) | Admin |
+| **GET/POST** | `/api/suppliers` | Listar y crear proveedores | Admin / Warehouse lectura; Admin creación |
+| **GET/PATCH/DELETE** | `/api/suppliers/:id` | Ver, editar y desactivar proveedor | Admin / Warehouse lectura; Admin escritura |
+| **GET/POST** | `/api/customers` | Listar y crear clientes | Admin / Seller |
+| **GET/PATCH/DELETE** | `/api/customers/:id` | Ver, editar y desactivar cliente | Admin / Seller lectura y edición; Admin desactivación |
+| **POST/GET** | `/api/purchases` | Crear y listar compras con paginación | Admin / Warehouse (solo su tienda) |
+| **GET** | `/api/purchases/:id` | Obtener compra con detalles | Admin / Warehouse (solo su tienda) |
+| **POST/GET** | `/api/sales` | Crear y listar ventas con paginación | Admin / Seller |
+| **GET** | `/api/sales/:id` | Obtener venta con detalles | Admin / Seller |
+| **GET** | `/api/inventory` | Consultar stock, búsqueda y filtros | Admin / Seller / Warehouse (tienda propia para Seller/Warehouse) |
+| **POST** | `/api/inventory/adjustments` | Ajustar stock y registrar entrada o salida | Admin / Warehouse |
+| **GET** | `/api/inventory/:id/movements` | Consultar bitácora de movimientos | Admin / Warehouse (tienda propia) |
+| **GET** | `/api/docs` | Swagger UI | Público |
+| **GET** | `/api/docs.json` | Especificación OpenAPI | Público |
 
 ---
 
@@ -162,6 +178,12 @@ backend/
 - **Vendedor Demo (Seller)**:
   - **Email**: `vendedor.demo@example.com`
   - **Password**: valor de `ADMIN_PASSWORD` en tu `.env` con sufijo `-seller`
+- **Bodeguero Demo (Warehouse)**:
+  - **Email**: `bodega@empresa.com`
+  - **Password**: valor de `ADMIN_PASSWORD` en tu `.env` con sufijo `-warehouse`
+
+En Bruno, configura `adminPassword`, `sellerPassword` y `warehousePassword` en el
+environment `local` para que coincidan con `ADMIN_PASSWORD` y sus sufijos.
 
 ---
 
@@ -187,3 +209,7 @@ backend/
      ```
 5. **Desactivación Lógica de Productos (*Soft Delete*)**:
    - Los productos eliminados mediante `DELETE /api/products/:id` no se borran físicamente de la base de datos para no romper la trazabilidad histórica de compras y ventas. En su lugar, se actualiza el atributo `activo: false`.
+6. **Tienda del rol WAREHOUSE**:
+  - Las compras creadas, listadas o consultadas por WAREHOUSE quedan limitadas a la tienda asignada al usuario; el `storeId` de la petición no amplía ese ámbito.
+7. **Dirección de ajustes manuales**:
+  - La bitácora persiste `AJUSTE_ENTRADA` o `AJUSTE_SALIDA`. El valor histórico `AJUSTE` se conserva permitido para no invalidar registros antiguos.

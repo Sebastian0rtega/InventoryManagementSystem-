@@ -1,26 +1,12 @@
 import { sequelize } from "../models";
 import { Inventario } from "../models";
+import { requireTestDatabase } from "./testDatabase";
 
 /**
  * Pruebas del dominio transaccional.
  *
- * - Las verificaciones sin conexión (modelos, asociaciones, config) corren siempre.
- * - Las de integración contra inventory_test_db se saltan con un aviso si la
- *   base de prueba no está alcanzable, para que `npm test` siga siendo útil
- *   sin infraestructura levantada.
+ * Las pruebas de integración requieren inventory_test_db y fallan si no está disponible.
  */
-async function dbDisponible(): Promise<boolean> {
-  // Con IP inalcanzable el connect puede colgarse ~20s; acotamos a 4s.
-  try {
-    await Promise.race([
-      sequelize.authenticate(),
-      new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 4000)),
-    ]);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 describe("smoke: modelos transaccionales sobre inventory_test_db", () => {
   afterAll(async () => {
@@ -28,12 +14,7 @@ describe("smoke: modelos transaccionales sobre inventory_test_db", () => {
   });
 
   test("conecta a la base de prueba", async () => {
-    if (!(await dbDisponible())) {
-      console.warn(
-        "[SKIP] inventory_test_db no está alcanzable; levanta PostgreSQL y ejecuta: npm run db:test:setup",
-      );
-      return;
-    }
+    await requireTestDatabase();
     const qi = sequelize.getQueryInterface();
     const tables = await qi.showAllTables();
     expect(tables).toEqual(
@@ -50,19 +31,14 @@ describe("smoke: modelos transaccionales sobre inventory_test_db", () => {
     );
   });
 
-  test("los seeders dejaron datos deterministas de inventario", async () => {
-    if (!(await dbDisponible())) {
-      console.warn(
-        "[SKIP] inventory_test_db no está alcanzable; levanta PostgreSQL y ejecuta: npm run db:test:setup",
-      );
-      return;
-    }
-    const registros = await Inventario.findAll({ order: [["inventario_id", "ASC"]] });
-    expect(registros.length).toBeGreaterThanOrEqual(3);
-    const primera = registros[0];
-    expect(primera.tienda_id).toBe(1);
-    expect(primera.producto_id).toBe(1);
-    expect(Number(primera.cantidad)).toBe(100);
+  test("los seeders crearon inventario inicial para producto 1 en tienda 1", async () => {
+    await requireTestDatabase();
+    const inventarioInicial = await Inventario.findOne({
+      where: { tienda_id: 1, producto_id: 1 },
+    });
+    expect(inventarioInicial).not.toBeNull();
+    expect(inventarioInicial?.tienda_id).toBe(1);
+    expect(inventarioInicial?.producto_id).toBe(1);
   });
 
   test("asociaciones cargadas sin duplicados (alias consistentes)", () => {

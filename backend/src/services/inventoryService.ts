@@ -194,7 +194,7 @@ export async function adjustInventory(body: AjusteInventarioBody, userPayload: J
     const movimiento = await MovimientoInventario.create(
       {
         inventario_id: inventario.inventario_id,
-        tipo_movimiento: "AJUSTE",
+        tipo_movimiento: tipo === "ENTRADA" ? "AJUSTE_ENTRADA" : "AJUSTE_SALIDA",
         cantidad,
         motivo,
         referencia_tipo: "AJUSTE_MANUAL",

@@ -1,8 +1,9 @@
 import { Transaction, UniqueConstraintError, WhereOptions } from "sequelize";
-import { sequelize, Compra, DetalleCompra, Inventario, MovimientoInventario, Producto, Proveedor, Tienda } from "../models";
-import { ConflictError, NotFoundError, ValidationError } from "../utils/errors";
+import { sequelize, Compra, DetalleCompra, Inventario, MovimientoInventario, Producto, Proveedor, Tienda, Usuario } from "../models";
+import { ConflictError, ForbiddenError, NotFoundError, UnauthorizedError, ValidationError } from "../utils/errors";
 import { calcularSubtotal, calcularTotal } from "../utils/money";
 import { CrearCompraBody, ListaComprasQuery } from "../validators/compras";
+import { JwtPayload, ROLES } from "./authService";
 
 /**
  * DÍA 3 · Registro de compra con ENTRADA de stock atómica.
@@ -14,9 +15,16 @@ import { CrearCompraBody, ListaComprasQuery } from "../validators/compras";
  */
 export async function createPurchase(
   body: CrearCompraBody,
-  usuarioId: number,
+  userPayload: JwtPayload,
 ): Promise<Compra> {
   const { supplierId, storeId, documentType, documentNumber, paymentMethod, items } = body;
+  const usuario = await Usuario.findByPk(userPayload.id);
+  if (!usuario || !usuario.activo) {
+    throw new UnauthorizedError("Usuario no autenticado o inactivo.");
+  }
+  if (userPayload.rol === ROLES.WAREHOUSE && storeId !== usuario.tienda_id) {
+    throw new ForbiddenError("No tiene permisos para registrar compras en otra tienda.");
+  }
 
   // 1. Validar proveedor, tienda y productos ANTES de abrir la transacción
   //    (lecturas fuera de la tx: fallan rápido y no generan rollbacks costosos).
@@ -56,7 +64,7 @@ export async function createPurchase(
         {
           proveedor_id: supplierId,
           tienda_id: storeId,
-          usuario_id: usuarioId,
+          usuario_id: usuario.usuario_id,
           tipo_documento: documentType,
           numero_documento: documentNumber,
           metodo_pago: paymentMethod,
@@ -106,7 +114,7 @@ export async function createPurchase(
             cantidad: item.quantity,
             referencia_tipo: "COMPRA",
             referencia_id: compra.compra_id,
-            usuario_id: usuarioId,
+            usuario_id: usuario.usuario_id,
           },
           { transaction: t },
         );
@@ -128,11 +136,20 @@ export async function createPurchase(
   }
 }
 
-export async function listPurchases(query: ListaComprasQuery) {
+export async function listPurchases(query: ListaComprasQuery, userPayload: JwtPayload) {
+  const usuario = await Usuario.findByPk(userPayload.id);
+  if (!usuario || !usuario.activo) {
+    throw new UnauthorizedError("Usuario no autenticado o inactivo.");
+  }
+
   const { supplierId, storeId, page, limit } = query;
   const where: Record<string | symbol, unknown> = {};
   if (supplierId !== undefined) where.proveedor_id = supplierId;
-  if (storeId !== undefined) where.tienda_id = storeId;
+  if (userPayload.rol === ROLES.WAREHOUSE) {
+    where.tienda_id = usuario.tienda_id;
+  } else if (storeId !== undefined) {
+    where.tienda_id = storeId;
+  }
 
   const { rows, count } = await Compra.findAndCountAll({
     where: where as WhereOptions,
@@ -148,8 +165,17 @@ export async function listPurchases(query: ListaComprasQuery) {
   return { data: rows, page, limit, total: count, totalPages: Math.ceil(count / limit) };
 }
 
-export async function getPurchaseById(id: number): Promise<Compra> {
-  const compra = await Compra.findByPk(id, {
+export async function getPurchaseById(id: number, userPayload: JwtPayload): Promise<Compra> {
+  const usuario = await Usuario.findByPk(userPayload.id);
+  if (!usuario || !usuario.activo) {
+    throw new UnauthorizedError("Usuario no autenticado o inactivo.");
+  }
+
+  const where: Record<string, number> = { compra_id: id };
+  if (userPayload.rol === ROLES.WAREHOUSE) where.tienda_id = usuario.tienda_id;
+
+  const compra = await Compra.findOne({
+    where,
     include: [
       { model: DetalleCompra, as: "detalles" },
       { model: Proveedor, as: "proveedor", attributes: ["proveedor_id", "nombre", "rut"] },

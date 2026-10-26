@@ -1,0 +1,22 @@
+meta {
+  name: Listar inventario de la tienda WAREHOUSE -> 200
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/inventory?page=1&limit=20
+  auth: bearer
+}
+
+headers {
+  Authorization: Bearer {{tokenWarehouse}}
+}
+
+auth:bearer {
+  token: {{tokenWarehouse}}
+}
+
+assert {
+  res.status: eq 200
+}
