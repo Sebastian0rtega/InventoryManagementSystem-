@@ -1,0 +1,40 @@
+Semana 4 - linea base de calidad
+Fecha: 2026-10-26
+Rama de trabajo: feat/quality-baseline
+Commit base: 295f4a9
+
+Validaciones ejecutadas desde backend/
+
+- npm run build: aprobado.
+- npm run lint: aprobado, 0 errores y 0 warnings propios.
+- npm run db:test:setup: bloqueado; Sequelize CLI selecciono el entorno test,
+  pero no hay un servidor PostgreSQL disponible en este entorno.
+- npm test sin base preparada: 6 suites y 76 tests reportados como aprobados.
+  Las pruebas que requieren PostgreSQL se omitieron porque inventory_test_db
+  no estaba disponible; este resultado no acredita la linea base completa.
+- npm run verify: falla en db:test:setup al no poder conectar PostgreSQL.
+  verify prepara inventory_test_db antes de correr las pruebas para evitar
+  considerar exitosos tests de integracion omitidos.
+- backend/test.sh: comprobado con un npm simulado que devuelve codigo 37 en
+  npm ci; el script devuelve 37 y no ejecuta los comandos posteriores.
+
+Bruno
+
+- bruno/environments/local.bru mantiene vacios los valores de token e IDs,
+  incluido inventarioId.
+- El escaneo de archivos .bru no encontro credenciales fijadas; las cuatro
+  coincidencias de "token" son aserciones que verifican respuestas de login.
+- No hay una solicitud Bruno de ajuste de inventario en este repositorio, por
+  lo que no fue posible verificar una asignacion dinamica de inventarioId.
+
+Pendiente para cerrar la linea base
+
+- Levantar PostgreSQL con la configuracion local y ejecutar npm run verify
+  desde backend/.
+- Confirmar las 7 suites y 82 pruebas esperadas sobre inventory_test_db.
+- Verificar la asignacion dinamica de inventarioId cuando exista la solicitud
+  Bruno del ajuste de entrada.
+
+Nota: db:test:setup recrea la base indicada por DB_NAME_TEST (por defecto
+inventory_test_db). No apuntar DB_NAME_TEST a una base de desarrollo o
+produccion.
