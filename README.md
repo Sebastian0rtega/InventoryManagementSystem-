@@ -41,6 +41,22 @@ En PowerShell puedes usar `Copy-Item backend\.env.example backend\.env`. Edita e
 
 ##  Comandos para Docker, Migraciones, Seeders y Servidor
 
+### Observabilidad y cierre ordenado
+`GET /api/health` es liveness y responde sin consultar PostgreSQL. `GET /api/health/database` es readiness y devuelve `503` si la base de datos no está disponible. Cada respuesta incluye `X-Request-Id`: se acepta un UUID válido recibido del proxy o se genera uno nuevo. Los logs se emiten como JSON con método, ruta (sin query string), estado, duración e identificador; los errores técnicos quedan solo en los logs del servidor.
+
+Para consultar logs recientes o seguir una solicitud por su identificador:
+```bash
+docker-compose logs --since=5m api
+docker-compose logs -f api | grep --line-buffered "UUID-DE-LA-RESPUESTA"
+```
+
+Para observar el cierre ordenado, el servidor deja de aceptar solicitudes, espera las conexiones HTTP activas y cierra Sequelize. El límite es 15 segundos:
+```bash
+curl -i http://localhost:3000/api/health
+curl -i http://localhost:3000/api/health/database
+docker-compose stop --timeout 15 api
+```
+
 ### Integración continua
 El workflow `backend-ci` se ejecuta en cada Pull Request dirigido a `dev` y en cada push a `dev`. Instala las dependencias con `npm ci`, compila, ejecuta lint, prepara una base PostgreSQL exclusiva de CI, corre las pruebas y construye la imagen Docker. El check falla si hay menos de 7 suites o 82 pruebas aprobadas.
 
