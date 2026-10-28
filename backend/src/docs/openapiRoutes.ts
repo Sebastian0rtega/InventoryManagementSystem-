@@ -14,7 +14,7 @@
  *     security: []
  *     responses:
  *       '200': { description: Base de datos conectada }
- *       '500': { description: Base de datos no disponible }
+ *       '503': { description: Base de datos no disponible }
  * /api/auth/register:
  *   post:
  *     tags: [Auth]
