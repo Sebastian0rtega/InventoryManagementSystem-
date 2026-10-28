@@ -62,6 +62,9 @@ El workflow `backend-ci` se ejecuta en cada Pull Request dirigido a `dev` y en c
 
 Para bloquear integraciones con CI rojo, en GitHub configura una regla de protección para `dev` que exija Pull Request y el check `backend-ci`; activa también la prohibición de force-push y borrado de la rama. La revisión humana sigue siendo obligatoria.
 
+### Seguridad de dependencias
+La revisión de npm audit, controles HTTP, imagen y política de actualización está documentada en [docs/semana-4-security-review.md](docs/semana-4-security-review.md). No ejecutes `npm audit fix --force`: un hallazgo moderado de Sequelize propone un downgrade incompatible.
+
 ###  Docker
 El archivo `docker-compose.yaml` esta en la raiz del repositorio. Para levantar API y PostgreSQL en desarrollo, crea la configuracion local a partir del ejemplo y ejecuta los comandos desde la raiz:
 ```bash

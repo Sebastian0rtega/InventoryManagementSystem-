@@ -41,6 +41,7 @@
  *     responses:
  *       '200': { description: Sesión iniciada }
  *       '401': { description: Credenciales inválidas }
+ *       '429': { description: Demasiados intentos de inicio de sesión }
  * /api/auth/me:
  *   get:
  *     tags: [Auth]
