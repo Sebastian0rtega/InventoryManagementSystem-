@@ -1,6 +1,10 @@
+import express from "express";
 import request from "supertest";
 import app from "../app";
 import sequelize from "../config/db";
+import { errorHandler } from "../middlewares/errorHandler";
+import { requestId } from "../middlewares/requestId";
+import { requestLogger } from "../middlewares/requestLogger";
 
 describe("contratos operativos", () => {
   afterEach(() => {
@@ -73,5 +77,48 @@ describe("contratos operativos", () => {
     expect(errorLog.mock.calls.some(([line]) => line.includes(databaseError))).toBe(
       true,
     );
+  });
+
+  test("los errores internos conservan una respuesta pública segura y registran detalle en el servidor", async () => {
+    const internalError = "database password must-not-reach-client";
+    const errorLog = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+    const testApp = express();
+    testApp.use(requestId);
+    testApp.use(requestLogger);
+    testApp.get("/failure", (_req, _res, next) => {
+      next(new Error(internalError));
+    });
+    testApp.use(errorHandler);
+
+    const response = await request(testApp)
+      .get("/failure")
+      .set("x-request-id", "a41b1ed3-2b64-46c8-a0fb-4cf652e8b307");
+
+    expect(response.status).toBe(500);
+    expect(response.body).toEqual({
+      success: false,
+      error: {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Ha ocurrido un error inesperado en el servidor.",
+        details: [],
+      },
+    });
+    expect(JSON.stringify(response.body)).not.toContain(internalError);
+
+    const internalLog = errorLog.mock.calls
+      .map(([line]) => JSON.parse(line as string))
+      .find((entry) => entry.event === "http.unhandled_error");
+    expect(internalLog).toMatchObject({
+      level: "error",
+      requestId: "a41b1ed3-2b64-46c8-a0fb-4cf652e8b307",
+      method: "GET",
+      route: "/failure",
+      status: 500,
+      errorCode: "INTERNAL_SERVER_ERROR",
+      errorMessage: internalError,
+    });
+    expect(internalLog.durationMs).toEqual(expect.any(Number));
   });
 });

@@ -72,5 +72,5 @@ const shutdown = (signal: NodeJS.Signals): void => {
   });
 };
 
-process.on("SIGTERM", shutdown);
-process.on("SIGINT", shutdown);
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));

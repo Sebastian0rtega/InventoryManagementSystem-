@@ -46,15 +46,15 @@ En PowerShell puedes usar `Copy-Item backend\.env.example backend\.env`. Edita e
 
 Para consultar logs recientes o seguir una solicitud por su identificador:
 ```bash
-docker-compose logs --since=5m api
-docker-compose logs -f api | grep --line-buffered "UUID-DE-LA-RESPUESTA"
+docker compose logs --since=5m api
+docker compose logs -f api | grep --line-buffered "UUID-DE-LA-RESPUESTA"
 ```
 
 Para observar el cierre ordenado, el servidor deja de aceptar solicitudes, espera las conexiones HTTP activas y cierra Sequelize. El límite es 15 segundos:
 ```bash
 curl -i http://localhost:3000/api/health
 curl -i http://localhost:3000/api/health/database
-docker-compose stop --timeout 15 api
+docker compose stop --timeout 15 api
 ```
 
 ### Integración continua
