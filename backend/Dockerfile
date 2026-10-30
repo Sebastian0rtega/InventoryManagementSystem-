@@ -21,6 +21,12 @@ RUN npm ci --omit=dev
 FROM node:22-bookworm-slim AS runtime
 
 WORKDIR /app
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
 ENV NODE_ENV=production
 ENV PORT=3000
 EXPOSE 3000

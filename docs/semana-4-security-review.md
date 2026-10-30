@@ -1,6 +1,6 @@
 # Revisión de seguridad de dependencias y entrega
 
-Fecha de revisión: 2026-10-28
+Fecha de revisión: 2026-10-30
 
 ## Auditoría de dependencias de producción
 
@@ -9,9 +9,9 @@ Comando: `npm audit --omit=dev` desde `backend/`.
 | Paquete afectado | Severidad | Tipo | Hallazgo / evaluación | Decisión |
 |---|---|---|---|---|
 | `zod` | HIGH (corregido) | Directa | GHSA-mrhx-c7xc-m3w5: consumo de memoria al validar colecciones restringidas de gran tamaño. La API valida entradas externas. | Actualizado dentro del rango compatible a `4.6.7`; build y pruebas focalizadas pasan. |
-| `uuid@8.3.2` vía `sequelize@6.37.8` | MODERATE | Transitiva de dependencia directa | GHSA-w5hq-g745-h8pq describe un chequeo de límites insuficiente al proporcionar un buffer a funciones UUID v3/v5/v6. La revisión de Sequelize 6.37.8 encuentra usos internos de v1/v4, no llamadas v3/v5/v6 con buffer; no se identificó un flujo explotable desde las rutas actuales, pero el advisory transitivo sigue pendiente. | `npm audit` propone Sequelize `3.30.0`, downgrade incompatible de major. No ejecutar `npm audit fix --force`; mantener Sequelize 6 y crear Issue para evaluar actualización compatible y comprobar el alcance en un PR aislado. |
+| `uuid` vía `sequelize@6.37.8` | MODERATE (mitigado en lockfile) | Transitiva de dependencia directa | GHSA-w5hq-g745-h8pq afecta v3/v5/v6 cuando se proporciona un buffer. Sequelize usa v1/v4 en el código inspeccionado y no se identificó un flujo desde las rutas hacia las funciones afectadas. | Override acotado de Sequelize a `uuid@^11.1.1`, que conserva CommonJS y las funciones v1/v4 usadas. `npm audit --omit=dev` reporta cero vulnerabilidades tras el override. No forzar el downgrade de Sequelize que propone npm. |
 
-El informe de auditoría de producción después de actualizar Zod contiene dos entradas moderadas (`sequelize` y su dependencia `uuid`) y cero hallazgos altos o críticos. La auditoría completa también reporta siete entradas bajas transitivas de desarrollo relacionadas con Jest/deepmerge; no se incluyen en la imagen runtime. npm propone downgrades mayores antiguos para esa cadena, por lo que no se forzaron. Confirmar ambas auditorías al preparar el PR, ya que advisories y lockfiles pueden cambiar.
+La auditoría de producción previa al override reportó dos entradas moderadas (`sequelize` y su dependencia `uuid`) y cero hallazgos altos o críticos. El fix automático propuesto por npm instala Sequelize 3.30.0, un downgrade incompatible, y no se ejecutó. La validación posterior al override reportó cero vulnerabilidades de producción; la auditoría completa aún reporta siete vulnerabilidades bajas de dependencias de desarrollo.
 
 ## Mitigaciones HTTP
 
@@ -23,17 +23,36 @@ El informe de auditoría de producción después de actualizar Zod contiene dos 
 ## Imagen y workflow
 
 - El Dockerfile usa `node:22-bookworm-slim`, etapa final separada, `npm ci --omit=dev` y `USER node`.
+- La etapa runtime actualiza los paquetes Debian durante la construcción y elimina npm/npx globales, que no son necesarios para ejecutar `node dist/server.js`.
 - GitHub Actions declara `permissions: contents: read` y usa credenciales de prueba no secretas; no imprime secretos ni recibe secretos del repositorio.
-- El escaneo de imagen está pendiente de ejecutarse en AWS sobre la imagen reconstruida; no se presenta como completado en este informe.
-- El escaneo Trivy de la imagen debe ejecutarse sobre la imagen construida en AWS y adjuntarse como resumen sin credenciales ni variables de entorno. Comandos sugeridos desde la raíz:
+- El escaneo Trivy del 2026-10-30 sobre la imagen anterior `inventory-api:day6-rescan` reportó 229 hallazgos del sistema Debian (56 HIGH, 1 CRITICAL) y 22 de paquetes Node (10 HIGH). Los paquetes Node identificados como HIGH (`brace-expansion`, `ip-address`, `pacote`, entre otros) están bajo `/usr/local/lib/node_modules/npm`, no en las dependencias de la aplicación. La etapa runtime actualizada con parches Debian y sin npm global requiere una nueva construcción y escaneo en AWS; esos hallazgos no se consideran mitigados hasta revisar el nuevo reporte.
+- El CRITICAL `CVE-2023-45853` fue reportado para `zlib1g` con estado `will_not_fix` en la base Debian usada por ese escaneo. Reevaluar tras reconstruir; si persiste, documentar exposición y seguimiento, no ocultar el hallazgo.
+- Ejecutar Trivy en AWS sobre la imagen reconstruida. Si Trivy no está instalado en Amazon Linux, ejecutarlo como contenedor y guardar primero en `/tmp`, para no reemplazar la evidencia previa si falla:
 
   ```bash
-  trivy image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 inventory-api:semana4
-  trivy image --scanners vuln --format table --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL inventory-api:semana4 \
-    > docs/semana-4-trivy-image.txt
+  docker build --pull --build-arg VCS_REF="$(git rev-parse HEAD)" \
+    -t inventory-api:day6-rescan -f backend/Dockerfile backend
+
+  if docker run --rm \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v "$HOME/.cache/trivy:/cache" \
+    aquasec/trivy:latest \
+    --cache-dir /cache \
+    image --quiet --no-progress --scanners vuln \
+    --format table --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
+    inventory-api:day6-rescan \
+    > /tmp/semana-6-trivy-image.txt 2>&1
+  then
+    cp /tmp/semana-6-trivy-image.txt docs/semana-6-trivy-image.txt
+  else
+    tail -n 40 /tmp/semana-6-trivy-image.txt
+    echo "El escaneo falló; conservar el reporte versionado."
+    exit 1
+  fi
   ```
 
-  El primer comando bloquea si hay hallazgos altos/críticos; el segundo guarda un inventario para revisión. No registrar `docker inspect` de variables de entorno ni archivos `.env`.
+  El escaneo debe terminar correctamente antes de copiar el archivo temporal al repositorio. No registrar `docker inspect` de variables de entorno ni archivos `.env`.
+- Seguimiento: [#61](https://github.com/Sebastian0rtega/InventoryManagementSystem-/issues/61) evalúa la compatibilidad del override para `GHSA-w5hq-g745-h8pq`, la regresión PostgreSQL y el escaneo de la imagen.
 
 ## Política de actualización
 
