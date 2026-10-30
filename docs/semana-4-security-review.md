@@ -20,14 +20,58 @@ La auditoría de producción previa al override reportó dos entradas moderadas 
 - Helmet permanece habilitado con sus cabeceras seguras predeterminadas.
 - CORS actualmente permite orígenes web arbitrarios sin habilitar credenciales. Mantenerlo así mientras la API sea pública; al definir los orígenes del frontend, limitar `origin` en una actualización revisada.
 
+## Validación de pruebas en PostgreSQL
+
+El 2026-10-30, la suite completa se ejecutó en AWS contra la base de pruebas PostgreSQL ya preparada: **9 suites y 88 pruebas pasaron**, sin snapshots. Como `.dockerignore` excluye `src/__tests__`, las pruebas y la configuración de Jest se montaron temporalmente desde el checkout en el contenedor `migrate`:
+
+```bash
+cd backend
+docker-compose run --rm \
+  -v "$PWD/src:/app/src:ro" \
+  -v "$PWD/jest.config.js:/app/jest.config.js:ro" \
+  -e NODE_ENV=test \
+  -e DB_NAME_TEST="${DB_NAME_TEST:-inventory_test_db}" \
+  migrate npm test
+```
+
+La primera ejecución sin esos montajes no encontró pruebas y no cuenta como validación. La ejecución final sí reportó `Test Suites: 9 passed, 9 total` y `Tests: 88 passed, 88 total`.
+
 ## Imagen y workflow
 
-- El Dockerfile usa `node:22-bookworm-slim`, etapa final separada, `npm ci --omit=dev` y `USER node`.
+- El Dockerfile usa `node:22-trixie-slim`, etapa final separada, `npm ci --omit=dev` y `USER node`. El cambio de Debian 12 (Bookworm) a Debian 13 (Trixie) busca salir del conjunto de paquetes con hallazgos del escaneo anterior; requiere reconstrucción y nuevo escaneo para validar el resultado.
 - La etapa runtime actualiza los paquetes Debian durante la construcción y elimina npm/npx globales, que no son necesarios para ejecutar `node dist/server.js`.
 - GitHub Actions declara `permissions: contents: read` y usa credenciales de prueba no secretas; no imprime secretos ni recibe secretos del repositorio.
-- El primer escaneo de `inventory-api:day6-rescan` reportó 229 vulnerabilidades Debian (56 HIGH, 1 CRITICAL) y 22 de paquetes Node (10 HIGH). Tras actualizar los paquetes Debian durante el build y retirar npm global, el escaneo final del 2026-10-30 reportó 228 Debian (56 HIGH, 1 CRITICAL) y cero vulnerabilidades en los paquetes Node detectados. Evidencia: [`docs/semana-6-trivy-image.txt`](./semana-6-trivy-image.txt), commit `954c47c`.
-- El CRITICAL `CVE-2023-45853` sigue reportado para `zlib1g` con estado `will_not_fix`; la actualización de la base Debian no lo eliminó. Los hallazgos HIGH del sistema operativo también permanecen y requieren evaluación; no se consideran mitigados solo por actualizar paquetes.
+- El escaneo anterior de `inventory-api:day6-rescan`, construido sobre Bookworm, reportó 228 vulnerabilidades Debian (56 HIGH, 1 CRITICAL) y cero vulnerabilidades en los paquetes Node detectados. Es un resultado histórico de esa imagen, no una medición de la nueva base Trixie. Evidencia: [`docs/semana-6-trivy-image.txt`](./semana-6-trivy-image.txt), commit `954c47c`.
+- En el reporte de Bookworm, `CVE-2023-45853` para `zlib1g` aparece como CRITICAL con estado `will_not_fix`; también persisten hallazgos HIGH del sistema operativo. No se declaran resueltos hasta construir y escanear la imagen Trixie.
 - Seguimiento de hallazgos del sistema operativo en imagen: [#62](https://github.com/Sebastian0rtega/InventoryManagementSystem-/issues/62). Reevaluar imagen base/parches Debian y exposición; registrar una excepción revisada si un fix no está disponible. No ocultar findings ni bloquear un release únicamente con el conteo sin analizar aplicabilidad.
+- Para reconstruir y volver a escanear en AWS desde la raíz del repositorio:
+
+  ```bash
+  docker build --pull --no-cache \
+    -f backend/Dockerfile \
+    -t inventory-api:day6-trixie \
+    backend
+
+  if docker run --rm \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v "$HOME/.cache/trivy:/cache" \
+    aquasec/trivy:latest \
+    --cache-dir /cache \
+    image --quiet --no-progress --scanners vuln \
+    --format table --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
+    inventory-api:day6-trixie \
+    > /tmp/semana-6-trivy-trixie.txt 2>&1
+  then
+    cp /tmp/semana-6-trivy-trixie.txt docs/semana-6-trivy-trixie.txt
+    head -n 8 /tmp/semana-6-trivy-trixie.txt
+  else
+    tail -n 40 /tmp/semana-6-trivy-trixie.txt
+    echo "El escaneo falló; conservar el reporte anterior."
+    exit 1
+  fi
+  ```
+
+  No sustituir el reporte histórico hasta que el build y el escaneo de la imagen nueva terminen correctamente. El conteo solo puede darse por reducido tras comprobar el nuevo resumen Trivy.
 - Para repetir el escaneo en AWS sin reemplazar la evidencia previa si falla:
 
   ```bash

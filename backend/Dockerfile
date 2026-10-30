@@ -1,4 +1,4 @@
-FROM node:22-bookworm-slim AS dependencies
+FROM node:22-trixie-slim AS dependencies
 
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -12,13 +12,13 @@ COPY src ./src
 RUN npm run build
 USER node
 
-FROM node:22-bookworm-slim AS production-dependencies
+FROM node:22-trixie-slim AS production-dependencies
 
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
-FROM node:22-bookworm-slim AS runtime
+FROM node:22-trixie-slim AS runtime
 
 WORKDIR /app
 RUN apt-get update \
