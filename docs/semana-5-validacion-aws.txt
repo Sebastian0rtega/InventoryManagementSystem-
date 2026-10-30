@@ -1,9 +1,18 @@
+===== Iniciar PostgreSQL y API =====
+ Container inventorymanagementsystem--database-1 Running 
+ Container inventorymanagementsystem--database-1 Waiting 
+ Container inventorymanagementsystem--database-1 Healthy 
+ Container inventorymanagementsystem--api-1 Starting 
+ Container inventorymanagementsystem--api-1 Started 
+
+===== Esperar a que PostgreSQL esté listo =====
+
 ===== GET /api/health =====
   % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
                                  Dload  Upload  Total   Spent   Left   Speed
-  0      0   0      0   0      0      0      0                              0100     41 100     41   0      0  10942      0                              0100     41 100     41   0      0  10752      0                              0100     41 100     41   0      0  10586      0                              0
+  0      0   0      0   0      0      0      0                              0100     41 100     41   0      0  15953      0                              0100     41 100     41   0      0  15407      0                              0100     41 100     41   0      0  15051      0                              0
 HTTP/1.1 200 OK
-X-Request-Id: 2d686ad3-e0e1-4bfb-a614-de75db71f2a5
+X-Request-Id: baeba330-0bd1-4dd0-b466-29a6dea689f5
 Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
 Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Resource-Policy: same-origin
@@ -20,17 +29,17 @@ Access-Control-Allow-Origin: *
 Content-Type: application/json; charset=utf-8
 Content-Length: 41
 ETag: W/"29-uKu6fT4sRNdjYzsjg6JouxgJROQ"
-Date: Fri, 30 Oct 2026 14:32:43 GMT
+Date: Fri, 30 Oct 2026 14:34:55 GMT
 Connection: keep-alive
 Keep-Alive: timeout=5
 
 {"status":"ok","service":"inventory-api"}
-===== GET /api/health/database =====
+===== GET /api/health/database con PostgreSQL activo =====
   % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
                                  Dload  Upload  Total   Spent   Left   Speed
-  0      0   0      0   0      0      0      0                              0100     66 100     66   0      0  30985      0                              0100     66 100     66   0      0  25423      0                              0100     66 100     66   0      0  24793      0                              0
+  0      0   0      0   0      0      0      0                              0100     66 100     66   0      0  21760      0                              0100     66 100     66   0      0  18482      0                              0100     66 100     66   0      0  18146      0                              0
 HTTP/1.1 200 OK
-X-Request-Id: a898f468-a845-41cf-b219-b329c2b30204
+X-Request-Id: b6007edb-de35-4f66-9035-adcf229a49d9
 Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
 Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Resource-Policy: same-origin
@@ -47,12 +56,78 @@ Access-Control-Allow-Origin: *
 Content-Type: application/json; charset=utf-8
 Content-Length: 66
 ETag: W/"42-V9DYgn6fErOXuAD/JZG85dFhh6c"
-Date: Fri, 30 Oct 2026 14:32:43 GMT
+Date: Fri, 30 Oct 2026 14:34:55 GMT
 Connection: keep-alive
 Keep-Alive: timeout=5
 
 {"status":"connected","message":"Conexión a PostgreSQL exitosa."}
-===== docker-compose logs --since=5m api =====
+===== Detener PostgreSQL para probar readiness =====
+ Container inventorymanagementsystem--database-1 Stopping 
+ Container inventorymanagementsystem--database-1 Stopped 
+
+===== GET /api/health/database con PostgreSQL detenido (se espera 503) =====
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0100     77 100     77   0      0   5556      0                              0100     77 100     77   0      0   5527      0                              0100     77 100     77   0      0   5502      0                              0
+HTTP/1.1 503 Service Unavailable
+X-Request-Id: 9275e264-c7ab-468c-8968-b4e647c668f2
+Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: same-origin
+Origin-Agent-Cluster: ?1
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=15552000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-DNS-Prefetch-Control: off
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-XSS-Protection: 0
+Access-Control-Allow-Origin: *
+Content-Type: application/json; charset=utf-8
+Content-Length: 77
+ETag: W/"4d-HmPgpsYIxB4PjDnn9jW9Ro39+kc"
+Date: Fri, 30 Oct 2026 14:34:57 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"status":"disconnected","message":"No se pudo conectar a la base de datos."}
+===== GET /api/health con PostgreSQL detenido (se espera 200) =====
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0100     41 100     41   0      0  26867      0                              0100     41 100     41   0      0  18798      0                              0100     41 100     41   0      0  18230      0                              0
+HTTP/1.1 200 OK
+X-Request-Id: 0ce78ee4-80d6-4825-bbd4-2e36e36dca2f
+Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
+Cross-Origin-Opener-Policy: same-origin
+Cross-Origin-Resource-Policy: same-origin
+Origin-Agent-Cluster: ?1
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=15552000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-DNS-Prefetch-Control: off
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-XSS-Protection: 0
+Access-Control-Allow-Origin: *
+Content-Type: application/json; charset=utf-8
+Content-Length: 41
+ETag: W/"29-uKu6fT4sRNdjYzsjg6JouxgJROQ"
+Date: Fri, 30 Oct 2026 14:34:57 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"status":"ok","service":"inventory-api"}
+===== Reiniciar PostgreSQL =====
+ Container inventorymanagementsystem--database-1 Starting 
+ Container inventorymanagementsystem--database-1 Started 
+
+===== Detener API ordenadamente =====
+ Container inventorymanagementsystem--api-1 Stopping 
+ Container inventorymanagementsystem--api-1 Stopped 
+
+===== Logs de API: requests, fallo de readiness y cierre =====
 api-1  | {"timestamp":"2026-10-30T14:30:37.481Z","level":"info","event":"server.started","nodeEnv":"production","port":3000}
 api-1  | {"timestamp":"2026-10-30T14:30:40.887Z","level":"info","event":"http.request","requestId":"a5202b38-e1c9-4971-885a-abdac878ab43","method":"GET","route":"/api/health","status":200,"durationMs":6}
 api-1  | {"timestamp":"2026-10-30T14:30:40.994Z","level":"info","event":"http.request","requestId":"23c3078f-1b30-4b63-b4c5-3420bfbe7ef0","method":"GET","route":"/api/health/database","status":200,"durationMs":99}
@@ -70,7 +145,15 @@ api-1  | {"timestamp":"2026-10-30T14:32:28.414Z","level":"info","event":"http.re
 api-1  | {"timestamp":"2026-10-30T14:32:38.673Z","level":"info","event":"http.request","requestId":"b1c05b4a-4e28-46e1-a9c2-221b7584dc73","method":"GET","route":"/api/health/database","status":200,"durationMs":10}
 api-1  | {"timestamp":"2026-10-30T14:32:43.009Z","level":"info","event":"http.request","requestId":"2d686ad3-e0e1-4bfb-a614-de75db71f2a5","method":"GET","route":"/api/health","status":200,"durationMs":1}
 api-1  | {"timestamp":"2026-10-30T14:32:43.017Z","level":"info","event":"http.request","requestId":"a898f468-a845-41cf-b219-b329c2b30204","method":"GET","route":"/api/health/database","status":200,"durationMs":1}
-
-===== detener API con límite de 15 segundos =====
- Container inventorymanagementsystem--api-1 Stopping 
- Container inventorymanagementsystem--api-1 Stopped 
+api-1  | {"timestamp":"2026-10-30T14:32:43.160Z","level":"info","event":"server.shutdown_started","signal":"SIGTERM","timeoutMs":15000}
+api-1  | {"timestamp":"2026-10-30T14:32:43.165Z","level":"info","event":"server.shutdown_complete","signal":"SIGTERM"}
+api-1  | {"timestamp":"2026-10-30T14:34:53.924Z","level":"info","event":"server.started","nodeEnv":"production","port":3000}
+api-1  | {"timestamp":"2026-10-30T14:34:55.131Z","level":"info","event":"http.request","requestId":"d18852d4-f7f3-4f22-94fc-d855eb9ba565","method":"GET","route":"/api/health/database","status":200,"durationMs":54}
+api-1  | {"timestamp":"2026-10-30T14:34:55.140Z","level":"info","event":"http.request","requestId":"baeba330-0bd1-4dd0-b466-29a6dea689f5","method":"GET","route":"/api/health","status":200,"durationMs":1}
+api-1  | {"timestamp":"2026-10-30T14:34:55.149Z","level":"info","event":"http.request","requestId":"b6007edb-de35-4f66-9035-adcf229a49d9","method":"GET","route":"/api/health/database","status":200,"durationMs":2}
+api-1  | {"timestamp":"2026-10-30T14:34:57.441Z","level":"error","event":"health.database_unavailable","requestId":"9275e264-c7ab-468c-8968-b4e647c668f2","method":"GET","route":"/api/health/database","status":503,"durationMs":12,"errorCode":"DATABASE_UNAVAILABLE","errorMessage":"getaddrinfo ENOTFOUND database"}
+api-1  | {"timestamp":"2026-10-30T14:34:57.442Z","level":"error","event":"http.request","requestId":"9275e264-c7ab-468c-8968-b4e647c668f2","method":"GET","route":"/api/health/database","status":503,"durationMs":13,"errorCode":"DATABASE_UNAVAILABLE"}
+api-1  | {"timestamp":"2026-10-30T14:34:57.450Z","level":"info","event":"http.request","requestId":"0ce78ee4-80d6-4825-bbd4-2e36e36dca2f","method":"GET","route":"/api/health","status":200,"durationMs":1}
+api-1  | {"timestamp":"2026-10-30T14:35:03.215Z","level":"info","event":"http.request","requestId":"676a191f-03e0-4d58-941d-24a6ce4592b6","method":"GET","route":"/api/health/database","status":200,"durationMs":12}
+api-1  | {"timestamp":"2026-10-30T14:35:07.827Z","level":"info","event":"server.shutdown_started","signal":"SIGTERM","timeoutMs":15000}
+api-1  | {"timestamp":"2026-10-30T14:35:07.832Z","level":"info","event":"server.shutdown_complete","signal":"SIGTERM"}
