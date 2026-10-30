@@ -25,14 +25,12 @@ La auditoría de producción previa al override reportó dos entradas moderadas 
 - El Dockerfile usa `node:22-bookworm-slim`, etapa final separada, `npm ci --omit=dev` y `USER node`.
 - La etapa runtime actualiza los paquetes Debian durante la construcción y elimina npm/npx globales, que no son necesarios para ejecutar `node dist/server.js`.
 - GitHub Actions declara `permissions: contents: read` y usa credenciales de prueba no secretas; no imprime secretos ni recibe secretos del repositorio.
-- El escaneo Trivy del 2026-10-30 sobre la imagen anterior `inventory-api:day6-rescan` reportó 229 hallazgos del sistema Debian (56 HIGH, 1 CRITICAL) y 22 de paquetes Node (10 HIGH). Los paquetes Node identificados como HIGH (`brace-expansion`, `ip-address`, `pacote`, entre otros) están bajo `/usr/local/lib/node_modules/npm`, no en las dependencias de la aplicación. La etapa runtime actualizada con parches Debian y sin npm global requiere una nueva construcción y escaneo en AWS; esos hallazgos no se consideran mitigados hasta revisar el nuevo reporte.
-- El CRITICAL `CVE-2023-45853` fue reportado para `zlib1g` con estado `will_not_fix` en la base Debian usada por ese escaneo. Reevaluar tras reconstruir; si persiste, documentar exposición y seguimiento, no ocultar el hallazgo.
-- Ejecutar Trivy en AWS sobre la imagen reconstruida. Si Trivy no está instalado en Amazon Linux, ejecutarlo como contenedor y guardar primero en `/tmp`, para no reemplazar la evidencia previa si falla:
+- El primer escaneo de `inventory-api:day6-rescan` reportó 229 vulnerabilidades Debian (56 HIGH, 1 CRITICAL) y 22 de paquetes Node (10 HIGH). Tras actualizar los paquetes Debian durante el build y retirar npm global, el escaneo final del 2026-10-30 reportó 228 Debian (56 HIGH, 1 CRITICAL) y cero vulnerabilidades en los paquetes Node detectados. Evidencia: [`docs/semana-6-trivy-image.txt`](./semana-6-trivy-image.txt), commit `954c47c`.
+- El CRITICAL `CVE-2023-45853` sigue reportado para `zlib1g` con estado `will_not_fix`; la actualización de la base Debian no lo eliminó. Los hallazgos HIGH del sistema operativo también permanecen y requieren evaluación; no se consideran mitigados solo por actualizar paquetes.
+- Seguimiento de hallazgos del sistema operativo en imagen: [#62](https://github.com/Sebastian0rtega/InventoryManagementSystem-/issues/62). Reevaluar imagen base/parches Debian y exposición; registrar una excepción revisada si un fix no está disponible. No ocultar findings ni bloquear un release únicamente con el conteo sin analizar aplicabilidad.
+- Para repetir el escaneo en AWS sin reemplazar la evidencia previa si falla:
 
   ```bash
-  docker build --pull --build-arg VCS_REF="$(git rev-parse HEAD)" \
-    -t inventory-api:day6-rescan -f backend/Dockerfile backend
-
   if docker run --rm \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "$HOME/.cache/trivy:/cache" \
