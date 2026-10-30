@@ -1,161 +1,9 @@
-===== Commit y rama =====
-feat/operational-readiness
-7d207636069a1f4fc5c651f6733daff36a2117b0
-===== Build de la API =====
- Image inventory-api:semana4 Building 
-#1 [internal] load local bake definitions
-#1 reading from stdin 600B done
-#1 DONE 0.0s
-
-#2 [internal] load build definition from Dockerfile
-#2 transferring dockerfile: 826B done
-#2 DONE 0.0s
-
-#3 [internal] load metadata for docker.io/library/node:22-bookworm-slim
-#3 DONE 0.3s
-
-#4 [internal] load .dockerignore
-#4 transferring context: 188B done
-#4 DONE 0.0s
-
-#5 [dependencies 1/4] FROM docker.io/library/node:22-bookworm-slim@sha256:4b150b48b4116e2a22f2c39cc27025fbf4f153e2078fd3b14d159fdb5c7279da
-#5 DONE 0.0s
-
-#6 [dependencies 2/4] WORKDIR /app
-#6 CACHED
-
-#7 [internal] load build context
-#7 transferring context: 11.96kB 0.0s done
-#7 DONE 0.0s
-
-#8 [dependencies 3/4] COPY package.json package-lock.json ./
-#8 DONE 0.1s
-
-#9 [production-dependencies 4/4] RUN npm ci --omit=dev
-#9 5.600 npm warn deprecated dottie@2.0.7: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-#9 7.837 npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
-#9 8.121 npm warn deprecated glob@11.1.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-#9 ...
-
-#10 [dependencies 4/4] RUN npm ci
-#10 8.979 npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-#10 10.10 npm warn deprecated dottie@2.0.7: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
-#10 11.59 npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
-#10 11.79 npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
-#10 11.99 npm warn deprecated rimraf@2.7.1: Rimraf versions prior to v4 are no longer supported
-#10 12.09 npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-#10 12.21 npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-#10 12.21 npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-#10 12.21 npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-#10 12.22 npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
-#10 12.24 npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-#10 12.30 npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-#10 ...
-
-#9 [production-dependencies 4/4] RUN npm ci --omit=dev
-#9 14.54 
-#9 14.54 added 172 packages, and audited 173 packages in 14s
-#9 14.54 
-#9 14.54 30 packages are looking for funding
-#9 14.54   run `npm fund` for details
-#9 14.56 
-#9 14.56 3 vulnerabilities (2 moderate, 1 high)
-#9 14.56 
-#9 14.56 To address issues that do not require attention, run:
-#9 14.56   npm audit fix
-#9 14.56 
-#9 14.56 To address all issues (including breaking changes), run:
-#9 14.56   npm audit fix --force
-#9 14.56 
-#9 14.56 Run `npm audit` for details.
-#9 14.56 npm notice
-#9 14.56 npm notice New major version of npm available! 10.9.9 -> 12.2.1
-#9 14.56 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
-#9 14.56 npm notice To update run: npm install -g npm@12.2.1
-#9 14.56 npm notice
-#9 DONE 15.0s
-
-#10 [dependencies 4/4] RUN npm ci
-#10 14.74 npm warn deprecated uuid@8.3.2: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
-#10 15.14 npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-#10 15.42 npm warn deprecated glob@11.1.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
-#10 17.97 npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
-#10 ...
-
-#11 [runtime 3/4] COPY --from=production-dependencies --chown=node:node /app/node_modules ./node_modules
-#11 ...
-
-#10 [dependencies 4/4] RUN npm ci
-#10 22.24 
-#10 22.24 added 665 packages, and audited 666 packages in 21s
-#10 22.24 
-#10 22.24 107 packages are looking for funding
-#10 22.24   run `npm fund` for details
-#10 22.30 
-#10 22.30 10 vulnerabilities (7 low, 2 moderate, 1 high)
-#10 22.30 
-#10 22.30 To address issues that do not require attention, run:
-#10 22.30   npm audit fix
-#10 22.30 
-#10 22.30 To address all issues (including breaking changes), run:
-#10 22.30   npm audit fix --force
-#10 22.30 
-#10 22.30 Run `npm audit` for details.
-#10 22.30 npm notice
-#10 22.30 npm notice New major version of npm available! 10.9.9 -> 12.2.1
-#10 22.30 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
-#10 22.30 npm notice To update run: npm install -g npm@12.2.1
-#10 22.30 npm notice
-#10 DONE 22.5s
-
-#11 [runtime 3/4] COPY --from=production-dependencies --chown=node:node /app/node_modules ./node_modules
-#11 DONE 1.6s
-
-#12 [build 1/4] COPY tsconfig.json tsconfig.build.json ./
-#12 DONE 0.1s
-
-#13 [build 2/4] COPY .sequelizerc ./
-#13 DONE 0.0s
-
-#14 [build 3/4] COPY src ./src
-#14 DONE 0.1s
-
-#15 [build 4/4] RUN npm run build
-#15 0.926 
-#15 0.926 > Inventory-Backend@1.0.0 build
-#15 0.926 > rimraf dist && tsc -p tsconfig.build.json
-#15 0.926 
-#15 DONE 8.7s
-
-#16 [runtime 4/4] COPY --from=build --chown=node:node /app/dist ./dist
-#16 DONE 0.1s
-
-#17 exporting to image
-#17 exporting layers
-#17 exporting layers 5.1s done
-#17 writing image sha256:12a77b7d4fedf780cbacb432977ae045510f602dd0aeb7ef995febb2d7eb88d8 done
-#17 naming to docker.io/library/inventory-api:semana4 0.0s done
-#17 DONE 5.1s
-
-#18 resolving provenance for metadata file
-#18 DONE 0.1s
- Image inventory-api:semana4 Built 
-===== Arranque del stack aislado =====
- Container day3-validation-database-1 Running 
- Container day3-validation-api-1 Recreate 
- Container day3-validation-api-1 Recreated 
- Container day3-validation-database-1 Waiting 
- Container day3-validation-database-1 Healthy 
- Container day3-validation-api-1 Starting 
- Container day3-validation-api-1 Started 
-PostgreSQL: healthy
-curl: (56) Recv failure: Connection reset by peer
-NAME                         IMAGE                   COMMAND                  SERVICE    CREATED         STATUS                            PORTS
-day3-validation-api-1        inventory-api:semana4   "docker-entrypoint.s…"   api        4 seconds ago   Up 2 seconds (health: starting)   0.0.0.0:3002->3000/tcp, [::]:3002->3000/tcp
-day3-validation-database-1   postgres:15-alpine      "docker-entrypoint.s…"   database   47 hours ago    Up 8 minutes (healthy)            5432/tcp
-===== Liveness y request ID reenviado =====
+===== GET /api/health =====
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0100     41 100     41   0      0  10942      0                              0100     41 100     41   0      0  10752      0                              0100     41 100     41   0      0  10586      0                              0
 HTTP/1.1 200 OK
-X-Request-Id: a41b1ed3-2b64-46c8-a0fb-4cf652e8b307
+X-Request-Id: 2d686ad3-e0e1-4bfb-a614-de75db71f2a5
 Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
 Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Resource-Policy: same-origin
@@ -172,15 +20,17 @@ Access-Control-Allow-Origin: *
 Content-Type: application/json; charset=utf-8
 Content-Length: 41
 ETag: W/"29-uKu6fT4sRNdjYzsjg6JouxgJROQ"
-Date: Wed, 28 Oct 2026 14:45:53 GMT
+Date: Fri, 30 Oct 2026 14:32:43 GMT
 Connection: keep-alive
 Keep-Alive: timeout=5
 
-{"status":"ok","service":"inventory-api"}===== Request ID inválido: debe generar uno nuevo =====
-X-Request-Id: 30a869cf-0dba-475d-9e09-c5f0ada11d3f
-===== Readiness con PostgreSQL disponible =====
+{"status":"ok","service":"inventory-api"}
+===== GET /api/health/database =====
+  % Total    % Received % Xferd  Average Speed  Time    Time    Time   Current
+                                 Dload  Upload  Total   Spent   Left   Speed
+  0      0   0      0   0      0      0      0                              0100     66 100     66   0      0  30985      0                              0100     66 100     66   0      0  25423      0                              0100     66 100     66   0      0  24793      0                              0
 HTTP/1.1 200 OK
-X-Request-Id: d2481353-91b6-4b04-8915-35068ad88eff
+X-Request-Id: a898f468-a845-41cf-b219-b329c2b30204
 Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
 Cross-Origin-Opener-Policy: same-origin
 Cross-Origin-Resource-Policy: same-origin
@@ -197,83 +47,30 @@ Access-Control-Allow-Origin: *
 Content-Type: application/json; charset=utf-8
 Content-Length: 66
 ETag: W/"42-V9DYgn6fErOXuAD/JZG85dFhh6c"
-Date: Wed, 28 Oct 2026 14:45:53 GMT
+Date: Fri, 30 Oct 2026 14:32:43 GMT
 Connection: keep-alive
 Keep-Alive: timeout=5
 
-{"status":"connected","message":"Conexión a PostgreSQL exitosa."}===== Detener solo PostgreSQL aislado =====
- Container day3-validation-database-1 Stopping 
- Container day3-validation-database-1 Stopped 
-===== Liveness debe seguir respondiendo 200 =====
-HTTP 200
-{"status":"ok","service":"inventory-api"}===== Readiness debe responder 503 =====
-HTTP 503
-{"status":"disconnected","message":"No se pudo conectar a la base de datos."}===== Restaurar PostgreSQL aislado =====
- Container day3-validation-database-1 Starting 
- Container day3-validation-database-1 Started 
-PostgreSQL: starting
-PostgreSQL: starting
-PostgreSQL: starting
-PostgreSQL: healthy
-HTTP/1.1 200 OK
-X-Request-Id: ca67bbd4-d2a0-4625-aa6a-bec4bfddfdfd
-Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
-Cross-Origin-Opener-Policy: same-origin
-Cross-Origin-Resource-Policy: same-origin
-Origin-Agent-Cluster: ?1
-Referrer-Policy: no-referrer
-Strict-Transport-Security: max-age=15552000; includeSubDomains
-X-Content-Type-Options: nosniff
-X-DNS-Prefetch-Control: off
-X-Download-Options: noopen
-X-Frame-Options: SAMEORIGIN
-X-Permitted-Cross-Domain-Policies: none
-X-XSS-Protection: 0
-Access-Control-Allow-Origin: *
-Content-Type: application/json; charset=utf-8
-Content-Length: 66
-ETag: W/"42-V9DYgn6fErOXuAD/JZG85dFhh6c"
-Date: Wed, 28 Oct 2026 14:46:02 GMT
-Connection: keep-alive
-Keep-Alive: timeout=5
+{"status":"connected","message":"Conexión a PostgreSQL exitosa."}
+===== docker-compose logs --since=5m api =====
+api-1  | {"timestamp":"2026-10-30T14:30:37.481Z","level":"info","event":"server.started","nodeEnv":"production","port":3000}
+api-1  | {"timestamp":"2026-10-30T14:30:40.887Z","level":"info","event":"http.request","requestId":"a5202b38-e1c9-4971-885a-abdac878ab43","method":"GET","route":"/api/health","status":200,"durationMs":6}
+api-1  | {"timestamp":"2026-10-30T14:30:40.994Z","level":"info","event":"http.request","requestId":"23c3078f-1b30-4b63-b4c5-3420bfbe7ef0","method":"GET","route":"/api/health/database","status":200,"durationMs":99}
+api-1  | {"timestamp":"2026-10-30T14:30:45.989Z","level":"info","event":"http.request","requestId":"e03f060e-2ea3-42bf-b604-847a83755121","method":"GET","route":"/api/health/database","status":200,"durationMs":2}
+api-1  | {"timestamp":"2026-10-30T14:30:56.228Z","level":"info","event":"http.request","requestId":"5eaff929-86b7-4879-9841-7c043029cd35","method":"GET","route":"/api/health/database","status":200,"durationMs":11}
+api-1  | {"timestamp":"2026-10-30T14:31:06.458Z","level":"info","event":"http.request","requestId":"d5f9550f-e13d-42ac-a1dd-0afc7b70a519","method":"GET","route":"/api/health/database","status":200,"durationMs":11}
+api-1  | {"timestamp":"2026-10-30T14:31:16.704Z","level":"info","event":"http.request","requestId":"9d8099f9-9ab7-4e88-b849-f6279e47c70c","method":"GET","route":"/api/health/database","status":200,"durationMs":10}
+api-1  | {"timestamp":"2026-10-30T14:31:26.958Z","level":"info","event":"http.request","requestId":"bbe39637-d4d1-423f-8e94-307049b5a8e5","method":"GET","route":"/api/health/database","status":200,"durationMs":10}
+api-1  | {"timestamp":"2026-10-30T14:31:37.204Z","level":"info","event":"http.request","requestId":"d5e759d6-8f5f-4285-a6b4-ce69550739e7","method":"GET","route":"/api/health/database","status":200,"durationMs":10}
+api-1  | {"timestamp":"2026-10-30T14:31:47.440Z","level":"info","event":"http.request","requestId":"476b1acc-b32f-411c-8f44-40cd8af3c73d","method":"GET","route":"/api/health/database","status":200,"durationMs":10}
+api-1  | {"timestamp":"2026-10-30T14:31:57.672Z","level":"info","event":"http.request","requestId":"7d4582ea-11b1-4f81-90c3-e3e110c22863","method":"GET","route":"/api/health/database","status":200,"durationMs":12}
+api-1  | {"timestamp":"2026-10-30T14:32:07.920Z","level":"info","event":"http.request","requestId":"556f1492-094f-4ca9-9fb4-8143df9e64e1","method":"GET","route":"/api/health/database","status":200,"durationMs":10}
+api-1  | {"timestamp":"2026-10-30T14:32:18.176Z","level":"info","event":"http.request","requestId":"0414efdc-06d8-4da0-bc5a-4fc32c041123","method":"GET","route":"/api/health/database","status":200,"durationMs":9}
+api-1  | {"timestamp":"2026-10-30T14:32:28.414Z","level":"info","event":"http.request","requestId":"0156aeee-72e1-4908-82a1-5bfb8826ca54","method":"GET","route":"/api/health/database","status":200,"durationMs":10}
+api-1  | {"timestamp":"2026-10-30T14:32:38.673Z","level":"info","event":"http.request","requestId":"b1c05b4a-4e28-46e1-a9c2-221b7584dc73","method":"GET","route":"/api/health/database","status":200,"durationMs":10}
+api-1  | {"timestamp":"2026-10-30T14:32:43.009Z","level":"info","event":"http.request","requestId":"2d686ad3-e0e1-4bfb-a614-de75db71f2a5","method":"GET","route":"/api/health","status":200,"durationMs":1}
+api-1  | {"timestamp":"2026-10-30T14:32:43.017Z","level":"info","event":"http.request","requestId":"a898f468-a845-41cf-b219-b329c2b30204","method":"GET","route":"/api/health/database","status":200,"durationMs":1}
 
-{"status":"connected","message":"Conexión a PostgreSQL exitosa."}===== Logs correlacionados y comprobación de tokens =====
-api-1  | {"timestamp":"2026-10-28T14:45:52.048Z","level":"info","event":"server.started","nodeEnv":"production","port":3000}
-api-1  | {"timestamp":"2026-10-28T14:45:53.711Z","level":"info","event":"http.request","requestId":"9b932e01-d033-4711-9dbc-0da4474981be","method":"GET","route":"/api/health/database","status":200,"durationMs":68}
-api-1  | {"timestamp":"2026-10-28T14:45:53.745Z","level":"info","event":"http.request","requestId":"a41b1ed3-2b64-46c8-a0fb-4cf652e8b307","method":"GET","route":"/api/health","status":200,"durationMs":1}
-api-1  | {"timestamp":"2026-10-28T14:45:53.753Z","level":"info","event":"http.request","requestId":"30a869cf-0dba-475d-9e09-c5f0ada11d3f","method":"GET","route":"/api/health","status":200,"durationMs":1}
-api-1  | {"timestamp":"2026-10-28T14:45:53.768Z","level":"info","event":"http.request","requestId":"d2481353-91b6-4b04-8915-35068ad88eff","method":"GET","route":"/api/health/database","status":200,"durationMs":2}
-api-1  | {"timestamp":"2026-10-28T14:45:56.003Z","level":"info","event":"http.request","requestId":"dfd267e0-badc-42d3-a086-11889c86125f","method":"GET","route":"/api/health","status":200,"durationMs":1}
-api-1  | {"timestamp":"2026-10-28T14:45:56.021Z","level":"error","event":"health.database_unavailable","requestId":"6182ca1f-2c1d-4a45-8bbe-2449cf5015d0","method":"GET","route":"/api/health/database","status":503,"durationMs":8,"errorCode":"DATABASE_UNAVAILABLE","errorMessage":"getaddrinfo ENOTFOUND database"}
-api-1  | {"timestamp":"2026-10-28T14:45:56.022Z","level":"error","event":"http.request","requestId":"6182ca1f-2c1d-4a45-8bbe-2449cf5015d0","method":"GET","route":"/api/health/database","status":503,"durationMs":9,"errorCode":"DATABASE_UNAVAILABLE"}
-api-1  | {"timestamp":"2026-10-28T14:46:01.719Z","level":"info","event":"http.request","requestId":"955e5912-50ee-4689-90e4-797c40564ce9","method":"GET","route":"/api/health/database","status":200,"durationMs":65}
-api-1  | {"timestamp":"2026-10-28T14:46:02.469Z","level":"info","event":"http.request","requestId":"4aa1db61-9f51-4e1f-bb6c-32d679482061","method":"GET","route":"/api/health/database","status":200,"durationMs":2}
-api-1  | {"timestamp":"2026-10-28T14:46:02.480Z","level":"info","event":"http.request","requestId":"ca67bbd4-d2a0-4625-aa6a-bec4bfddfdfd","method":"GET","route":"/api/health/database","status":200,"durationMs":2}
-api-1  | {"timestamp":"2026-10-28T14:45:53.745Z","level":"info","event":"http.request","requestId":"a41b1ed3-2b64-46c8-a0fb-4cf652e8b307","method":"GET","route":"/api/health","status":200,"durationMs":1}
-===== SIGTERM y cierre ordenado =====
-day3-validation-api-1
-Código de salida del contenedor: 0
-{"timestamp":"2026-10-28T14:45:52.048Z","level":"info","event":"server.started","nodeEnv":"production","port":3000}
-{"timestamp":"2026-10-28T14:45:53.711Z","level":"info","event":"http.request","requestId":"9b932e01-d033-4711-9dbc-0da4474981be","method":"GET","route":"/api/health/database","status":200,"durationMs":68}
-{"timestamp":"2026-10-28T14:45:56.021Z","level":"error","event":"health.database_unavailable","requestId":"6182ca1f-2c1d-4a45-8bbe-2449cf5015d0","method":"GET","route":"/api/health/database","status":503,"durationMs":8,"errorCode":"DATABASE_UNAVAILABLE","errorMessage":"getaddrinfo ENOTFOUND database"}
-{"timestamp":"2026-10-28T14:45:56.022Z","level":"error","event":"http.request","requestId":"6182ca1f-2c1d-4a45-8bbe-2449cf5015d0","method":"GET","route":"/api/health/database","status":503,"durationMs":9,"errorCode":"DATABASE_UNAVAILABLE"}
-{"timestamp":"2026-10-28T14:45:53.745Z","level":"info","event":"http.request","requestId":"a41b1ed3-2b64-46c8-a0fb-4cf652e8b307","method":"GET","route":"/api/health","status":200,"durationMs":1}
-{"timestamp":"2026-10-28T14:45:53.753Z","level":"info","event":"http.request","requestId":"30a869cf-0dba-475d-9e09-c5f0ada11d3f","method":"GET","route":"/api/health","status":200,"durationMs":1}
-{"timestamp":"2026-10-28T14:45:53.768Z","level":"info","event":"http.request","requestId":"d2481353-91b6-4b04-8915-35068ad88eff","method":"GET","route":"/api/health/database","status":200,"durationMs":2}
-{"timestamp":"2026-10-28T14:45:56.003Z","level":"info","event":"http.request","requestId":"dfd267e0-badc-42d3-a086-11889c86125f","method":"GET","route":"/api/health","status":200,"durationMs":1}
-{"timestamp":"2026-10-28T14:46:01.719Z","level":"info","event":"http.request","requestId":"955e5912-50ee-4689-90e4-797c40564ce9","method":"GET","route":"/api/health/database","status":200,"durationMs":65}
-{"timestamp":"2026-10-28T14:46:02.469Z","level":"info","event":"http.request","requestId":"4aa1db61-9f51-4e1f-bb6c-32d679482061","method":"GET","route":"/api/health/database","status":200,"durationMs":2}
-{"timestamp":"2026-10-28T14:46:02.480Z","level":"info","event":"http.request","requestId":"ca67bbd4-d2a0-4625-aa6a-bec4bfddfdfd","method":"GET","route":"/api/health/database","status":200,"durationMs":2}
-{"timestamp":"2026-10-28T14:46:02.542Z","level":"info","event":"server.shutdown_started","signal":"SIGTERM","timeoutMs":15000}
-{"timestamp":"2026-10-28T14:46:02.547Z","level":"info","event":"server.shutdown_complete","signal":"SIGTERM"}
-{"timestamp":"2026-10-28T14:46:02.547Z","level":"info","event":"server.shutdown_complete","signal":"SIGTERM"}
-===== Restaurar API aislada =====
- Container day3-validation-database-1 Waiting 
- Container day3-validation-database-1 Healthy 
- Container day3-validation-api-1 Starting 
- Container day3-validation-api-1 Started 
-curl: (52) Empty reply from server
-NAME                         IMAGE                   COMMAND                  SERVICE    CREATED          STATUS                            PORTS
-day3-validation-api-1        inventory-api:semana4   "docker-entrypoint.s…"   api        16 seconds ago   Up 2 seconds (health: starting)   0.0.0.0:3002->3000/tcp, [::]:3002->3000/tcp
-day3-validation-database-1   postgres:15-alpine      "docker-entrypoint.s…"   database   47 hours ago     Up 9 seconds (healthy)            5432/tcp
-===== Validación Día 5 completada =====
+===== detener API con límite de 15 segundos =====
+ Container inventorymanagementsystem--api-1 Stopping 
+ Container inventorymanagementsystem--api-1 Stopped 
