@@ -38,20 +38,37 @@ La primera ejecución sin esos montajes no encontró pruebas y no cuenta como va
 
 ## Imagen y workflow
 
-- El Dockerfile usa `node:22-trixie-slim`, etapa final separada, `npm ci --omit=dev` y `USER node`. El cambio de Debian 12 (Bookworm) a Debian 13 (Trixie) busca salir del conjunto de paquetes con hallazgos del escaneo anterior; requiere reconstrucción y nuevo escaneo para validar el resultado.
-- La etapa runtime actualiza los paquetes Debian durante la construcción y elimina npm/npx globales, que no son necesarios para ejecutar `node dist/server.js`.
+- El Dockerfile prueba `node:22-alpine` en las etapas de dependencias, build y runtime, con `npm ci --omit=dev` y `USER node`. Es un cambio de base candidato, pendiente de verificar compatibilidad de `bcrypt`, las pruebas completas y el escaneo Trivy antes de considerarlo listo para producción.
+- La etapa runtime actualiza los paquetes Alpine con `apk upgrade --no-cache` y elimina npm/npx globales, que no son necesarios para ejecutar `node dist/server.js`.
 - GitHub Actions declara `permissions: contents: read` y usa credenciales de prueba no secretas; no imprime secretos ni recibe secretos del repositorio.
-- El escaneo anterior de `inventory-api:day6-rescan`, construido sobre Bookworm, reportó 228 vulnerabilidades Debian (56 HIGH, 1 CRITICAL) y cero vulnerabilidades en los paquetes Node detectados. Es un resultado histórico de esa imagen, no una medición de la nueva base Trixie. Evidencia: [`docs/semana-6-trivy-image.txt`](./semana-6-trivy-image.txt), commit `954c47c`.
-- En el reporte de Bookworm, `CVE-2023-45853` para `zlib1g` aparece como CRITICAL con estado `will_not_fix`; también persisten hallazgos HIGH del sistema operativo. No se declaran resueltos hasta construir y escanear la imagen Trixie.
+- El escaneo anterior de `inventory-api:day6-rescan`, construido sobre Bookworm, reportó 228 vulnerabilidades Debian (56 HIGH, 1 CRITICAL) y cero vulnerabilidades en los paquetes Node detectados. Evidencia histórica: [`docs/semana-6-trivy-image.txt`](./semana-6-trivy-image.txt), commit `954c47c`.
+- El escaneo AWS de `inventory-api:day6-trixie` reportó 162 vulnerabilidades Debian (1 UNKNOWN, 60 LOW, 58 MEDIUM, 43 HIGH, 0 CRITICAL). El CRITICAL `CVE-2023-45853` ya no aparece, pero siguen 43 HIGH.
+- El reporte Trixie lista CVE-2026-76642 (util-linux), CVE-2026-54369 (acl), CVE-2026-16742 (systemd), CVE-2025-69720 (ncurses) y CVE-2026-9538 (perl). El rastreador Debian marca los paquetes Trixie instalados como vulnerables; varias versiones corregidas aparecen solo en forky/sid. No forzar paquetes de otra suite ni contar los HIGH como resueltos sin un nuevo escaneo.
 - Seguimiento de hallazgos del sistema operativo en imagen: [#62](https://github.com/Sebastian0rtega/InventoryManagementSystem-/issues/62). Reevaluar imagen base/parches Debian y exposición; registrar una excepción revisada si un fix no está disponible. No ocultar findings ni bloquear un release únicamente con el conteo sin analizar aplicabilidad.
-- Para reconstruir y volver a escanear en AWS desde la raíz del repositorio:
+- Para probar la base Alpine en AWS, construir la imagen final desde la raíz del repositorio:
 
   ```bash
   docker build --pull --no-cache \
     -f backend/Dockerfile \
-    -t inventory-api:day6-trixie \
+    -t inventory-api:day6-alpine \
     backend
+  ```
 
+  Ejecutar las pruebas desde `backend/` contra la base de pruebas ya preparada:
+
+  ```bash
+  docker-compose build migrate
+  docker-compose run --rm \
+    -v "$PWD/src:/app/src:ro" \
+    -v "$PWD/jest.config.js:/app/jest.config.js:ro" \
+    -e NODE_ENV=test \
+    -e DB_NAME_TEST="${DB_NAME_TEST:-inventory_test_db}" \
+    migrate npm test
+  ```
+
+  Escanear la imagen candidata sin sustituir el reporte histórico de Debian:
+
+  ```bash
   if docker run --rm \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "$HOME/.cache/trivy:/cache" \
@@ -59,19 +76,18 @@ La primera ejecución sin esos montajes no encontró pruebas y no cuenta como va
     --cache-dir /cache \
     image --quiet --no-progress --scanners vuln \
     --format table --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
-    inventory-api:day6-trixie \
-    > /tmp/semana-6-trivy-trixie.txt 2>&1
+    inventory-api:day6-alpine \
+    > /tmp/semana-6-trivy-alpine.txt 2>&1
   then
-    cp /tmp/semana-6-trivy-trixie.txt docs/semana-6-trivy-trixie.txt
-    head -n 8 /tmp/semana-6-trivy-trixie.txt
+    head -n 8 /tmp/semana-6-trivy-alpine.txt
   else
-    tail -n 40 /tmp/semana-6-trivy-trixie.txt
-    echo "El escaneo falló; conservar el reporte anterior."
+    tail -n 40 /tmp/semana-6-trivy-alpine.txt
+    echo "El escaneo falló; conservar el reporte histórico."
     exit 1
   fi
   ```
 
-  No sustituir el reporte histórico hasta que el build y el escaneo de la imagen nueva terminen correctamente. El conteo solo puede darse por reducido tras comprobar el nuevo resumen Trivy.
+  Adoptar la base Alpine solo si el build y las 88 pruebas pasan, y el nuevo escaneo confirma cero HIGH y cero CRITICAL. Si conserva findings de esas severidades, analizar cada uno; no ocultarlos ni sustituir el reporte histórico de Debian.
 - Para repetir el escaneo en AWS sin reemplazar la evidencia previa si falla:
 
   ```bash
