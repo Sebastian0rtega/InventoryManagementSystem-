@@ -1,0 +1,374 @@
+ Container day6-security-tests-database-1 Running 
+ Container day6-security-tests-database-1 Waiting 
+ Container day6-security-tests-database-1 Healthy 
+ Container day6-security-tests-migrate-run-0ac6e30c3a16 Creating 
+ Container day6-security-tests-migrate-run-0ac6e30c3a16 Created 
+
+> Inventory-Backend@1.0.0 lint
+> eslint "src/**/*.ts"
+
+npm notice
+npm notice New major version of npm available! 10.9.9 -> 12.2.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+npm notice To update run: npm install -g npm@12.2.1
+npm notice
+
+> Inventory-Backend@1.0.0 test
+> jest --runInBand
+
+PASS src/__tests__/sales.test.ts (11.805 s)
+  ● Console
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.637Z","level":"info","event":"http.request","requestId":"c483e04d-fa92-4d53-9bf0-eeb70cf33da9","method":"POST","route":"/api/sales/","status":201,"durationMs":52}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.671Z","level":"info","event":"http.request","requestId":"9a1ceb4c-82af-4a90-ba1b-5a1932381927","method":"POST","route":"/api/sales/","status":201,"durationMs":15}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.695Z","level":"info","event":"http.request","requestId":"ef141796-efe1-4428-b4ed-de889d9ab0de","method":"POST","route":"/api/sales/","status":201,"durationMs":13}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.712Z","level":"warn","event":"http.request","requestId":"5b37d515-9862-495c-9758-18cc0b8acb61","method":"POST","route":"/","status":409,"durationMs":8,"errorCode":"STOCK_INSUFFICIENT"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.728Z","level":"warn","event":"http.request","requestId":"b57e353b-792b-49f9-8747-2c9e3e7afa4a","method":"POST","route":"/","status":404,"durationMs":8,"errorCode":"NOT_FOUND"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.735Z","level":"warn","event":"http.request","requestId":"6ae3f2f1-3e18-4d45-9528-b92eadbbcd20","method":"POST","route":"/","status":403,"durationMs":3,"errorCode":"FORBIDDEN"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.779Z","level":"info","event":"http.request","requestId":"6e1aa4e1-6c2e-44fd-994c-16125fa82ce8","method":"POST","route":"/api/sales/","status":201,"durationMs":37}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.784Z","level":"warn","event":"http.request","requestId":"2c069d01-3ef4-4eb1-8076-0da005441a57","method":"POST","route":"/","status":409,"durationMs":40,"errorCode":"STOCK_INSUFFICIENT"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.801Z","level":"warn","event":"http.request","requestId":"90135bf7-2277-484c-8571-e5304288e03c","method":"POST","route":"unmatched","status":401,"durationMs":2,"errorCode":"UNAUTHORIZED"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.806Z","level":"warn","event":"http.request","requestId":"b0e27d83-44b1-4c94-a414-88e23e8bd89f","method":"POST","route":"/","status":403,"durationMs":2,"errorCode":"FORBIDDEN"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.835Z","level":"info","event":"http.request","requestId":"92b9297f-7884-4933-a60f-e8f731459a0f","method":"GET","route":"/api/sales/","status":200,"durationMs":25}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.852Z","level":"info","event":"http.request","requestId":"bddce58e-02bc-4205-b542-48088b30d23e","method":"GET","route":"/api/sales/","status":200,"durationMs":14}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.867Z","level":"info","event":"http.request","requestId":"071c4892-79d0-4477-b7ae-1288ac57fe98","method":"GET","route":"/api/sales/:id","status":200,"durationMs":7}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:31.876Z","level":"warn","event":"http.request","requestId":"283373ee-321b-465f-bba5-6998d69ca4c9","method":"GET","route":"/:id","status":404,"durationMs":6,"errorCode":"NOT_FOUND"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+PASS src/__tests__/inventory.test.ts
+  ● Console
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.611Z","level":"info","event":"http.request","requestId":"bef9b2c4-411c-491e-8c1a-a49638a3e2ef","method":"GET","route":"/api/inventory/","status":200,"durationMs":16}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.626Z","level":"info","event":"http.request","requestId":"4c8bacc6-504e-4937-86f6-56cf76d4372c","method":"GET","route":"/api/inventory/","status":200,"durationMs":9}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.646Z","level":"info","event":"http.request","requestId":"070138e0-ab1e-40ed-99c8-cd5443ca69a5","method":"GET","route":"/api/inventory/","status":200,"durationMs":16}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.666Z","level":"info","event":"http.request","requestId":"773385c7-0ce8-409a-a13f-d9e2f294c41e","method":"GET","route":"/api/inventory/","status":200,"durationMs":15}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.671Z","level":"warn","event":"http.request","requestId":"9cc7fdf4-a8db-4aa8-93ea-1b7d925c1dea","method":"GET","route":"unmatched","status":401,"durationMs":1,"errorCode":"UNAUTHORIZED"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.696Z","level":"info","event":"http.request","requestId":"5b8da514-f0f0-497d-99cc-b9c6df3aad89","method":"POST","route":"/api/inventory/adjustments","status":201,"durationMs":23}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.714Z","level":"warn","event":"http.request","requestId":"8730ef7b-20cf-44b7-89e9-1481af063198","method":"POST","route":"/adjustments","status":409,"durationMs":8,"errorCode":"STOCK_INSUFFICIENT"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.742Z","level":"info","event":"http.request","requestId":"4dd558e7-54f7-46e2-8eac-cb84a134340e","method":"POST","route":"/api/inventory/adjustments","status":201,"durationMs":19}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.747Z","level":"warn","event":"http.request","requestId":"cabc7846-88e3-420d-af90-4b546b94c80b","method":"POST","route":"/adjustments","status":403,"durationMs":1,"errorCode":"FORBIDDEN"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.751Z","level":"warn","event":"http.request","requestId":"12fd8f37-b8cf-4640-89e9-abd1be7a4c72","method":"POST","route":"/adjustments","status":403,"durationMs":2,"errorCode":"FORBIDDEN"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.756Z","level":"warn","event":"http.request","requestId":"e363c5b6-dc27-4860-a372-e87c02ce03ab","method":"POST","route":"/adjustments","status":400,"durationMs":2,"errorCode":"VALIDATION_ERROR"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.770Z","level":"info","event":"http.request","requestId":"ff017c81-0861-452c-897e-3da6b7606a93","method":"GET","route":"/api/inventory/:id/movements","status":200,"durationMs":10}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.775Z","level":"warn","event":"http.request","requestId":"00d4480f-8d92-4f64-80a5-12e253af939b","method":"GET","route":"/:id/movements","status":403,"durationMs":1,"errorCode":"FORBIDDEN"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.781Z","level":"warn","event":"http.request","requestId":"816fe24b-988e-473f-8c19-287625768dfe","method":"POST","route":"unmatched","status":404,"durationMs":1,"errorCode":"NOT_FOUND"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:33.787Z","level":"warn","event":"http.request","requestId":"71a976ac-e63e-4913-bc1d-75e18390f828","method":"GET","route":"/:id/movements","status":404,"durationMs":3,"errorCode":"NOT_FOUND"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+PASS src/__tests__/suppliers-customers.test.ts
+  ● Console
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:34.899Z","level":"info","event":"http.request","requestId":"cb769bab-8e68-4a7f-81b2-b1e624dfbd0e","method":"POST","route":"/api/suppliers/","status":201,"durationMs":10}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:34.905Z","level":"warn","event":"http.request","requestId":"dfe508dd-e42b-4a46-8cfe-077a2ebeb9cf","method":"POST","route":"/","status":400,"durationMs":2,"errorCode":"VALIDATION_ERROR"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:34.963Z","level":"warn","event":"http.request","requestId":"9af478b4-c6bd-4464-9504-07bb78532241","method":"POST","route":"/","status":409,"durationMs":56,"errorCode":"CONFLICT"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:34.973Z","level":"info","event":"http.request","requestId":"e4df1190-0e5e-45c6-a7d4-92ce5163ef95","method":"GET","route":"/api/suppliers/","status":200,"durationMs":8}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:34.982Z","level":"info","event":"http.request","requestId":"c89e0fdc-ee4e-4432-9c36-15dddac4450f","method":"GET","route":"/api/suppliers/","status":200,"durationMs":5}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:34.987Z","level":"warn","event":"http.request","requestId":"f0a8723d-fec4-47aa-9a05-b8fdb91ff674","method":"GET","route":"unmatched","status":401,"durationMs":1,"errorCode":"UNAUTHORIZED"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:34.992Z","level":"warn","event":"http.request","requestId":"41227d6c-d983-47fb-92eb-1c33e2e023de","method":"POST","route":"/","status":403,"durationMs":2,"errorCode":"FORBIDDEN"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.004Z","level":"warn","event":"http.request","requestId":"eaaf9ca4-3a5d-46db-8ea9-52ca9a2de425","method":"GET","route":"/:id","status":404,"durationMs":10,"errorCode":"NOT_FOUND"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.013Z","level":"info","event":"http.request","requestId":"4b141afa-3e5e-402e-a5b3-2ac180e5cbd7","method":"PATCH","route":"/api/suppliers/:id","status":200,"durationMs":7}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.020Z","level":"info","event":"http.request","requestId":"7ad61712-ff7d-4422-8004-30d2ee5c50a2","method":"DELETE","route":"/api/suppliers/:id","status":200,"durationMs":4}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.027Z","level":"info","event":"http.request","requestId":"2aed658f-1809-4891-96aa-e0758890541b","method":"GET","route":"/api/suppliers/","status":200,"durationMs":4}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.030Z","level":"warn","event":"http.request","requestId":"f31ba162-d0c9-4c6d-951e-9a904589c761","method":"PATCH","route":"/:id","status":403,"durationMs":1,"errorCode":"FORBIDDEN"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.038Z","level":"info","event":"http.request","requestId":"28a15a6b-13a0-4d25-9437-9deae5151dd6","method":"POST","route":"/api/customers/","status":201,"durationMs":6}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.045Z","level":"warn","event":"http.request","requestId":"d41e2865-f13f-41ec-8a42-4ddb55b3bf74","method":"POST","route":"/","status":409,"durationMs":5,"errorCode":"CONFLICT"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.048Z","level":"warn","event":"http.request","requestId":"c71b08bd-a2ce-4bb1-ac56-a15040b998df","method":"POST","route":"/","status":403,"durationMs":1,"errorCode":"FORBIDDEN"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.056Z","level":"info","event":"http.request","requestId":"61d8f177-9237-4764-97a6-32385122722f","method":"GET","route":"/api/customers/","status":200,"durationMs":5}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.065Z","level":"info","event":"http.request","requestId":"c3256222-7f9f-4902-a27e-3f5c88da88b3","method":"DELETE","route":"/api/customers/:id","status":200,"durationMs":6}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.070Z","level":"info","event":"http.request","requestId":"6462fa27-d51d-4a8c-9175-e38271564ebc","method":"GET","route":"/api/customers/","status":200,"durationMs":3}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.077Z","level":"warn","event":"http.request","requestId":"0a54dc9b-3f0f-44fb-b50c-f744e6565f30","method":"DELETE","route":"/:id","status":403,"durationMs":1,"errorCode":"FORBIDDEN"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:35.081Z","level":"warn","event":"http.request","requestId":"088e054d-1148-4e1d-abe1-d412ca8173b3","method":"GET","route":"/:id","status":404,"durationMs":2,"errorCode":"NOT_FOUND"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+PASS src/__tests__/purchases.test.ts
+  ● Console
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.521Z","level":"info","event":"http.request","requestId":"dfe22d1f-0634-4f51-a6ce-77b6df90877e","method":"POST","route":"/api/purchases/","status":201,"durationMs":36}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.593Z","level":"warn","event":"http.request","requestId":"10efc02f-d7db-4910-9aff-42fc2298794d","method":"POST","route":"/","status":409,"durationMs":63,"errorCode":"CONFLICT"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.605Z","level":"warn","event":"http.request","requestId":"7c3bad8a-5ddf-4637-8b59-0ff87964b31d","method":"POST","route":"/","status":404,"durationMs":5,"errorCode":"NOT_FOUND"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.612Z","level":"warn","event":"http.request","requestId":"64e0f8b3-7f1b-446b-9c86-b69fc3d9d361","method":"POST","route":"unmatched","status":401,"durationMs":1,"errorCode":"UNAUTHORIZED"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.615Z","level":"warn","event":"http.request","requestId":"d14c0982-b413-4269-a212-e5d3efe08ec7","method":"POST","route":"/","status":403,"durationMs":1,"errorCode":"FORBIDDEN"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.624Z","level":"warn","event":"http.request","requestId":"f1f21681-8e3f-45c5-b92c-ed4916220559","method":"POST","route":"/","status":400,"durationMs":1,"errorCode":"VALIDATION_ERROR"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.627Z","level":"warn","event":"http.request","requestId":"7602c395-d79b-49b9-b8d6-78848ee36f06","method":"POST","route":"/","status":400,"durationMs":1,"errorCode":"VALIDATION_ERROR"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.640Z","level":"info","event":"http.request","requestId":"728260f2-d286-4adb-bb1e-337fbba59e1a","method":"GET","route":"/api/purchases/","status":200,"durationMs":10}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.651Z","level":"info","event":"http.request","requestId":"f9229660-0429-4635-b418-e762c541b40f","method":"GET","route":"/api/purchases/:id","status":200,"durationMs":7}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.663Z","level":"warn","event":"http.request","requestId":"6dad26b1-20aa-4f06-a061-bc6356bd791d","method":"GET","route":"/:id","status":404,"durationMs":9,"errorCode":"NOT_FOUND"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.666Z","level":"warn","event":"http.request","requestId":"34502655-da7c-428b-b2bd-858ccaa99504","method":"GET","route":"/","status":403,"durationMs":1,"errorCode":"FORBIDDEN"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.685Z","level":"info","event":"http.request","requestId":"7ee8082b-92fd-4265-8442-b5b789824388","method":"POST","route":"/api/purchases/","status":201,"durationMs":16}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.693Z","level":"warn","event":"http.request","requestId":"dce63d4c-4ef6-4942-80c3-c8f216c3a051","method":"POST","route":"/","status":403,"durationMs":3,"errorCode":"FORBIDDEN"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.706Z","level":"info","event":"http.request","requestId":"6dcd0072-f284-488f-ab78-442449436dc1","method":"GET","route":"/api/purchases/","status":200,"durationMs":11}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.724Z","level":"info","event":"http.request","requestId":"194e2468-ae14-4ee6-b31d-12e7eb429088","method":"POST","route":"/api/purchases/","status":201,"durationMs":15}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:36.732Z","level":"warn","event":"http.request","requestId":"6b0419a7-20f5-47f2-8641-54e19ebe5409","method":"GET","route":"/:id","status":404,"durationMs":6,"errorCode":"NOT_FOUND"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+PASS src/__tests__/operational-readiness.test.ts
+PASS src/__tests__/openapi.test.ts
+PASS src/__tests__/transactional-models.test.ts
+PASS src/__tests__/security-hardening.test.ts
+  ● Console
+
+    console.log
+      {"timestamp":"2026-11-03T14:48:39.266Z","level":"warn","event":"http.request","requestId":"cd3db7c3-38f2-4440-9cda-42a102deaa07","method":"POST","route":"unmatched","status":413,"durationMs":4,"errorCode":"PAYLOAD_TOO_LARGE"}
+
+      at writeOperationalLog (src/utils/operationalLogger.ts:20:11)
+
+PASS src/__tests__/money.test.ts
+
+Test Suites: 9 passed, 9 total
+Tests:       88 passed, 88 total
+Snapshots:   0 total
+Time:        19.657 s
+Ran all test suites.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
