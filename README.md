@@ -46,21 +46,24 @@ En PowerShell puedes usar `Copy-Item backend\.env.example backend\.env`. Edita e
 
 Para consultar logs recientes o seguir una solicitud por su identificador:
 ```bash
-docker-compose logs --since=5m api
-docker-compose logs -f api | grep --line-buffered "UUID-DE-LA-RESPUESTA"
+docker compose logs --since=5m api
+docker compose logs -f api | grep --line-buffered "UUID-DE-LA-RESPUESTA"
 ```
 
 Para observar el cierre ordenado, el servidor deja de aceptar solicitudes, espera las conexiones HTTP activas y cierra Sequelize. El límite es 15 segundos:
 ```bash
 curl -i http://localhost:3000/api/health
 curl -i http://localhost:3000/api/health/database
-docker-compose stop --timeout 15 api
+docker compose stop --timeout 15 api
 ```
 
 ### Integración continua
 El workflow `backend-ci` se ejecuta en cada Pull Request dirigido a `dev` y en cada push a `dev`. Instala las dependencias con `npm ci`, compila, ejecuta lint, prepara una base PostgreSQL exclusiva de CI, corre las pruebas y construye la imagen Docker. El check falla si hay menos de 7 suites o 82 pruebas aprobadas.
 
 Para bloquear integraciones con CI rojo, en GitHub configura una regla de protección para `dev` que exija Pull Request y el check `backend-ci`; activa también la prohibición de force-push y borrado de la rama. La revisión humana sigue siendo obligatoria.
+
+### Seguridad de dependencias
+La revisión de npm audit, controles HTTP, imagen y política de actualización está documentada en [docs/semana-4-security-review.md](docs/semana-4-security-review.md). No ejecutes `npm audit fix --force`: un hallazgo moderado de Sequelize propone un downgrade incompatible.
 
 ###  Docker
 El archivo `docker-compose.yaml` esta en la raiz del repositorio. Para levantar API y PostgreSQL en desarrollo, crea la configuracion local a partir del ejemplo y ejecuta los comandos desde la raiz:

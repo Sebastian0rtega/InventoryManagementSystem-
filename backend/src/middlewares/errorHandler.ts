@@ -9,6 +9,19 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction,
 ): void => {
+  if ("type" in err && err.type === "entity.too.large") {
+    res.locals.errorCode = "PAYLOAD_TOO_LARGE";
+    res.status(413).json({
+      success: false,
+      error: {
+        code: "PAYLOAD_TOO_LARGE",
+        message: "El cuerpo de la solicitud excede el tamaño permitido.",
+        details: [],
+      },
+    });
+    return;
+  }
+
   // Errores de negocio lanzados con AppError
   if (err instanceof AppError) {
     res.locals.errorCode = err.code;
