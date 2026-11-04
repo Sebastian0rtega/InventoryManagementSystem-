@@ -6,6 +6,9 @@ RUN npm ci
 
 FROM dependencies AS build
 
+ARG VCS_REF=unknown
+LABEL org.opencontainers.image.revision=$VCS_REF
+
 COPY tsconfig.json tsconfig.build.json ./
 COPY .sequelizerc ./
 COPY src ./src

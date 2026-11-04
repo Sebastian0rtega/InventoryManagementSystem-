@@ -8,9 +8,6 @@ on:
     branches:
       - dev
 
-permissions:
-  contents: read
-
 concurrency:
   group: backend-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -20,6 +17,9 @@ jobs:
     name: backend-ci
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
 
     services:
       postgres:
@@ -90,10 +90,34 @@ jobs:
             process.exit(1);
           }"
 
-      - name: Build production Docker image
-        run: >-
-          docker build
-          --build-arg VCS_REF=${{ github.sha }}
-          --tag inventory-api:${{ github.sha }}
-          --file Dockerfile
-          .
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/dev' }}
+          build-args: |
+            VCS_REF=${{ github.sha }}
+          tags: ghcr.io/sebastian0rtega/inventorymanagementsystem:${{ github.sha }}
+
+      - name: Build and publish migration image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          target: build
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/dev' }}
+          build-args: |
+            VCS_REF=${{ github.sha }}
+          tags: ghcr.io/sebastian0rtega/inventorymanagementsystem:${{ github.sha }}-migrate
