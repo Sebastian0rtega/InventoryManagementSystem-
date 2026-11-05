@@ -1,0 +1,197 @@
+DIA 7 - DESPLIEGUE DE STAGING Y DEMOSTRACION
+
+Estado: procedimiento para ejecutar desde la instancia AWS de staging.
+No registrar SHA, fecha ni resultados hasta completar la ejecucion real.
+
+1. PREPARACION: CI Y ACCESO A AWS
+
+- En GitHub Actions, localizar el workflow backend-ci del push aprobado a dev.
+- Confirmar que todas las etapas terminaron en verde. CI exige al menos 7
+  suites y 82 tests; mostrar los valores reales del run, no asumirlos.
+- Copiar el SHA completo del commit aprobado cuyo workflow publico las imagenes.
+  El workflow publica en GHCR:
+    ghcr.io/sebastian0rtega/inventorymanagementsystem:<SHA>
+    ghcr.io/sebastian0rtega/inventorymanagementsystem:<SHA>-migrate
+- Conectarse a la instancia de staging por SSH o AWS Systems Manager Session
+  Manager. Los comandos de las secciones siguientes se ejecutan en esa instancia
+  Linux, no en la computadora local.
+- Requisitos previos de la instancia: Git, Docker Engine con el plugin Compose,
+  conectividad a GHCR y permisos para usar Docker. No copiar archivos del repo
+  manualmente; clonar y cambiar al commit aprobado.
+
+2. OBTENER EL COMPOSE DEL COMMIT APROBADO
+
+Sustituir <SHA> por el SHA completo con workflow verde y las imagenes publicadas:
+
+  sudo mkdir -p /opt
+  sudo chown "$USER":"$(id -gn)" /opt
+  cd /opt
+  git clone https://github.com/Sebastian0rtega/InventoryManagementSystem-.git InventoryManagementSystem-
+  cd InventoryManagementSystem-
+  git fetch origin dev
+  git checkout --detach <SHA>
+  test "$(git rev-parse HEAD)" = "<SHA>"
+
+En despliegues posteriores, actualizar el clon existente con git fetch y
+git checkout --detach <SHA>; no sobreescribir archivos del servidor a mano.
+
+3. SECRETOS Y ACCESO AL REGISTRY
+
+Crear el archivo solo en la instancia. backend/.env esta excluido del contexto
+Docker por backend/.dockerignore; no agregarlo al repositorio, a una imagen, ni
+a los logs. Reemplazar todos los valores de ejemplo por secretos de staging.
+
+  cp backend/.env.example backend/.env
+  chmod 600 backend/.env
+  nano backend/.env
+
+Usar credenciales de staging unicas y un JWT_SECRET aleatorio y largo. No pegar
+secretos en este documento ni en comandos guardados en el historial.
+
+Si GHCR requiere autenticacion, iniciar sesion con un token que tenga solo
+read:packages; no guardar el token en el repo ni en el documento:
+
+  read -s GHCR_TOKEN
+  printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u <USUARIO_GITHUB> --password-stdin
+  unset GHCR_TOKEN
+
+Configurar las dos referencias inmutables de esta entrega en la sesion:
+
+  export DEPLOY_SHA=<SHA>
+  export API_IMAGE="ghcr.io/sebastian0rtega/inventorymanagementsystem:${DEPLOY_SHA}"
+  export MIGRATE_IMAGE="ghcr.io/sebastian0rtega/inventorymanagementsystem:${DEPLOY_SHA}-migrate"
+
+Comprobar la configuracion sin mostrar el contenido de .env:
+
+  docker compose --env-file backend/.env config --images
+
+4. DESPLIEGUE CONTROLADO
+
+Antes del cambio, registrar la imagen API actualmente desplegada. En el primer
+despliegue, registrar "ninguna":
+
+  docker compose --env-file backend/.env ps
+  docker inspect --format='{{.Config.Image}}' "$(docker compose --env-file backend/.env ps -q api)"
+
+Si ya existe una API, verificar su liveness y readiness antes de continuar:
+
+  curl -i http://localhost:3000/api/health
+  curl -i http://localhost:3000/api/health/database
+
+Descargar la imagen de API y la imagen de migracion construidas por CI. No usar
+build en staging: el contenedor nuevo debe ser el artefacto publicado por CI.
+
+  docker compose --env-file backend/.env pull api migrate
+  docker compose --env-file backend/.env up -d --no-build database
+
+Esperar y confirmar que PostgreSQL esta healthy antes de migrar:
+
+  DB_CID="$(docker compose --env-file backend/.env ps -q database)"
+  for attempt in $(seq 1 30); do
+    DB_HEALTH="$(docker inspect --format='{{.State.Health.Status}}' "$DB_CID")"
+    [ "$DB_HEALTH" = healthy ] && break
+    sleep 2
+  done
+  test "$DB_HEALTH" = healthy
+  docker compose --env-file backend/.env ps
+
+Ejecutar las migraciones como tarea explicita ANTES de reemplazar la API:
+
+  docker compose --env-file backend/.env run --rm --no-deps migrate
+
+Si la tarea falla, detener el despliegue; no actualizar la API hasta resolver el
+error. Las migraciones deben ser compatibles con la version anterior de la API.
+
+Actualizar la API al tag SHA de CI y esperar su healthcheck (readiness):
+
+  docker compose --env-file backend/.env pull api
+  docker compose --env-file backend/.env up -d --no-build --no-deps api
+  API_CID="$(docker compose --env-file backend/.env ps -q api)"
+  for attempt in $(seq 1 30); do
+    API_HEALTH="$(docker inspect --format='{{.State.Health.Status}}' "$API_CID")"
+    [ "$API_HEALTH" = healthy ] && break
+    sleep 2
+  done
+  test "$API_HEALTH" = healthy
+  docker compose --env-file backend/.env ps
+  curl --fail http://localhost:3000/api/health
+  curl --fail http://localhost:3000/api/health/database
+
+Verificar que el contenedor ejecuta el SHA aprobado:
+
+  docker inspect --format='{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$API_CID"
+
+El valor debe coincidir con DEPLOY_SHA. Guardar tambien el identificador de
+imagen anterior obtenido antes del cambio para el procedimiento de rollback.
+
+5. ROLLBACK
+
+No ejecutar migraciones down ni revertir cambios de datos destructivos a ciegas.
+Las migraciones deben seguir una estrategia compatible hacia atras (expandir,
+desplegar, migrar trafico y retirar columnas incompatibles en otra entrega).
+Si la nueva API no pasa readiness, volver solo a la imagen anterior mientras
+el esquema siga siendo compatible:
+
+  export API_IMAGE="ghcr.io/sebastian0rtega/inventorymanagementsystem:<SHA_ANTERIOR>"
+  docker compose --env-file backend/.env pull api
+  docker compose --env-file backend/.env up -d --no-build --no-deps api
+  docker compose --env-file backend/.env ps
+  curl --fail http://localhost:3000/api/health
+  curl --fail http://localhost:3000/api/health/database
+
+Si la migracion no es compatible o hubo perdida/corrupcion de datos, no intentar
+un downgrade automatico: mantener la API detenida si corresponde, preservar
+evidencia y seguir el procedimiento aprobado de restauracion del backup de DB.
+Registrar el incidente, el SHA anterior y el resultado del rollback.
+
+6. DEMOSTRACION (7-10 MINUTOS)
+
+0:00-1:00  Mostrar el PR, el commit SHA aprobado y el workflow backend-ci verde.
+           Mostrar el conteo real de suites/tests del run (minimo: 7/82).
+1:00-2:00  Explicar Dockerfile: dependencias, build TypeScript y runtime.
+           El runtime contiene solo Node, dist y dependencias de produccion;
+           no incluye npm/npx ni herramientas de desarrollo.
+2:00-3:00  Mostrar las imagenes de GHCR etiquetadas con SHA y -migrate.
+           Explicar que AWS hace pull del artefacto de CI, no lo recompila.
+3:00-4:00  Mostrar Compose, ejecutar ps y confirmar healthchecks healthy para
+           PostgreSQL y API; mostrar /api/health y /api/health/database.
+4:00-6:00  Abrir /api/docs, autenticar con credenciales de demostracion y
+           ejecutar una compra y una venta con datos de staging validos.
+           Para cada POST, guardar el X-Request-Id de la respuesta y buscarlo:
+             docker compose --env-file backend/.env logs --since 5m api | grep '<REQUEST_ID>'
+           Mostrar el log http.request con el mismo requestId y status 201.
+6:00-7:30  Solo en staging y coordinando una ventana sin usuarios, detener
+           PostgreSQL y demostrar liveness 200 frente a readiness 503:
+             docker compose --env-file backend/.env stop database
+             curl -i http://localhost:3000/api/health
+             curl -i http://localhost:3000/api/health/database
+           Restaurar inmediatamente:
+             docker compose --env-file backend/.env start database
+           Esperar healthchecks healthy y confirmar readiness 200 de nuevo.
+7:30-9:00  Mostrar SHA/label desplegado, comandos de rollback y advertencia de
+           no revertir migraciones destructivas a ciegas.
+
+No ejecutar la prueba de detener PostgreSQL en produccion. Usar cuentas y datos
+de staging; no mostrar secretos en la grabacion.
+
+7. REGISTRO DE EJECUCION (COMPLETAR EN AWS TRAS EL DESPLIEGUE)
+
+Fecha/hora UTC:
+Operador:
+Instancia/entorno:
+PR y URL del workflow verde:
+SHA aprobado y desplegado:
+Imagen API (ghcr.io/...:<SHA>):
+Imagen de migracion (ghcr.io/...:<SHA>-migrate):
+SHA/imagen anterior para rollback:
+CI: suites aprobadas / tests aprobados:
+Healthcheck PostgreSQL antes/despues:
+Healthcheck API antes/despues:
+Migracion: comando y resultado:
+Compra: resultado HTTP / requestId:
+Venta: resultado HTTP / requestId:
+Liveness con PostgreSQL detenido:
+Readiness con PostgreSQL detenido:
+Readiness tras restaurar PostgreSQL:
+Rollback: probado o procedimiento revisado / resultado:
+Incidentes/notas:
