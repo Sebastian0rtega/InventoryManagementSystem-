@@ -191,9 +191,9 @@ Imagen de migracion:
   ghcr.io/sebastian0rtega/inventorymanagementsystem:61764da290b6875752f84e9c97856829b4bc1704-migrate
 La etiqueta revision inspeccionada en el contenedor API coincide con el SHA.
 
-CI: workflow y job backend-ci completados con conclusion success. Paso de
-  umbral minimo suites/tests completado; CI exige >=7 suites y >=82 tests.
-  Registrar los conteos exactos desde el resumen del job antes de la demo.
+CI: workflow y job backend-ci completados con conclusion success.
+  Conteo exacto: 9 suites aprobadas y 88 tests aprobados.
+  Se supera el umbral requerido de >=7 suites y >=82 tests.
 
 Comandos de despliegue ejecutados en AWS (Compose independiente docker-compose):
   git checkout --detach 61764da290b6875752f84e9c97856829b4bc1704
@@ -240,8 +240,7 @@ Rollback: no ejecutado. Procedimiento revisado/documentado en la seccion 5:
   un despliegue nuevo, sin API anterior que restaurar.
 
 Nota: este registro resume las salidas compartidas durante la ejecucion. No
-  contiene contrasenas, tokens ni el contenido de backend/.env. Adjuntar el
-  resumen exacto del conteo de tests del workflow antes de la demo.
+  contiene contrasenas, tokens ni el contenido de backend/.env.
 
 Verificacion adicional en AWS: 2026-11-09 02:47 UTC
   La instancia reporto API y PostgreSQL Up (healthy).
