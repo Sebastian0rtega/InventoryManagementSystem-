@@ -223,11 +223,16 @@ Venta de demostración: POST /api/sales/, HTTP 201, venta_id=1,
   total=1200.00, requestId=6cce00bd-9cef-45aa-99a2-8b5e5bbfd3e6.
   Log http.request confirma POST /api/sales/ status=201 con el mismo ID.
 
-Prueba desde clon limpio: el repositorio fue clonado en EC2 y fijado al SHA
-  aprobado; se desplegaron por pull las imagenes publicadas por CI y los
-  healthchecks respondieron correctamente. La salida compartida no muestra
-  docker-compose build; si se exige esa prueba separada de build, ejecutarla en
-  un proyecto/entorno aislado y adjuntar su salida antes de marcarla completa.
+Prueba desde clon limpio: completada el 2026-11-09 en un proyecto Compose
+  aislado, usando el checkout del SHA aprobado 61764da290b6875752f84e9c97856829b4bc1704.
+  docker-compose build api migrate termino correctamente.
+  PostgreSQL inicio healthy, la tarea migrate aplico correctamente todas las
+  migraciones y la API inicio healthy.
+  GET http://localhost:13000/api/health/database devolvio
+  {"status":"connected","message":"Conexión a PostgreSQL exitosa."}.
+  docker-compose ps confirmo API y PostgreSQL Up (healthy); el contenedor API
+  uso la imagen local inventory-api:semana4. La prueba se ejecuto con el
+  proyecto ims-clean-61764da, separado de ims-staging, y credenciales de prueba.
 
 Rollback: no ejecutado. Procedimiento revisado/documentado en la seccion 5:
   conservar el SHA anterior y volver solo a una imagen compatible con el esquema;
@@ -236,8 +241,7 @@ Rollback: no ejecutado. Procedimiento revisado/documentado en la seccion 5:
 
 Nota: este registro resume las salidas compartidas durante la ejecucion. No
   contiene contrasenas, tokens ni el contenido de backend/.env. Adjuntar el
-  resumen exacto del conteo de tests del workflow y, si se ejecuta, el log del
-  build desde clon limpio.
+  resumen exacto del conteo de tests del workflow antes de la demo.
 
 Verificacion adicional en AWS: 2026-11-09 02:47 UTC
   La instancia reporto API y PostgreSQL Up (healthy).
@@ -258,3 +262,11 @@ Verificacion adicional en AWS: 2026-11-09 02:47 UTC
   directorio InventoryManagementSystem- en el que ya estaba la sesion.
   La captura no se anexo al archivo en AWS: el comando de tee se pego truncado
   y git status mostro docs/semana-4-validacion-staging.txt como untracked.
+
+Resultado de la prueba aislada desde clon limpio:
+  Los primeros intentos clonaron la rama predeterminada y fallaron al buscar
+  backend/.env.example. Al cambiar el clon a 61764da290b6875752f84e9c97856829b4bc1704,
+  el archivo estuvo presente y el build de API y migracion termino correctamente.
+  La primera solicitud curl se hizo antes de que terminara de iniciar la API y
+  recibio Connection reset by peer. En la comprobacion posterior, API y
+  PostgreSQL estaban healthy y GET /api/health/database respondio correctamente.
