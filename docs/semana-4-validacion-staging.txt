@@ -174,24 +174,87 @@ Registrar el incidente, el SHA anterior y el resultado del rollback.
 No ejecutar la prueba de detener PostgreSQL en produccion. Usar cuentas y datos
 de staging; no mostrar secretos en la grabacion.
 
-7. REGISTRO DE EJECUCION (COMPLETAR EN AWS TRAS EL DESPLIEGUE)
+7. REGISTRO DE EJECUCION
 
-Fecha/hora UTC:
-Operador:
-Instancia/entorno:
-PR y URL del workflow verde:
+Fecha de ejecucion: 2026-11-05 (horarios de las respuestas de EC2 en UTC).
+Operador: no registrado.
+Instancia/entorno: AWS EC2 staging, Amazon Linux 2023,
+  ip-172-31-33-189; Compose project ims-staging.
+PR integrado: #65, ci(deploy): publish backend images by SHA.
+Workflow verde:
+  https://github.com/Sebastian0rtega/InventoryManagementSystem-/actions/runs/41859466708
 SHA aprobado y desplegado:
-Imagen API (ghcr.io/...:<SHA>):
-Imagen de migracion (ghcr.io/...:<SHA>-migrate):
-SHA/imagen anterior para rollback:
-CI: suites aprobadas / tests aprobados:
-Healthcheck PostgreSQL antes/despues:
-Healthcheck API antes/despues:
-Migracion: comando y resultado:
-Compra: resultado HTTP / requestId:
-Venta: resultado HTTP / requestId:
-Liveness con PostgreSQL detenido:
-Readiness con PostgreSQL detenido:
-Readiness tras restaurar PostgreSQL:
-Rollback: probado o procedimiento revisado / resultado:
-Incidentes/notas:
+  61764da290b6875752f84e9c97856829b4bc1704
+Imagen API:
+  ghcr.io/sebastian0rtega/inventorymanagementsystem:61764da290b6875752f84e9c97856829b4bc1704
+Imagen de migracion:
+  ghcr.io/sebastian0rtega/inventorymanagementsystem:61764da290b6875752f84e9c97856829b4bc1704-migrate
+La etiqueta revision inspeccionada en el contenedor API coincide con el SHA.
+
+CI: workflow y job backend-ci completados con conclusion success. Paso de
+  umbral minimo suites/tests completado; CI exige >=7 suites y >=82 tests.
+  Registrar los conteos exactos desde el resumen del job antes de la demo.
+
+Comandos de despliegue ejecutados en AWS (Compose independiente docker-compose):
+  git checkout --detach 61764da290b6875752f84e9c97856829b4bc1704
+  docker-compose -p ims-staging --env-file backend/.env config --images
+  docker-compose -p ims-staging --env-file backend/.env pull api migrate
+  docker-compose -p ims-staging --env-file backend/.env up -d --no-build database
+  docker-compose -p ims-staging --env-file backend/.env run --rm --no-deps migrate
+  docker-compose -p ims-staging --env-file backend/.env up -d --no-build --no-deps api
+  backend/.env se configuró en la instancia; no se registran secretos aquí.
+
+Healthchecks:
+  Antes de migrar: PostgreSQL healthy; API aún no desplegada en ims-staging.
+  Después del despliegue: API healthy, PostgreSQL healthy.
+  GET /api/health: 200.
+  GET /api/health/database: 200; respuesta status=connected.
+  Con PostgreSQL detenido: liveness 200 y readiness 503 (status=disconnected).
+  PostgreSQL se inició de nuevo; ambos servicios healthy y readiness 200.
+
+Migraciones: la tarea explicita anterior terminó correctamente; las migraciones
+  pendientes se aplicaron antes de crear/actualizar el contenedor API.
+  Seeders de demostración: db:seed terminó correctamente, ejecutado una vez.
+
+Compra de demostración: POST /api/purchases/, HTTP 201, compra_id=1,
+  total=1700.00, requestId=7a0e44ba-7e7c-46c6-8d15-1463ef25c1c1.
+  Log http.request confirma POST /api/purchases/ status=201 con el mismo ID.
+Venta de demostración: POST /api/sales/, HTTP 201, venta_id=1,
+  total=1200.00, requestId=6cce00bd-9cef-45aa-99a2-8b5e5bbfd3e6.
+  Log http.request confirma POST /api/sales/ status=201 con el mismo ID.
+
+Prueba desde clon limpio: el repositorio fue clonado en EC2 y fijado al SHA
+  aprobado; se desplegaron por pull las imagenes publicadas por CI y los
+  healthchecks respondieron correctamente. La salida compartida no muestra
+  docker-compose build; si se exige esa prueba separada de build, ejecutarla en
+  un proyecto/entorno aislado y adjuntar su salida antes de marcarla completa.
+
+Rollback: no ejecutado. Procedimiento revisado/documentado en la seccion 5:
+  conservar el SHA anterior y volver solo a una imagen compatible con el esquema;
+  no revertir migraciones destructivas a ciegas. En el proyecto ims-staging era
+  un despliegue nuevo, sin API anterior que restaurar.
+
+Nota: este registro resume las salidas compartidas durante la ejecucion. No
+  contiene contrasenas, tokens ni el contenido de backend/.env. Adjuntar el
+  resumen exacto del conteo de tests del workflow y, si se ejecuta, el log del
+  build desde clon limpio.
+
+Verificacion adicional en AWS: 2026-11-09 02:47 UTC
+  La instancia reporto API y PostgreSQL Up (healthy).
+  GET /api/health: HTTP 200, status=ok.
+  GET /api/health/database: HTTP 200, status=connected.
+  Imagen configurada en el contenedor API:
+    ghcr.io/sebastian0rtega/inventorymanagementsystem:61764da290b6875752f84e9c97856829b4bc1704
+  La revision OCI inspeccionada posteriormente en el contenedor API fue
+  61764da290b6875752f84e9c97856829b4bc1704, coincidente con la imagen aprobada.
+
+  Importante: en esta verificacion, git rev-parse HEAD devolvio
+  b08a475aac8ab9efa134b6a10fd5107cf987bf3f y git status indico la rama
+  chore/security-hardening. Por tanto, el checkout actual del clon AWS no esta
+  fijado al mismo SHA de la imagen desplegada. Esto no cambia el hecho de que
+  el contenedor en ejecucion usa la imagen aprobada indicada arriba.
+  El intento de cambiar a /opt/InventoryManagementSystem- fallo porque esa ruta
+  no existe en la instancia; los comandos posteriores se ejecutaron desde el
+  directorio InventoryManagementSystem- en el que ya estaba la sesion.
+  La captura no se anexo al archivo en AWS: el comando de tee se pego truncado
+  y git status mostro docs/semana-4-validacion-staging.txt como untracked.
