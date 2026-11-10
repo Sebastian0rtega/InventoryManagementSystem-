@@ -85,15 +85,17 @@ describe("contratos operativos", () => {
       .spyOn(console, "error")
       .mockImplementation(() => undefined);
     const testApp = express();
+    const failureRoutes = express.Router();
     testApp.use(requestId);
     testApp.use(requestLogger);
-    testApp.get("/failure", (_req, _res, next) => {
+    failureRoutes.get("/", (_req, _res, next) => {
       next(new Error(internalError));
     });
+    testApp.use("/api/failure", failureRoutes);
     testApp.use(errorHandler);
 
     const response = await request(testApp)
-      .get("/failure")
+      .get("/api/failure?access_token=do-not-log")
       .set("x-request-id", "a41b1ed3-2b64-46c8-a0fb-4cf652e8b307");
 
     expect(response.status).toBe(500);
@@ -114,11 +116,56 @@ describe("contratos operativos", () => {
       level: "error",
       requestId: "a41b1ed3-2b64-46c8-a0fb-4cf652e8b307",
       method: "GET",
-      route: "/failure",
+      route: "/api/failure",
       status: 500,
       errorCode: "INTERNAL_SERVER_ERROR",
       errorMessage: internalError,
     });
     expect(internalLog.durationMs).toEqual(expect.any(Number));
+    expect(JSON.stringify(internalLog)).not.toContain("do-not-log");
+
+    const accessLog = errorLog.mock.calls
+      .map(([line]) => JSON.parse(line as string))
+      .find((entry) => entry.event === "http.request");
+    expect(accessLog).toMatchObject({
+      event: "http.request",
+      method: "GET",
+      route: "/api/failure",
+      status: 500,
+    });
+    expect(JSON.stringify(accessLog)).not.toContain("do-not-log");
+  });
+
+  test("las rutas raíz montadas y las rutas inexistentes se registran sin query string", async () => {
+    const log = jest.spyOn(console, "log").mockImplementation(() => undefined);
+    const testApp = express();
+    const mountedRoutes = express.Router();
+    testApp.use(requestId);
+    testApp.use(requestLogger);
+    mountedRoutes.post("/", (_req, res) => {
+      res.sendStatus(409);
+    });
+    testApp.use("/api/sales", mountedRoutes);
+    testApp.use((req, res) => {
+      res.locals.errorCode = "NOT_FOUND";
+      res.sendStatus(404);
+    });
+
+    const mountedResponse = await request(testApp).post("/api/sales/");
+    const missingResponse = await request(testApp).get(
+      "/not-found?access_token=do-not-log",
+    );
+
+    expect(mountedResponse.status).toBe(409);
+    expect(missingResponse.status).toBe(404);
+
+    const accessLogs = log.mock.calls.map(([line]) =>
+      JSON.parse(line as string),
+    );
+    expect(accessLogs.map((entry) => entry.route)).toEqual([
+      "/api/sales/",
+      "/not-found",
+    ]);
+    expect(JSON.stringify(accessLogs)).not.toContain("do-not-log");
   });
 });

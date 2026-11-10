@@ -38,14 +38,15 @@ La primera ejecución sin esos montajes no encontró pruebas y no cuenta como va
 
 ## Imagen y workflow
 
-- El Dockerfile prueba `node:22-alpine` en las etapas de dependencias, build y runtime, con `npm ci --omit=dev` y `USER node`. Es un cambio de base candidato, pendiente de verificar compatibilidad de `bcrypt`, las pruebas completas y el escaneo Trivy antes de considerarlo listo para producción.
+- La base `node:22-alpine` se evaluó en AWS. El reporte Trivy de `inventory-api:day6-alpine` registra cero vulnerabilidades para Alpine 3.24.3 y cero hallazgos HIGH/CRITICAL en total; reporta dos MEDIUM en paquetes Node. La validación AWS registra 9 suites y 88 pruebas aprobadas. Evidencia: [`docs/semana-6-trivy-alpine.txt`](./semana-6-trivy-alpine.txt) y [`docs/semana-6-validacion-aws.txt`](./semana-6-validacion-aws.txt). La imagen Alpine se mantiene como base del Dockerfile; esto no equivale a cero hallazgos y los dos MEDIUM deben seguirse reevaluando.
+- El Dockerfile usa `node:22-alpine` en las etapas de dependencias, build y runtime, con `npm ci --omit=dev` y `USER node`.
 - La etapa runtime actualiza los paquetes Alpine con `apk upgrade --no-cache` y elimina npm/npx globales, que no son necesarios para ejecutar `node dist/server.js`.
 - GitHub Actions declara `permissions: contents: read` y usa credenciales de prueba no secretas; no imprime secretos ni recibe secretos del repositorio.
 - El escaneo anterior de `inventory-api:day6-rescan`, construido sobre Bookworm, reportó 228 vulnerabilidades Debian (56 HIGH, 1 CRITICAL) y cero vulnerabilidades en los paquetes Node detectados. Evidencia histórica: [`docs/semana-6-trivy-image.txt`](./semana-6-trivy-image.txt), commit `954c47c`.
 - El escaneo AWS de `inventory-api:day6-trixie` reportó 162 vulnerabilidades Debian (1 UNKNOWN, 60 LOW, 58 MEDIUM, 43 HIGH, 0 CRITICAL). El CRITICAL `CVE-2023-45853` ya no aparece, pero siguen 43 HIGH.
 - El reporte Trixie lista CVE-2026-76642 (util-linux), CVE-2026-54369 (acl), CVE-2026-16742 (systemd), CVE-2025-69720 (ncurses) y CVE-2026-9538 (perl). El rastreador Debian marca los paquetes Trixie instalados como vulnerables; varias versiones corregidas aparecen solo en forky/sid. No forzar paquetes de otra suite ni contar los HIGH como resueltos sin un nuevo escaneo.
 - Seguimiento de hallazgos del sistema operativo en imagen: [#62](https://github.com/Sebastian0rtega/InventoryManagementSystem-/issues/62). Reevaluar imagen base/parches Debian y exposición; registrar una excepción revisada si un fix no está disponible. No ocultar findings ni bloquear un release únicamente con el conteo sin analizar aplicabilidad.
-- Para probar la base Alpine en AWS, construir la imagen final desde la raíz del repositorio:
+- Para repetir la validación de la base Alpine en AWS, construir la imagen final desde la raíz del repositorio:
 
   ```bash
   docker build --pull --no-cache \
@@ -87,7 +88,7 @@ La primera ejecución sin esos montajes no encontró pruebas y no cuenta como va
   fi
   ```
 
-  Adoptar la base Alpine solo si el build y las 88 pruebas pasan, y el nuevo escaneo confirma cero HIGH y cero CRITICAL. Si conserva findings de esas severidades, analizar cada uno; no ocultarlos ni sustituir el reporte histórico de Debian.
+  La evaluación registrada cumple el criterio de cero HIGH y cero CRITICAL. En futuras actualizaciones, volver a validar build y pruebas y analizar cualquier hallazgo HIGH/CRITICAL antes de desplegar; no ocultar findings ni sustituir el reporte histórico de Debian.
 - Para repetir el escaneo en AWS sin reemplazar la evidencia previa si falla:
 
   ```bash

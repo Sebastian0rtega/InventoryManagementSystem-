@@ -56,7 +56,7 @@ export const errorHandler = (
     event: "http.unhandled_error",
     requestId: res.locals.requestId,
     method: req.method,
-    route: req.route?.path ? `${req.baseUrl}${req.route.path}` : "unmatched",
+    route: req.originalUrl.split("?")[0],
     status: 500,
     durationMs: Date.now() - (res.locals.startedAt ?? Date.now()),
     errorCode: "INTERNAL_SERVER_ERROR",
