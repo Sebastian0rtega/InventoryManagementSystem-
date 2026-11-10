@@ -55,23 +55,28 @@ read:packages; no guardar el token en el repo ni en el documento:
   printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u <USUARIO_GITHUB> --password-stdin
   unset GHCR_TOKEN
 
-Configurar las dos referencias inmutables de esta entrega en la sesion:
+Configurar en backend/.env las dos referencias inmutables de esta entrega.
+Sustituir <SHA> por el SHA completo aprobado por CI:
 
-  export DEPLOY_SHA=<SHA>
-  export API_IMAGE="ghcr.io/sebastian0rtega/inventorymanagementsystem:${DEPLOY_SHA}"
-  export MIGRATE_IMAGE="ghcr.io/sebastian0rtega/inventorymanagementsystem:${DEPLOY_SHA}-migrate"
+  API_IMAGE=ghcr.io/sebastian0rtega/inventorymanagementsystem:<SHA>
+  MIGRATE_IMAGE=ghcr.io/sebastian0rtega/inventorymanagementsystem:<SHA>-migrate
 
 Comprobar la configuracion sin mostrar el contenido de .env:
 
-  docker compose --env-file backend/.env config --images
+  docker-compose -p ims-staging --env-file backend/.env config --images
 
 4. DESPLIEGUE CONTROLADO
 
 Antes del cambio, registrar la imagen API actualmente desplegada. En el primer
 despliegue, registrar "ninguna":
 
-  docker compose --env-file backend/.env ps
-  docker inspect --format='{{.Config.Image}}' "$(docker compose --env-file backend/.env ps -q api)"
+  docker-compose -p ims-staging --env-file backend/.env ps
+  API_CID="$(docker-compose -p ims-staging --env-file backend/.env ps -q api)"
+  if [ -n "$API_CID" ]; then
+    docker inspect --format='{{.Config.Image}}' "$API_CID"
+  else
+    echo "ninguna"
+  fi
 
 Si ya existe una API, verificar su liveness y readiness antes de continuar:
 
@@ -81,39 +86,39 @@ Si ya existe una API, verificar su liveness y readiness antes de continuar:
 Descargar la imagen de API y la imagen de migracion construidas por CI. No usar
 build en staging: el contenedor nuevo debe ser el artefacto publicado por CI.
 
-  docker compose --env-file backend/.env pull api migrate
-  docker compose --env-file backend/.env up -d --no-build database
+  docker-compose -p ims-staging --env-file backend/.env pull api migrate
+  docker-compose -p ims-staging --env-file backend/.env up -d --no-build database
 
 Esperar y confirmar que PostgreSQL esta healthy antes de migrar:
 
-  DB_CID="$(docker compose --env-file backend/.env ps -q database)"
+  DB_CID="$(docker-compose -p ims-staging --env-file backend/.env ps -q database)"
   for attempt in $(seq 1 30); do
     DB_HEALTH="$(docker inspect --format='{{.State.Health.Status}}' "$DB_CID")"
     [ "$DB_HEALTH" = healthy ] && break
     sleep 2
   done
   test "$DB_HEALTH" = healthy
-  docker compose --env-file backend/.env ps
+  docker-compose -p ims-staging --env-file backend/.env ps
 
 Ejecutar las migraciones como tarea explicita ANTES de reemplazar la API:
 
-  docker compose --env-file backend/.env run --rm --no-deps migrate
+  docker-compose -p ims-staging --env-file backend/.env run --rm --no-deps migrate
 
 Si la tarea falla, detener el despliegue; no actualizar la API hasta resolver el
 error. Las migraciones deben ser compatibles con la version anterior de la API.
 
 Actualizar la API al tag SHA de CI y esperar su healthcheck (readiness):
 
-  docker compose --env-file backend/.env pull api
-  docker compose --env-file backend/.env up -d --no-build --no-deps api
-  API_CID="$(docker compose --env-file backend/.env ps -q api)"
+  docker-compose -p ims-staging --env-file backend/.env pull api
+  docker-compose -p ims-staging --env-file backend/.env up -d --no-build --no-deps api
+  API_CID="$(docker-compose -p ims-staging --env-file backend/.env ps -q api)"
   for attempt in $(seq 1 30); do
     API_HEALTH="$(docker inspect --format='{{.State.Health.Status}}' "$API_CID")"
     [ "$API_HEALTH" = healthy ] && break
     sleep 2
   done
   test "$API_HEALTH" = healthy
-  docker compose --env-file backend/.env ps
+  docker-compose -p ims-staging --env-file backend/.env ps
   curl --fail http://localhost:3000/api/health
   curl --fail http://localhost:3000/api/health/database
 
@@ -121,8 +126,9 @@ Verificar que el contenedor ejecuta el SHA aprobado:
 
   docker inspect --format='{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$API_CID"
 
-El valor debe coincidir con DEPLOY_SHA. Guardar tambien el identificador de
-imagen anterior obtenido antes del cambio para el procedimiento de rollback.
+El valor debe coincidir con el SHA aprobado de la imagen API. Guardar tambien el
+identificador de la imagen anterior obtenido antes del cambio para el
+procedimiento de rollback.
 
 5. ROLLBACK
 
@@ -133,9 +139,9 @@ Si la nueva API no pasa readiness, volver solo a la imagen anterior mientras
 el esquema siga siendo compatible:
 
   export API_IMAGE="ghcr.io/sebastian0rtega/inventorymanagementsystem:<SHA_ANTERIOR>"
-  docker compose --env-file backend/.env pull api
-  docker compose --env-file backend/.env up -d --no-build --no-deps api
-  docker compose --env-file backend/.env ps
+  docker-compose -p ims-staging --env-file backend/.env pull api
+  docker-compose -p ims-staging --env-file backend/.env up -d --no-build --no-deps api
+  docker-compose -p ims-staging --env-file backend/.env ps
   curl --fail http://localhost:3000/api/health
   curl --fail http://localhost:3000/api/health/database
 
@@ -158,15 +164,15 @@ Registrar el incidente, el SHA anterior y el resultado del rollback.
 4:00-6:00  Abrir /api/docs, autenticar con credenciales de demostracion y
            ejecutar una compra y una venta con datos de staging validos.
            Para cada POST, guardar el X-Request-Id de la respuesta y buscarlo:
-             docker compose --env-file backend/.env logs --since 5m api | grep '<REQUEST_ID>'
+             docker-compose -p ims-staging --env-file backend/.env logs --since 5m api | grep '<REQUEST_ID>'
            Mostrar el log http.request con el mismo requestId y status 201.
 6:00-7:30  Solo en staging y coordinando una ventana sin usuarios, detener
            PostgreSQL y demostrar liveness 200 frente a readiness 503:
-             docker compose --env-file backend/.env stop database
+             docker-compose -p ims-staging --env-file backend/.env stop database
              curl -i http://localhost:3000/api/health
              curl -i http://localhost:3000/api/health/database
            Restaurar inmediatamente:
-             docker compose --env-file backend/.env start database
+             docker-compose -p ims-staging --env-file backend/.env start database
            Esperar healthchecks healthy y confirmar readiness 200 de nuevo.
 7:30-9:00  Mostrar SHA/label desplegado, comandos de rollback y advertencia de
            no revertir migraciones destructivas a ciegas.

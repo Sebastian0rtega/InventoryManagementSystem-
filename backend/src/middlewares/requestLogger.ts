@@ -9,15 +9,13 @@ export const requestLogger = (
   res.on("finish", () => {
     const status = res.statusCode;
     const level = status >= 500 ? "error" : status >= 400 ? "warn" : "info";
-    const routePath = req.route?.path;
-    const route = routePath ? `${req.baseUrl}${routePath}` : "unmatched";
 
     writeOperationalLog({
       level,
       event: "http.request",
       requestId: res.locals.requestId,
       method: req.method,
-      route,
+      route: req.originalUrl.split("?")[0],
       status,
       durationMs: Date.now() - res.locals.startedAt,
       ...(res.locals.errorCode ? { errorCode: res.locals.errorCode } : {}),
