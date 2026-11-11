@@ -41,7 +41,7 @@ jobs:
       NODE_ENV: ${{vars.NODE_ENV}}
       PORT: ${{vars.PORT}}
       DB_HOST: ${{vars.DB_HOST}}
-      DB_PORT: ${{vars.DB_HOST}}
+      DB_PORT: ${{vars.DB_POST}}
       DB_NAME: ${{vars.DB_NAME}}
       DB_NAME_TEST: ${{vars.DB_NAME_TEST}}
       DB_USER: ${{ vars.DB_USER }}
