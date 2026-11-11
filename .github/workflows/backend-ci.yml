@@ -38,16 +38,16 @@ jobs:
           --health-start-period 5s
 
     env:
-      NODE_ENV: test
-      PORT: "3000"
-      DB_HOST: 127.0.0.1
-      DB_PORT: "5432"
-      DB_NAME: inventory_ci_db
-      DB_NAME_TEST: inventory_test_db
-      DB_USER: inventory_ci_user
-      DB_PASSWORD: inventory_ci_password
-      JWT_SECRET: ci-only-secret-at-least-32-characters-long
-      ADMIN_PASSWORD: ci-only-admin-password
+      NODE_ENV: ${{vars.NODE_ENV}}
+      PORT: ${{vars.PORT}}
+      DB_HOST: ${{vars.DB_HOST}}
+      DB_PORT: ${{vars.DB_POST}}
+      DB_NAME: ${{vars.DB_NAME}}
+      DB_NAME_TEST: ${{vars.DB_NAME_TEST}}
+      DB_USER: ${{ vars.DB_USER }}
+      DB_PASSWORD: ${{vars.DB_PASSWORD}}
+      JWT_SECRET: ${{vars.JWT_SECRET}}
+      ADMIN_PASSWORD: ${{vars.ADMIN_PASSWORD}}
 
     defaults:
       run:
