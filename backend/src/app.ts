@@ -23,7 +23,7 @@ const app = express();
 app.use(requestId);
 app.use(requestLogger);
 app.use(helmet());
-app.use(cors());
+app.use(cors({ exposedHeaders: ["X-Request-Id"] }));
 app.use(express.json({ limit: "1mb" }));
 
 app.use("/api/auth", authRoutes);
