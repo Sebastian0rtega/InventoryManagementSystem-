@@ -39,16 +39,16 @@ jobs:
           --health-start-period 5s
 
     env:
-      NODE_ENV: ${{ secrets.NODE_ENV }}
-      PORT: ${{ secrets.PORT }}
-      DB_HOST: ${{ secrets.DB_HOST }}
-      DB_PORT: ${{ secrets.DB_PORT }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_NAME_TEST: ${{ secrets.DB_NAME_TEST }}
+      NODE_ENV: ${{ vars.NODE_ENV }}
+      PORT: ${{ vars.PORT }}
+      DB_HOST: ${{ vars.DB_HOST }}
+      DB_PORT: ${{ vars.DB_PORT }}
+      DB_NAME: ${{ vars.DB_NAME }}
+      DB_NAME_TEST: ${{ vars.DB_NAME_TEST }}
       DB_USER: inventory_ci_user
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      DB_PASSWORD: ${{ vars.DB_PASSWORD }}
+      JWT_SECRET: ${{ vars.JWT_SECRET }}
+      ADMIN_PASSWORD: ${{ vars.ADMIN_PASSWORD }}
 
     defaults:
       run:
@@ -73,6 +73,19 @@ jobs:
 
       - name: Lint backend
         run: npm run lint
+
+      - name: Validate CI environment
+        run: |
+          for variable in NODE_ENV PORT DB_HOST DB_PORT DB_NAME_TEST DB_USER DB_PASSWORD JWT_SECRET ADMIN_PASSWORD; do
+            if [ -z "${!variable:-}" ]; then
+              echo "::error::$variable is empty; check the dev environment variables."
+              exit 1
+            fi
+          done
+          if [ "$DB_HOST" != "127.0.0.1" ] || [ "$DB_PORT" != "5432" ] || [ "$DB_NAME_TEST" != "inventory_test_db" ] || [ "$DB_USER" != "inventory_ci_user" ]; then
+            echo "::error::Test database settings must match the isolated PostgreSQL service."
+            exit 1
+          fi
 
       - name: Set up test database
         run: npm run db:test:setup
