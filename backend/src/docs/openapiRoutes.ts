@@ -39,16 +39,36 @@
  *         application/json:
  *           schema: { $ref: '#/components/schemas/LoginInput' }
  *     responses:
- *       '200': { description: Sesión iniciada }
- *       '401': { description: Credenciales inválidas }
+ *       '200':
+ *         description: Sesión iniciada
+ *         headers:
+ *           X-Request-Id: { $ref: '#/components/headers/RequestId' }
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/LoginOutput' }
+ *       '401':
+ *         description: Credenciales inválidas
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
  *       '429': { description: Demasiados intentos de inicio de sesión }
  * /api/auth/me:
  *   get:
  *     tags: [Auth]
  *     summary: Obtener usuario autenticado
  *     responses:
- *       '200': { description: Usuario actual }
- *       '401': { description: Token ausente o inválido }
+ *       '200':
+ *         description: Usuario actual
+ *         headers:
+ *           X-Request-Id: { $ref: '#/components/headers/RequestId' }
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/UsuarioActual' }
+ *       '401':
+ *         description: Token ausente o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
  * /api/users:
  *   get:
  *     tags: [Users]
@@ -321,7 +341,28 @@
  *       - { in: query, name: status, schema: { type: string, enum: [NORMAL, LOW, OUT] } }
  *       - { in: query, name: sort, schema: { type: string, enum: [stock_actual, '-stock_actual'] } }
  *     responses:
- *       '200': { description: Inventario; SELLER y WAREHOUSE quedan limitados a su tienda }
+ *       '200':
+ *         description: Inventario; SELLER y WAREHOUSE quedan limitados a su tienda
+ *         headers:
+ *           X-Request-Id: { $ref: '#/components/headers/RequestId' }
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/InventarioListOutput' }
+ *       '400':
+ *         description: Parámetros inválidos
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       '401':
+ *         description: Token ausente o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       '403':
+ *         description: Rol sin permiso
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
  * /api/inventory/adjustments:
  *   post:
  *     tags: [Inventory]
@@ -332,10 +373,33 @@
  *         application/json:
  *           schema: { $ref: '#/components/schemas/AjusteInventarioInput' }
  *     responses:
- *       '201': { description: Ajuste y movimiento AJUSTE_ENTRADA o AJUSTE_SALIDA registrados }
- *       '400': { description: Datos inválidos }
- *       '403': { description: Rol sin permiso o tienda ajena }
- *       '409': { description: Stock insuficiente para una salida }
+ *       '201':
+ *         description: Ajuste y movimiento AJUSTE_ENTRADA o AJUSTE_SALIDA registrados
+ *         headers:
+ *           X-Request-Id: { $ref: '#/components/headers/RequestId' }
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/InventarioAdjustmentOutput' }
+ *       '400':
+ *         description: Datos inválidos
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       '401':
+ *         description: Token ausente o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       '403':
+ *         description: Rol sin permiso o tienda ajena
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       '409':
+ *         description: Stock insuficiente para una salida
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
  * /api/inventory/{id}/movements:
  *   get:
  *     tags: [Inventory]
@@ -345,8 +409,27 @@
  *       - { in: query, name: page, schema: { type: integer, minimum: 1, default: 1 } }
  *       - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
  *     responses:
- *       '200': { description: Movimientos paginados; solo lectura }
- *       '403': { description: Rol sin permiso o tienda ajena }
- *       '404': { description: Inventario no encontrado }
+ *       '200':
+ *         description: Movimientos paginados; solo lectura
+ *         headers:
+ *           X-Request-Id: { $ref: '#/components/headers/RequestId' }
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/InventarioMovementsOutput' }
+ *       '401':
+ *         description: Token ausente o inválido
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       '403':
+ *         description: Rol sin permiso o tienda ajena
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ *       '404':
+ *         description: Inventario no encontrado
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
  */
 export const openapiRouteDocumentation = true;
