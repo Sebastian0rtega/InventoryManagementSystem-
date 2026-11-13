@@ -55,6 +55,20 @@ describe("contratos operativos", () => {
     expect(log.mock.calls[0][0]).not.toContain("secret-token-value");
   });
 
+  test("expone el request ID para que el frontend pueda leerlo por CORS", async () => {
+    jest.spyOn(console, "log").mockImplementation(() => undefined);
+
+    const response = await request(app)
+      .get("/api/health")
+      .set("origin", "http://localhost:5173");
+
+    expect(response.status).toBe(200);
+    expect(response.headers["access-control-expose-headers"]).toContain(
+      "X-Request-Id",
+    );
+    expect(response.headers["x-request-id"]).toBeDefined();
+  });
+
   test("readiness informa indisponibilidad sin exponer errores del driver", async () => {
     const databaseError =
       "connection failed for user admin with password private-db-secret";
