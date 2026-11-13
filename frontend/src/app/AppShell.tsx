@@ -1,16 +1,22 @@
 import { NavLink } from 'react-router-dom'
 import type { ReactNode } from 'react'
+import { useSession } from '@/features/auth/sessionContext'
+import { canAdjustInventory } from '@/features/auth/permissions'
 
 type AppShellProps = {
   children: ReactNode
 }
 
-const navigationItems = [
-  { label: 'Resumen', to: '/' },
-  { label: 'Inventario', to: '/inventory' },
-]
-
 export function AppShell({ children }: AppShellProps) {
+  const { user, logout } = useSession()
+  const navigationItems = [
+    { label: 'Resumen', to: '/' },
+    { label: 'Inventario', to: '/inventory' },
+    ...(user && canAdjustInventory(user.rol.nombre_rol)
+      ? [{ label: 'Ajustes de inventario', to: '/inventory/adjustments' }]
+      : []),
+  ]
+
   return (
     <div className="app-shell">
       <aside className="sidebar" aria-label="Navegación principal">
@@ -50,11 +56,16 @@ export function AppShell({ children }: AppShellProps) {
       <div className="main-column">
         <header className="topbar">
           <span className="topbar-context">Plataforma de inventario</span>
-          <div className="user-placeholder" aria-label="Sesión no iniciada">
+          <div className="user-placeholder" aria-label="Sesión iniciada">
             <span className="avatar" aria-hidden="true">
-              D
+              {user?.nombre.slice(0, 1).toUpperCase()}
             </span>
-            <span className="user-label">Demo</span>
+            <span className="user-label">
+              {user?.nombre} · {user?.rol.nombre_rol}
+            </span>
+            <button type="button" onClick={logout}>
+              Cerrar sesión
+            </button>
           </div>
         </header>
         <main className="main-content">{children}</main>
