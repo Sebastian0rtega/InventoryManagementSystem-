@@ -1,0 +1,21 @@
+export function InventoryPage() {
+  return (
+    <section className="page-section" aria-labelledby="inventory-title">
+      <div className="eyebrow">
+        <span className="eyebrow-line" />
+        OPERACIONES
+      </div>
+      <h1 id="inventory-title">Inventario</h1>
+      <p className="page-description">
+        La consulta de existencias estará disponible en la siguiente etapa.
+      </p>
+      <div className="empty-placeholder">
+        <span className="empty-mark" aria-hidden="true">
+          +
+        </span>
+        <strong>Tu inventario aparecerá aquí</strong>
+        <span>Conectaremos esta vista con la API en los próximos días.</span>
+      </div>
+    </section>
+  )
+}
