@@ -37,6 +37,7 @@ flowchart TD
   los errores de red/servidor, nunca los HTTP 4xx.
 - `react-hook-form` administrará el estado de formularios.
 - `zod` validará configuración y datos de formularios.
+- `@hookform/resolvers` conecta la validación Zod del login con React Hook Form.
 - ESLint y Prettier tienen configuraciones y comandos independientes.
 - Vitest y React Testing Library verifican el arranque y la navegación del
   shell sin depender de la API.
@@ -49,9 +50,13 @@ flowchart TD
   Como cualquier almacenamiento accesible desde JavaScript, `sessionStorage`
   puede exponerse ante XSS; el backend actual no ofrece cookies HttpOnly ni
   refresh token.
+- `SessionProvider` usa TanStack Query para obtener la identidad canónica desde
+  `/auth/me`. Un 401 limpia sesión y caché; un 403 conserva la sesión y muestra
+  acceso denegado.
+- La UI muestra controles de ajustes solo a ADMIN y WAREHOUSE. Es una ayuda de
+  experiencia, no sustituye la autorización del servidor.
 
 La URL de API se configura con `VITE_API_BASE_URL`; se documenta un valor local
 en `frontend/.env.example`. No se guarda ningún token, contraseña ni URL de
 producción en el repositorio. La pantalla de inventario actual es únicamente un
-placeholder: la integración con la API y el flujo de autenticación pertenecen
-a las siguientes ramas de la semana.
+placeholder; su integración con la API se completará en las siguientes etapas.

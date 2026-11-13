@@ -1,6 +1,8 @@
 import { clearSessionToken, getSessionToken } from '@/lib/sessionToken'
 
 const defaultTimeoutMs = 15_000
+export const API_UNAUTHORIZED_EVENT = 'inventory:unauthorized'
+export const API_FORBIDDEN_EVENT = 'inventory:forbidden'
 
 export type HttpResponse<T> = {
   data: T
@@ -67,7 +69,7 @@ export function createHttpClient({
   baseUrl,
   getToken = getSessionToken,
   clearToken = clearSessionToken,
-  fetchImplementation = fetch,
+  fetchImplementation,
 }: HttpClientOptions) {
   const normalizedBaseUrl = baseUrl.replace(/\/+$/, '')
 
@@ -106,7 +108,7 @@ export function createHttpClient({
     }, options.timeoutMs ?? defaultTimeoutMs)
 
     try {
-      const response = await fetchImplementation(url, {
+      const response = await (fetchImplementation ?? fetch)(url, {
         method: options.method ?? 'GET',
         headers,
         ...(body !== undefined ? { body } : {}),
@@ -116,6 +118,11 @@ export function createHttpClient({
 
       if (response.status === 401) {
         clearToken()
+        if (token && typeof window !== 'undefined') {
+          window.dispatchEvent(new Event(API_UNAUTHORIZED_EVENT))
+        }
+      } else if (response.status === 403 && typeof window !== 'undefined') {
+        window.dispatchEvent(new Event(API_FORBIDDEN_EVENT))
       }
 
       const responseText = await response.text()

@@ -1,1 +1,6 @@
 export { getCurrentUser, login } from '@/features/auth/api'
+export { SessionProvider } from '@/features/auth/SessionProvider'
+export { useSession } from '@/features/auth/sessionContext'
+export { ProtectedRoute, RoleRoute } from '@/features/auth/guards'
+export { canAdjustInventory } from '@/features/auth/permissions'
+export type { UserRole } from '@/features/auth/permissions'
