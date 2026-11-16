@@ -6,6 +6,7 @@ import type {
   InventoryListResponse,
   InventoryMovementParams,
   InventoryMovementsResponse,
+  ProductListResponse,
 } from '@/shared/api/types'
 
 type RequestOptions = {
@@ -37,6 +38,19 @@ export function listInventory(
   )
 }
 
+export function listActiveProducts(search = '', options: RequestOptions = {}) {
+  const params = {
+    active: 'true',
+    limit: 100,
+    ...(search.trim() ? { search: search.trim() } : {}),
+  }
+
+  return apiClient.request<ProductListResponse>(
+    `/products${toQueryString(params)}`,
+    options.signal ? { signal: options.signal } : {},
+  )
+}
+
 export function getInventoryMovements(
   inventoryId: number,
   params: InventoryMovementParams = {},
@@ -55,6 +69,7 @@ export function adjustInventory(
   return apiClient.request<InventoryAdjustmentResponse>('/inventory/adjustments', {
     method: 'POST',
     body: input,
+    redirectOnForbidden: false,
     ...(options.signal ? { signal: options.signal } : {}),
   })
 }

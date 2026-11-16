@@ -15,6 +15,7 @@ export type HttpRequestOptions = {
   body?: unknown
   signal?: AbortSignal
   timeoutMs?: number
+  redirectOnForbidden?: boolean
 }
 
 export type HttpClientOptions = {
@@ -121,7 +122,11 @@ export function createHttpClient({
         if (token && typeof window !== 'undefined') {
           window.dispatchEvent(new Event(API_UNAUTHORIZED_EVENT))
         }
-      } else if (response.status === 403 && typeof window !== 'undefined') {
+      } else if (
+        response.status === 403 &&
+        options.redirectOnForbidden !== false &&
+        typeof window !== 'undefined'
+      ) {
         window.dispatchEvent(new Event(API_FORBIDDEN_EVENT))
       }
 

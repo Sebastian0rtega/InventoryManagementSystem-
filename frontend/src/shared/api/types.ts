@@ -23,3 +23,17 @@ export type InventoryMovementParams = NonNullable<
 >
 export type InventoryMovementsResponse =
   paths['/api/inventory/{id}/movements']['get']['responses'][200]['content']['application/json']
+
+export type ActiveProductSummary = {
+  producto_id: number
+  nombre: string
+  sku: string
+  activo: boolean
+}
+
+export type ProductListResponse = {
+  items: ActiveProductSummary[]
+  page: number
+  limit: number
+  total: number
+}
