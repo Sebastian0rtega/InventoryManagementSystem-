@@ -38,7 +38,7 @@ function mockApi({
   role = 'ADMIN',
   loginStatus = 200,
   currentUserStatus = 200,
-  inventoryStatus = 401,
+  inventoryStatus = 200,
 }: MockOptions = {}) {
   const requests: string[] = []
   const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
@@ -73,7 +73,13 @@ function mockApi({
     }
 
     if (path.endsWith('/inventory')) {
-      return standardError(inventoryStatus)
+      return inventoryStatus === 200
+        ? jsonResponse({ data: [], page: 1, limit: 20, total: 0, totalPages: 0 })
+        : standardError(inventoryStatus)
+    }
+
+    if (path.endsWith('/movements')) {
+      return standardError(401)
     }
 
     return standardError(500)
@@ -110,7 +116,7 @@ function ExpiringApiRequest() {
     <button
       type="button"
       onClick={() => {
-        void apiClient.request('/inventory').catch(() => undefined)
+        void apiClient.request('/inventory/1/movements').catch(() => undefined)
       }}
     >
       Consultar API protegida
@@ -167,6 +173,30 @@ describe('auth y control de acceso', () => {
       await screen.findByRole('heading', { name: 'Iniciar sesión' }),
     ).toBeInTheDocument()
     expect(sessionStorage.getItem('inventory.accessToken')).toBeNull()
+  })
+
+  it('devuelve al login cuando la consulta de inventario responde 401', async () => {
+    mockApi({ inventoryStatus: 401 })
+    startAt('/inventory')
+    sessionStorage.setItem('inventory.accessToken', 'valid-token')
+    renderApp()
+
+    expect(
+      await screen.findByRole('heading', { name: 'Iniciar sesión' }),
+    ).toBeInTheDocument()
+    expect(sessionStorage.getItem('inventory.accessToken')).toBeNull()
+  })
+
+  it('muestra acceso denegado cuando la consulta de inventario responde 403', async () => {
+    mockApi({ inventoryStatus: 403 })
+    startAt('/inventory')
+    sessionStorage.setItem('inventory.accessToken', 'valid-token')
+    renderApp()
+
+    expect(
+      await screen.findByRole('heading', { name: 'Acceso denegado' }),
+    ).toBeInTheDocument()
+    expect(sessionStorage.getItem('inventory.accessToken')).toBe('valid-token')
   })
 
   it('limpia la sesión y redirige al login ante un 401 posterior', async () => {

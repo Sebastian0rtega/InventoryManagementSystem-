@@ -16,19 +16,26 @@ describe('flujo de autenticación principal', () => {
     sessionStorage.clear()
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const path = new URL(String(input)).pathname
-      return path.endsWith('/auth/login')
-        ? jsonResponse({ token: 'test-token' })
-        : jsonResponse({
-            usuario_id: 1,
-            rol_id: 1,
-            tienda_id: 1,
-            email: 'demo@example.com',
-            nombre: 'Demo',
-            activo: true,
-            created_at: '2026-01-01T00:00:00.000Z',
-            updated_at: '2026-01-01T00:00:00.000Z',
-            rol: { rol_id: 1, nombre_rol: 'ADMIN' },
-          })
+      if (path.endsWith('/auth/login')) {
+        return jsonResponse({ token: 'test-token' })
+      }
+      if (path.endsWith('/auth/me')) {
+        return jsonResponse({
+          usuario_id: 1,
+          rol_id: 1,
+          tienda_id: 1,
+          email: 'demo@example.com',
+          nombre: 'Demo',
+          activo: true,
+          created_at: '2026-01-01T00:00:00.000Z',
+          updated_at: '2026-01-01T00:00:00.000Z',
+          rol: { rol_id: 1, nombre_rol: 'ADMIN' },
+        })
+      }
+      if (path.endsWith('/inventory')) {
+        return jsonResponse({ data: [], page: 1, limit: 20, total: 0, totalPages: 0 })
+      }
+      return jsonResponse({}, 404)
     })
     vi.stubGlobal('fetch', fetchMock)
 
@@ -49,7 +56,7 @@ describe('flujo de autenticación principal', () => {
     expect(
       await screen.findByRole('heading', { name: 'Inventario' }),
     ).toBeInTheDocument()
-    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock).toHaveBeenCalledTimes(3)
     expect(sessionStorage.getItem('inventory.accessToken')).toBe('test-token')
   })
 })
