@@ -20,7 +20,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="app-shell">
       <aside className="sidebar" aria-label="Navegación principal">
-        <NavLink className="brand" to="/" aria-label="Inventory, ir al resumen">
+        <NavLink className="brand" to="/">
           <span className="brand-mark" aria-hidden="true">
             I
           </span>

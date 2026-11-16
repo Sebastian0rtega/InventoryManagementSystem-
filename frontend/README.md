@@ -22,6 +22,7 @@ npm run api:types    genera tipos desde la API local
 npm run lint         ESLint
 npm run format:check verificación de formato
 npm test             pruebas Vitest
+npm run test:e2e     smoke E2E con Playwright
 npm run build        compilación de producción
 npm run verify       lint, formato, pruebas y build
 ```
@@ -37,3 +38,25 @@ ejecuta `npm run api:types` desde `frontend/`. El comando obtiene
 `http://localhost:3000/api/docs.json` y actualiza
 `src/shared/api/schema.d.ts`; revisa y versiona el resultado junto con cualquier
 cambio de contrato del backend.
+
+## Pruebas y accesibilidad
+
+Las pruebas de integración usan MSW para interceptar la API sin depender de
+staging. Vitest ejecuta pruebas unitarias, de componentes y accesibilidad con
+Testing Library, `user-event` y `jest-axe`. La cobertura se genera como señal
+diagnóstica, sin umbral que sustituya escenarios funcionales:
+
+```powershell
+npm test -- --coverage
+npm run test:e2e
+```
+
+Playwright usa Chromium. Instálalo una vez antes de la primera ejecución:
+
+```powershell
+npx playwright install chromium
+```
+
+El workflow `frontend-ci.yml` prepara el backend local para regenerar los tipos,
+ejecuta lint, pruebas y build, y publica el reporte de cobertura como artefacto.
+El smoke E2E cubre login, filtro de inventario y ajuste de stock.

@@ -1,0 +1,112 @@
+name: frontend-ci
+
+on:
+  pull_request:
+    branches:
+      - dev
+  push:
+    branches:
+      - dev
+
+concurrency:
+  group: frontend-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend-ci:
+    name: frontend-ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out commit
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend
+
+      - name: Install backend dependencies for OpenAPI generation
+        run: npm ci --prefix backend
+
+      - name: Build API for OpenAPI generation
+        run: npm run build --prefix backend
+
+      - name: Generate frontend API types
+        env:
+          NODE_ENV: development
+          PORT: 3000
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_NAME: frontend_ci
+          DB_USER: frontend_ci
+          DB_PASSWORD: frontend_ci
+          JWT_SECRET: frontend-ci-openapi-secret-not-used-for-tests
+        run: |
+          node backend/dist/server.js > "$RUNNER_TEMP/frontend-api.log" 2>&1 &
+          api_pid=$!
+          trap 'kill "$api_pid" 2>/dev/null || true; wait "$api_pid" 2>/dev/null || true' EXIT
+
+          ready=0
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3000/api/docs.json --output /dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+
+          if [ "$ready" -ne 1 ]; then
+            cat "$RUNNER_TEMP/frontend-api.log"
+            echo "::error::The local API did not expose its OpenAPI document."
+            exit 1
+          fi
+
+          npm run api:types --prefix frontend
+
+      - name: Ensure generated API types are committed
+        run: git diff --exit-code -- frontend/src/shared/api/schema.d.ts
+
+      - name: Lint frontend
+        run: npm run lint --prefix frontend
+
+      - name: Run frontend tests and collect diagnostic coverage
+        run: npm test --prefix frontend -- --run --coverage
+
+      - name: Upload diagnostic coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/lcov.info
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Build frontend
+        run: npm run build --prefix frontend
+
+      - name: Install Playwright Chromium
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright smoke tests
+        run: npm run test:e2e --prefix frontend
+
+      - name: Upload Playwright diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-playwright-results
+          path: |
+            frontend/test-results/
+            frontend/playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
