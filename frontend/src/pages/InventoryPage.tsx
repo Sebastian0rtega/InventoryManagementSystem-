@@ -1,12 +1,25 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { canViewInventoryMovements } from '@/features/auth/permissions'
+import {
+  canAdjustInventory,
+  canViewInventoryMovements,
+} from '@/features/auth/permissions'
+import {
+  InventoryAdjustmentDialog,
+  type AdjustmentSeed,
+} from '@/features/inventory/InventoryAdjustmentDialog'
 import { useSession } from '@/features/auth/sessionContext'
-import { getInventoryMovements, listInventory } from '@/features/inventory/api'
+import {
+  adjustInventory,
+  getInventoryMovements,
+  listInventory,
+} from '@/features/inventory/api'
 import { ApiError } from '@/lib/httpClient'
 import { queryKeys } from '@/shared/api/queryKeys'
 import type {
+  InventoryAdjustmentInput,
+  InventoryAdjustmentResponse,
   InventoryListParams,
   InventoryListResponse,
   InventoryMovementParams,
@@ -158,11 +171,15 @@ function LoadingRows() {
 function InventoryTable({
   items,
   canSeeMovements,
+  canAdjust,
   onShowMovements,
+  onAdjust,
 }: {
   items: InventoryItem[]
   canSeeMovements: boolean
+  canAdjust: boolean
   onShowMovements: (item: InventoryItem) => void
+  onAdjust: (item: InventoryItem) => void
 }) {
   return (
     <div className="inventory-table-scroll">
@@ -176,6 +193,7 @@ function InventoryTable({
             <th scope="col">Stock mínimo</th>
             <th scope="col">Estado</th>
             {canSeeMovements && <th scope="col">Movimientos</th>}
+            {canAdjust && <th scope="col">Ajuste</th>}
           </tr>
         </thead>
         <tbody>
@@ -203,6 +221,23 @@ function InventoryTable({
                     onClick={() => onShowMovements(item)}
                   >
                     Ver movimientos
+                  </button>
+                </td>
+              )}
+              {canAdjust && (
+                <td>
+                  <button
+                    className="inventory-link-button"
+                    type="button"
+                    disabled={!item.producto.activo}
+                    title={
+                      item.producto.activo
+                        ? undefined
+                        : 'No se puede ajustar un producto inactivo.'
+                    }
+                    onClick={() => onAdjust(item)}
+                  >
+                    Ajustar
                   </button>
                 </td>
               )}
@@ -289,8 +324,13 @@ function MovementsPanel({
   )
 }
 
-export function InventoryPage() {
+type InventoryPageProps = {
+  adjustmentOpenOnMount?: boolean
+}
+
+export function InventoryPage({ adjustmentOpenOnMount = false }: InventoryPageProps) {
   const { user } = useSession()
+  const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
   const urlSearch = searchParams.get('search') ?? ''
   const [searchInput, setSearchInput] = useState({
@@ -299,12 +339,32 @@ export function InventoryPage() {
   })
   const searchDraft = searchInput.source === urlSearch ? searchInput.value : urlSearch
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null)
+  const [adjustmentSeed, setAdjustmentSeed] = useState<AdjustmentSeed | null>(() =>
+    adjustmentOpenOnMount ? {} : null,
+  )
+  const [adjustmentResult, setAdjustmentResult] =
+    useState<InventoryAdjustmentResponse | null>(null)
   const params = useMemo(() => readListParams(searchParams), [searchParams])
   const selectablePageSizes = [...new Set([...pageSizes, params.limit])].sort(
     (left, right) => left - right,
   )
   const canSelectStore = user?.rol.nombre_rol === 'ADMIN'
+  const canAdjust = user ? canAdjustInventory(user.rol.nombre_rol) : false
   const canSeeMovements = user ? canViewInventoryMovements(user.rol.nombre_rol) : false
+  const adjustmentMutation = useMutation({
+    mutationFn: async (input: InventoryAdjustmentInput) =>
+      (await adjustInventory(input)).data,
+    onSuccess: async (result) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.inventory.lists() }),
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.inventory.movementList(result.inventario.inventario_id),
+        }),
+      ])
+      setAdjustmentResult(result)
+      setAdjustmentSeed(null)
+    },
+  })
 
   const setUrlParams = useCallback(
     (
@@ -358,6 +418,19 @@ export function InventoryPage() {
     setUrlParams(changes, { resetPage: true })
   }
 
+  const openAdjustment = (seed: AdjustmentSeed = {}) => {
+    setAdjustmentResult(null)
+    adjustmentMutation.reset()
+    setAdjustmentSeed(seed)
+  }
+
+  const closeAdjustment = () => {
+    setAdjustmentSeed(null)
+    if (!adjustmentMutation.isPending) {
+      adjustmentMutation.reset()
+    }
+  }
+
   return (
     <section className="inventory-page" aria-labelledby="inventory-title">
       <header className="inventory-page-heading">
@@ -366,12 +439,44 @@ export function InventoryPage() {
           <h1 id="inventory-title">Inventario</h1>
           <p>Consulta existencias por tienda, estado y disponibilidad.</p>
         </div>
-        <span className="inventory-total">
-          {inventoryQuery.data
-            ? `${inventoryQuery.data.total} registros`
-            : 'Control de existencias'}
-        </span>
+        <div className="inventory-heading-actions">
+          <span className="inventory-total">
+            {inventoryQuery.data
+              ? `${inventoryQuery.data.total} registros`
+              : 'Control de existencias'}
+          </span>
+          {canAdjust && (
+            <button
+              className="primary-button"
+              type="button"
+              onClick={() => openAdjustment()}
+            >
+              Ajustar stock
+            </button>
+          )}
+        </div>
       </header>
+
+      {adjustmentResult && (
+        <div className="inventory-success" role="status" aria-live="polite">
+          <div>
+            <strong>Ajuste registrado correctamente.</strong>
+            <p>
+              {adjustmentResult.ajuste.tipo} de {adjustmentResult.ajuste.cantidad}{' '}
+              unidad(es) de {adjustmentResult.ajuste.producto.nombre} en{' '}
+              {adjustmentResult.ajuste.tienda.nombre}. Stock resultante:{' '}
+              {adjustmentResult.inventario.stock_actual}.
+            </p>
+          </div>
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={() => setAdjustmentResult(null)}
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
 
       <section className="inventory-filters" aria-label="Filtros de inventario">
         <label className="inventory-filter inventory-search">
@@ -482,7 +587,15 @@ export function InventoryPage() {
             <InventoryTable
               items={inventoryQuery.data.data}
               canSeeMovements={canSeeMovements}
+              canAdjust={canAdjust}
               onShowMovements={setSelectedItem}
+              onAdjust={(item) =>
+                openAdjustment({
+                  product: item.producto,
+                  storeId: item.tienda_id,
+                  storeName: item.tienda.nombre,
+                })
+              }
             />
           )}
 
@@ -521,6 +634,18 @@ export function InventoryPage() {
             />
           )}
         </>
+      )}
+
+      {canAdjust && adjustmentSeed && (
+        <InventoryAdjustmentDialog
+          isAdmin={canSelectStore}
+          warehouseStoreId={user?.tienda_id ?? 0}
+          seed={adjustmentSeed}
+          pending={adjustmentMutation.isPending}
+          error={adjustmentMutation.error}
+          onSubmit={(input) => adjustmentMutation.mutate(input)}
+          onClose={closeAdjustment}
+        />
       )}
     </section>
   )

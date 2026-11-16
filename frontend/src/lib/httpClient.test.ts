@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ApiError, createHttpClient } from '@/lib/httpClient'
+import { API_FORBIDDEN_EVENT, ApiError, createHttpClient } from '@/lib/httpClient'
 
 const requestId = 'a41b1ed3-2b64-46c8-a0fb-4cf652e8b307'
 
@@ -132,6 +132,34 @@ describe('httpClient', () => {
     await expect(createClient().request('/auth/me')).rejects.toBeInstanceOf(ApiError)
 
     expect(sessionStorage.getItem('inventory.accessToken')).toBeNull()
+  })
+
+  it('permite presentar un 403 de negocio sin emitir la redirección global', async () => {
+    const forbiddenHandler = vi.fn()
+    window.addEventListener(API_FORBIDDEN_EVENT, forbiddenHandler)
+    vi.stubGlobal('fetch', async () =>
+      jsonResponse(
+        {
+          error: {
+            code: 'FORBIDDEN',
+            message: 'No puedes ajustar esta tienda.',
+            details: [],
+          },
+        },
+        403,
+      ),
+    )
+
+    await expect(
+      createClient().request('/inventory/adjustments', {
+        method: 'POST',
+        body: { productId: 1 },
+        redirectOnForbidden: false,
+      }),
+    ).rejects.toMatchObject({ status: 403, code: 'FORBIDDEN' })
+
+    expect(forbiddenHandler).not.toHaveBeenCalled()
+    window.removeEventListener(API_FORBIDDEN_EVENT, forbiddenHandler)
   })
 
   it('rechaza respuestas exitosas que no son JSON válido', async () => {

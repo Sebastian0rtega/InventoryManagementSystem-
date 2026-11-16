@@ -35,6 +35,9 @@ describe('flujo de autenticación principal', () => {
       if (path.endsWith('/inventory')) {
         return jsonResponse({ data: [], page: 1, limit: 20, total: 0, totalPages: 0 })
       }
+      if (path.endsWith('/products')) {
+        return jsonResponse({ items: [], page: 1, limit: 100, total: 0 })
+      }
       return jsonResponse({}, 404)
     })
     vi.stubGlobal('fetch', fetchMock)
@@ -55,6 +58,9 @@ describe('flujo de autenticación principal', () => {
 
     expect(
       await screen.findByRole('heading', { name: 'Inventario' }),
+    ).toBeInTheDocument()
+    expect(
+      await screen.findByText('No hay resultados para estos filtros.'),
     ).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledTimes(3)
     expect(sessionStorage.getItem('inventory.accessToken')).toBe('test-token')

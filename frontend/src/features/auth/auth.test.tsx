@@ -78,6 +78,10 @@ function mockApi({
         : standardError(inventoryStatus)
     }
 
+    if (path.endsWith('/products')) {
+      return jsonResponse({ items: [], page: 1, limit: 100, total: 0 })
+    }
+
     if (path.endsWith('/movements')) {
       return standardError(401)
     }
@@ -143,7 +147,7 @@ describe('auth y control de acceso', () => {
     await submitLogin()
 
     expect(
-      await screen.findByRole('heading', { name: 'Ajustes de inventario' }),
+      await screen.findByRole('heading', { name: 'Ajustar stock' }),
     ).toBeInTheDocument()
     expect(window.location.pathname).toBe('/inventory/adjustments')
     expect(window.location.search).toBe('?source=deep-link')

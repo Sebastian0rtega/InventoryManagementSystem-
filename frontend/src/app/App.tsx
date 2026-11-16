@@ -26,13 +26,7 @@ export function App() {
             path="/inventory/adjustments"
             element={
               <RoleRoute allowedRoles={['ADMIN', 'WAREHOUSE']}>
-                <section aria-labelledby="adjustments-title">
-                  <h1 id="adjustments-title">Ajustes de inventario</h1>
-                  <p>
-                    Tu rol está autorizado. El formulario de ajuste se incorporará en la
-                    siguiente etapa.
-                  </p>
-                </section>
+                <InventoryPage adjustmentOpenOnMount />
               </RoleRoute>
             }
           />

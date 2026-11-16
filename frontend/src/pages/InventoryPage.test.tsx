@@ -1,5 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { InventoryPage } from '@/pages/InventoryPage'
@@ -44,6 +51,80 @@ function listResponse(
   totalPages = 1,
 ): InventoryListResponse {
   return { data: rows, page, limit: 20, total: rows.length, totalPages }
+}
+
+function adjustmentResponse(tipo: 'ENTRADA' | 'SALIDA', cantidad: number) {
+  return {
+    ajuste: {
+      movimiento_id: 501,
+      tipo,
+      cantidad,
+      motivo: 'Conteo físico',
+      usuario: { usuario_id: 1, nombre: 'Inventory User' },
+      tienda: { tienda_id: 2, nombre: 'Casa Matriz' },
+      producto: { producto_id: 21, nombre: 'Café', sku: 'SKU-21' },
+      fecha: '2026-01-01T10:00:00.000Z',
+    },
+    inventario: {
+      inventario_id: 11,
+      stock_actual: tipo === 'ENTRADA' ? 23 : 17,
+      stock_minimo: 3,
+      status: 'NORMAL',
+    },
+  }
+}
+
+function mockAdjustmentApi(
+  postRequest: (body: Record<string, unknown>) => Promise<Response>,
+) {
+  const adjustmentRequests: Record<string, unknown>[] = []
+  let inventoryRequestCount = 0
+  let movementRequestCount = 0
+  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = new URL(String(input))
+    if (url.pathname.endsWith('/products')) {
+      return jsonResponse({
+        items: [
+          { producto_id: 21, nombre: 'Café', sku: 'SKU-21', activo: true },
+          {
+            producto_id: 22,
+            nombre: 'Producto inactivo',
+            sku: 'SKU-22',
+            activo: false,
+          },
+        ],
+        page: 1,
+        limit: 100,
+        total: 2,
+      })
+    }
+
+    if (url.pathname.endsWith('/adjustments')) {
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>
+      adjustmentRequests.push(body)
+      return postRequest(body)
+    }
+
+    if (url.pathname.endsWith('/inventory')) {
+      inventoryRequestCount += 1
+      return jsonResponse(listResponse([item('Café')]))
+    }
+
+    if (url.pathname.endsWith('/movements')) {
+      movementRequestCount += 1
+      return jsonResponse({ data: [], page: 1, limit: 20, total: 0, totalPages: 0 })
+    }
+
+    return jsonResponse({ data: [], page: 1, limit: 20, total: 0, totalPages: 0 })
+  })
+
+  vi.stubGlobal('fetch', fetchMock)
+  return {
+    adjustmentRequests,
+    fetchMock,
+    getInventoryRequestCount: () => inventoryRequestCount,
+    getMovementRequestCount: () => movementRequestCount,
+  }
 }
 
 function currentUser(role: UserRole): CurrentUserResponse {
@@ -98,6 +179,42 @@ function renderInventoryPage({
       </MemoryRouter>
     </QueryClientProvider>,
   )
+}
+
+async function prepareAdjustmentForm({
+  role,
+  tipo,
+  cantidad = '3',
+}: {
+  role: UserRole
+  tipo: 'ENTRADA' | 'SALIDA'
+  cantidad?: string
+}) {
+  fireEvent.click(screen.getByRole('button', { name: 'Ajustar stock' }))
+  const dialog = await screen.findByRole('dialog')
+  await screen.findByRole('option', { name: 'Café · SKU-21' })
+  expect(
+    screen.queryByRole('option', { name: 'Producto inactivo · SKU-22' }),
+  ).not.toBeInTheDocument()
+  fireEvent.change(screen.getByLabelText('Producto activo'), {
+    target: { value: '21' },
+  })
+
+  if (role === 'ADMIN') {
+    fireEvent.change(within(dialog).getByLabelText('ID de tienda'), {
+      target: { value: '2' },
+    })
+  }
+
+  fireEvent.change(screen.getByLabelText('Tipo de movimiento'), {
+    target: { value: tipo },
+  })
+  fireEvent.change(screen.getByLabelText('Cantidad'), {
+    target: { value: cantidad },
+  })
+  fireEvent.change(within(dialog).getByLabelText('Motivo'), {
+    target: { value: 'Conteo físico' },
+  })
 }
 
 afterEach(() => {
@@ -200,6 +317,7 @@ describe('InventoryPage', () => {
     expect(
       screen.queryByRole('button', { name: 'Ver movimientos' }),
     ).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Ajustar' })).not.toBeInTheDocument()
     expect(
       screen.getByRole('cell', { name: 'NORMAL · Stock normal' }),
     ).toBeInTheDocument()
@@ -276,6 +394,226 @@ describe('InventoryPage', () => {
       expect.any(URL),
       expect.objectContaining({ signal: expect.any(AbortSignal) }),
     )
+  })
+
+  it('records an ENTRADA and shows the resulting stock details', async () => {
+    const api = mockAdjustmentApi(async () =>
+      jsonResponse(adjustmentResponse('ENTRADA', 3), 201),
+    )
+    renderInventoryPage({ role: 'ADMIN' })
+    await screen.findByText('Café')
+    fireEvent.click(screen.getByRole('button', { name: 'Ver movimientos' }))
+    expect(
+      await screen.findByText('Este registro todavía no tiene movimientos.'),
+    ).toBeInTheDocument()
+    await prepareAdjustmentForm({ role: 'ADMIN', tipo: 'ENTRADA' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Registrar entrada' }))
+
+    expect(
+      await screen.findByText('Ajuste registrado correctamente.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/ENTRADA de 3 unidad\(es\) de Café en Casa Matriz/),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/Stock resultante: 23/)).toBeInTheDocument()
+    expect(api.adjustmentRequests).toEqual([
+      {
+        productId: 21,
+        storeId: 2,
+        tipo: 'ENTRADA',
+        cantidad: 3,
+        motivo: 'Conteo físico',
+      },
+    ])
+    await waitFor(() => expect(api.getInventoryRequestCount()).toBeGreaterThan(1))
+    await waitFor(() => expect(api.getMovementRequestCount()).toBeGreaterThan(1))
+  })
+
+  it('requires explicit confirmation for SALIDA and omits storeId for WAREHOUSE', async () => {
+    const api = mockAdjustmentApi(async () =>
+      jsonResponse(adjustmentResponse('SALIDA', 3), 201),
+    )
+    renderInventoryPage({ role: 'WAREHOUSE' })
+    await screen.findByText('Café')
+    await prepareAdjustmentForm({ role: 'WAREHOUSE', tipo: 'SALIDA' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Continuar' }))
+
+    const confirmationDialog = screen.getByRole('dialog')
+    expect(
+      await screen.findByRole('button', { name: 'Confirmar salida' }),
+    ).toBeInTheDocument()
+    expect(confirmationDialog).toHaveTextContent(
+      'Confirma la salida de 3 unidad(es) de Café',
+    )
+    expect(api.adjustmentRequests).toHaveLength(0)
+    fireEvent.click(screen.getByRole('button', { name: 'Confirmar salida' }))
+
+    expect(
+      await screen.findByText('Ajuste registrado correctamente.'),
+    ).toBeInTheDocument()
+    expect(api.adjustmentRequests).toEqual([
+      {
+        productId: 21,
+        tipo: 'SALIDA',
+        cantidad: 3,
+        motivo: 'Conteo físico',
+      },
+    ])
+  })
+
+  it('translates insufficient stock and forbidden adjustment responses', async () => {
+    const insufficientApi = mockAdjustmentApi(async () =>
+      jsonResponse(
+        {
+          error: {
+            code: 'STOCK_INSUFFICIENT',
+            message: 'Stock insuficiente.',
+            details: [],
+          },
+        },
+        409,
+      ),
+    )
+    renderInventoryPage({ role: 'WAREHOUSE' })
+    await screen.findByText('Café')
+    await prepareAdjustmentForm({ role: 'WAREHOUSE', tipo: 'SALIDA' })
+    fireEvent.click(screen.getByRole('button', { name: 'Continuar' }))
+    fireEvent.click(await screen.findByRole('button', { name: 'Confirmar salida' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'No hay stock suficiente para realizar esta salida.',
+    )
+    expect(insufficientApi.adjustmentRequests).toHaveLength(1)
+
+    cleanup()
+    const forbiddenApi = mockAdjustmentApi(async () =>
+      jsonResponse(
+        {
+          error: {
+            code: 'FORBIDDEN',
+            message: 'Acceso denegado.',
+            details: [],
+          },
+        },
+        403,
+      ),
+    )
+    renderInventoryPage({ role: 'ADMIN' })
+    await screen.findByText('Café')
+    await prepareAdjustmentForm({ role: 'ADMIN', tipo: 'ENTRADA' })
+    fireEvent.click(screen.getByRole('button', { name: 'Registrar entrada' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'No tienes permiso para ajustar stock en esa tienda.',
+    )
+    expect(forbiddenApi.adjustmentRequests).toHaveLength(1)
+  })
+
+  it.each([
+    [
+      400,
+      'VALIDATION_ERROR',
+      'Los datos del ajuste no cumplen las reglas del inventario.',
+      ['El motivo no cumple el formato.'],
+    ],
+    [404, 'NOT_FOUND', 'No se encontró el producto o la tienda seleccionada.', []],
+    [500, 'INTERNAL_SERVER_ERROR', 'No se pudo completar el ajuste.', []],
+  ])('translates adjustment API error %s', async (status, code, message, details) => {
+    const api = mockAdjustmentApi(async () =>
+      jsonResponse({ error: { code, message: 'Error de API.', details } }, status),
+    )
+    renderInventoryPage({ role: 'ADMIN' })
+    await screen.findByText('Café')
+    await prepareAdjustmentForm({ role: 'ADMIN', tipo: 'ENTRADA' })
+    fireEvent.click(screen.getByRole('button', { name: 'Registrar entrada' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(message)
+    if (details[0]) {
+      expect(screen.getByRole('alert')).toHaveTextContent(details[0])
+    }
+    expect(api.adjustmentRequests).toHaveLength(1)
+  })
+
+  it('validates integer quantity and trimmed reason before posting', async () => {
+    const api = mockAdjustmentApi(async () =>
+      jsonResponse(adjustmentResponse('ENTRADA', 3), 201),
+    )
+    renderInventoryPage({ role: 'ADMIN' })
+    await screen.findByText('Café')
+    await prepareAdjustmentForm({ role: 'ADMIN', tipo: 'ENTRADA' })
+    fireEvent.change(
+      within(screen.getByRole('dialog')).getByLabelText('ID de tienda'),
+      { target: { value: '0' } },
+    )
+    fireEvent.change(screen.getByLabelText('Cantidad'), {
+      target: { value: '1.5' },
+    })
+    fireEvent.change(screen.getByLabelText('Motivo'), {
+      target: { value: '  x  ' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Registrar entrada' }))
+
+    expect(screen.getByText('Ingresa un número entero positivo.')).toBeInTheDocument()
+    expect(
+      screen.getByText('Ingresa un ID de tienda entero positivo.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText('El motivo debe tener entre 3 y 255 caracteres.'),
+    ).toBeInTheDocument()
+    expect(api.adjustmentRequests).toHaveLength(0)
+  })
+
+  it('prevents a second adjustment while the first submission is pending', async () => {
+    let resolveAdjustment: ((response: Response) => void) | undefined
+    const api = mockAdjustmentApi(
+      () =>
+        new Promise<Response>((resolve) => {
+          resolveAdjustment = resolve
+        }),
+    )
+    renderInventoryPage({ role: 'ADMIN' })
+    await screen.findByText('Café')
+    await prepareAdjustmentForm({ role: 'ADMIN', tipo: 'ENTRADA' })
+    const submitButton = screen.getByRole('button', { name: 'Registrar entrada' })
+
+    fireEvent.click(submitButton)
+    fireEvent.click(submitButton)
+
+    await waitFor(() => expect(api.adjustmentRequests).toHaveLength(1))
+    expect(screen.getByLabelText('Cantidad')).toBeDisabled()
+    expect(screen.getByLabelText('Motivo')).toBeDisabled()
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' })
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    resolveAdjustment?.(jsonResponse(adjustmentResponse('ENTRADA', 3), 201))
+    expect(
+      await screen.findByText('Ajuste registrado correctamente.'),
+    ).toBeInTheDocument()
+  })
+
+  it('focuses the modal initially and closes it with Escape', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = new URL(String(input))
+        return url.pathname.endsWith('/products')
+          ? jsonResponse({ items: [], page: 1, limit: 100, total: 0 })
+          : jsonResponse(listResponse([item('Café')]))
+      }),
+    )
+    renderInventoryPage({ role: 'ADMIN' })
+    await screen.findByText('Café')
+    const openButton = screen.getByRole('button', { name: 'Ajustar stock' })
+    openButton.focus()
+    fireEvent.click(openButton)
+
+    const dialog = await screen.findByRole('dialog')
+    expect(document.activeElement).toBe(screen.getByLabelText('Buscar producto activo'))
+    fireEvent.keyDown(dialog, { key: 'Escape' })
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(document.activeElement).toBe(openButton)
   })
 
   it('keeps current results when an older filter request resolves later', async () => {
